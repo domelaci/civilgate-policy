@@ -552,21 +552,28 @@ footer {
 
 .movers-grid {
   display: flex;
-  gap: 1rem;
-  padding: .875rem 2rem;
+  gap: .75rem;
+  padding: .6rem 2rem;
   flex-wrap: wrap;
 }
 
 .mover-card {
   flex: 1;
-  min-width: 160px;
+  min-width: 140px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: .75rem 1rem;
+  padding: .5rem .75rem;
   display: flex;
   flex-direction: column;
-  gap: .15rem;
+  gap: .1rem;
+}
+
+.mover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4rem;
 }
 
 .mover-tag {
@@ -576,26 +583,34 @@ footer {
   letter-spacing: .5px;
 }
 
+.mover-region {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: .5px;
+  opacity: .55;
+}
+
 .mover-metric {
   font-family: var(--mono);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
-  margin-bottom: .15rem;
+  margin-bottom: .1rem;
 }
 
 .mover-delta {
   font-family: var(--mono);
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1;
 }
 
 .mover-context {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--sub);
-  margin-top: .15rem;
+  margin-top: .1rem;
 }
 
 .mover-empty {
@@ -603,6 +618,13 @@ footer {
   color: var(--sub);
   padding: .5rem 0;
 }
+
+.mover-card.clickable {
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.mover-card.clickable:hover { border-color: var(--border2); }
+.mover-card.clickable.active { border-color: var(--accent); }
 
 /* ── Contact Rep Modal ── */
 .modal-overlay {
@@ -880,11 +902,6 @@ footer {
     <button class="pill" data-status="proposed">&#9680; Proposed</button>
   </div>
   <div class="filter-sep"></div>
-  <div class="filter-pills" id="level-pills">
-    <button class="pill active" data-level="ALL">All levels</button>
-    <button class="pill" data-level="eu">EU law</button>
-    <button class="pill" data-level="national">National law</button>
-  </div>
   <div id="tag-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1218,9 +1235,11 @@ function renderTrend(policies) {
 
   // Update header label
   const titleEl = document.getElementById('trend-title');
-  if (titleEl) {
-    const n = months.length;
-    titleEl.textContent = `avg impact score — ${n} month${n !== 1 ? 's' : ''}`;
+  if (titleEl && months.length) {
+    const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
+    titleEl.textContent = months.length > 1
+      ? `avg impact score — ${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
+      : `avg impact score — ${fmtM(months[0])}`;
   }
 
   const series = SCORES.map(({ key, label, color }) => ({
@@ -1228,7 +1247,7 @@ function renderTrend(policies) {
     values: months.map(month => {
       const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
       const valid = items.filter(p => p[key] !== null && p[key] !== undefined);
-      return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : null };
+      return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
     }),
   }));
 
@@ -1274,30 +1293,23 @@ function renderTrend(policies) {
 
   // Area + line per score metric
   const lineGen = d3.line()
-    .defined(d => d.v !== null)
     .x(d => xScale(d.month))
     .y(d => yScale(d.v))
     .curve(d3.curveMonotoneX);
 
   const areaGen = d3.area()
-    .defined(d => d.v !== null)
     .x(d => xScale(d.month))
     .y0(y0)
     .y1(d => yScale(d.v))
     .curve(d3.curveMonotoneX);
 
   series.forEach(({ color, values }) => {
-    // Diverging area fill
     g.append('path').datum(values)
       .attr('fill', color).attr('opacity', .07).attr('d', areaGen);
-
-    // Line
     g.append('path').datum(values)
       .attr('fill', 'none').attr('stroke', color)
       .attr('stroke-width', 1.5).attr('opacity', .9).attr('d', lineGen);
-
-    // Dots
-    g.selectAll(null).data(values.filter(v => v.v !== null)).join('circle')
+    g.selectAll(null).data(values).join('circle')
       .attr('cx', d => xScale(d.month))
       .attr('cy', d => yScale(d.v))
       .attr('r', 2.5).attr('fill', color).attr('opacity', .9);
@@ -1334,13 +1346,17 @@ function renderMovers(policies) {
     const pItems = prev.filter(p => (p.tags || []).some(t => t.toLowerCase() === tag));
     if (rItems.length < 2 || pItems.length < 2) return;
 
+    const regionCounts = {};
+    rItems.forEach(p => { regionCounts[p.country] = (regionCounts[p.country] || 0) + 1; });
+    const dominantRegion = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+
     SCORES.forEach(({ key, label, color }) => {
       const rAvg = avg(rItems, key);
       const pAvg = avg(pItems, key);
       if (rAvg === null || pAvg === null) return;
       const delta = rAvg - pAvg;
       if (Math.abs(delta) < 0.4) return;
-      movers.push({ tag, label, color, delta, rAvg });
+      movers.push({ tag, label, color, delta, rAvg, region: dominantRegion });
     });
   });
 
@@ -1357,8 +1373,11 @@ function renderMovers(policies) {
     const arrow   = up ? '▲' : '▼';
     const dColor  = up ? '#1D9E75' : '#f87171';
     const deltaStr = (up ? '+' : '') + m.delta.toFixed(1);
-    return `<div class="mover-card">
-      <div class="mover-tag">#${m.tag}</div>
+    return `<div class="mover-card clickable" data-tag="${m.tag}">
+      <div class="mover-header">
+        <div class="mover-tag">#${m.tag}</div>
+        ${m.region ? `<div class="mover-region">${m.region}</div>` : ''}
+      </div>
       <div class="mover-metric" style="color:${m.color}">${m.label}</div>
       <div class="mover-delta" style="color:${dColor}">${arrow} ${deltaStr} pts</div>
       <div class="mover-context">vs prev 30 days · now avg ${m.rAvg > 0 ? '+' : ''}${m.rAvg.toFixed(1)}</div>
@@ -1384,7 +1403,6 @@ function initTrend(policies) {
 let allPolicies  = [];
 let activeFilter = 'ALL';
 let activeStatus = 'ALL';
-let activeLevel  = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
 
@@ -1460,7 +1478,6 @@ function renderGrid() {
   let list = allPolicies;
   if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
   if (activeStatus !== 'ALL') list = list.filter(p => p.status === activeStatus);
-  if (activeLevel  !== 'ALL') list = list.filter(p => p.level  === activeLevel);
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -1472,6 +1489,9 @@ function renderGrid() {
   }
 
   count.textContent = list.length ? list.length + ' policies' : '';
+  document.querySelectorAll('#movers-grid .mover-card[data-tag]').forEach(c =>
+    c.classList.toggle('active', c.dataset.tag === activeTag)
+  );
 
   if (!list.length) {
     grid.innerHTML = `<div class="state-msg">${allPolicies.length ? 'no results' : 'no policies loaded'}</div>`;
@@ -1734,15 +1754,6 @@ async function init() {
     renderGrid();
   });
 
-  document.getElementById('level-pills').addEventListener('click', e => {
-    const btn = e.target.closest('[data-level]');
-    if (!btn) return;
-    activeLevel = btn.dataset.level;
-    document.querySelectorAll('#level-pills .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    renderGrid();
-  });
-
   document.getElementById('search').addEventListener('input', e => {
     searchQuery = e.target.value.trim();
     renderGrid();
@@ -1752,6 +1763,12 @@ async function init() {
     const tag = e.target.closest('.tag');
     if (!tag) return;
     setTag(tag.dataset.tag);
+  });
+
+  document.getElementById('movers-grid').addEventListener('click', e => {
+    const card = e.target.closest('.mover-card[data-tag]');
+    if (!card) return;
+    setTag(card.dataset.tag);
   });
 
   try {
