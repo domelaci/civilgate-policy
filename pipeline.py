@@ -508,7 +508,11 @@ def export_json(conn: sqlite3.Connection) -> None:
         d["tags"] = json.loads(d["tags"] or "[]")
         out.append(d)
 
-    OUT_FILE.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    export = {
+        "last_updated": datetime.utcnow().isoformat() + "Z",
+        "policies": out,
+    }
+    OUT_FILE.write_text(json.dumps(export, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("Exported %d policies to policies.json", len(out))
 
 

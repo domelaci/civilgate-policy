@@ -18,22 +18,28 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <style>
 :root {
-  --bg:       #060a14;
-  --surface:  #0c1422;
-  --surface2: #121e32;
-  --border:   #1c2d45;
-  --text:     #dde8f5;
-  --muted:    #4d6b8a;
-  --eu:       #1D9E75;
-  --us:       #EF9F27;
-  --social:   #3b82f6;
-  --env:      #22c55e;
-  --eco:      #f59e0b;
+  --bg:      #0a0e18;
+  --surface: #111827;
+  --border:  #1f2937;
+  --border2: #374151;
+  --text:    #e5e7eb;
+  --sub:     #9ca3af;
+  --muted:   #4b5563;
+  --social:  #1D9E75;
+  --env:     #5DCAA5;
+  --eco:     #EF9F27;
+  --accent:  #7F77DD;
+  --eu:      #1D9E75;
+  --us:      #EF9F27;
+  --gb:      #378ADD;
+  --ca:      #e05252;
+  --au:      #7F77DD;
+  --mono:    'JetBrains Mono', 'Fira Code', monospace;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,8 +47,8 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
 }
@@ -52,77 +58,106 @@ a { color: inherit; text-decoration: none; }
 /* ── Header ── */
 header {
   border-bottom: 1px solid var(--border);
-  padding: 1.25rem 2rem;
+  padding: 0 2rem;
+  height: 52px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  background: linear-gradient(120deg, #60a5fa, #34d399);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.header-tag {
-  font-size: .75rem;
+.header-sub {
+  font-family: var(--mono);
+  font-size: 11px;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  font-weight: 500;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .header-right {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
+  flex-shrink: 0;
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--social);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.header-clock {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  min-width: 5ch;
 }
 
 .volunteer-link {
-  font-size: .82rem;
+  font-family: var(--mono);
+  font-size: 11px;
   color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .35rem .75rem;
-  transition: color .2s, border-color .2s;
-  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: color .15s;
 }
-.volunteer-link:hover { color: var(--text); border-color: #2a4060; }
+.volunteer-link:hover { color: var(--text); }
 
-/* ── World Map ── */
+/* ── Map section ── */
 .map-section {
-  padding: 2rem 2rem 1.5rem;
   border-bottom: 1px solid var(--border);
 }
 
-.map-label {
-  font-size: .72rem;
+.map-header {
+  padding: .6rem 2rem;
+  font-family: var(--mono);
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: .1em;
+  letter-spacing: 2px;
   color: var(--muted);
-  margin-bottom: .75rem;
-  font-weight: 500;
+  border-bottom: 1px solid var(--border);
 }
 
 #world-map {
   width: 100%;
-  height: 420px;
+  height: 380px;
   display: block;
-  border-radius: 8px;
-  overflow: hidden;
   background: var(--surface);
 }
 
 .map-legend {
   display: flex;
   gap: 1.5rem;
-  margin-top: .75rem;
+  padding: .6rem 2rem;
+  border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
 
@@ -130,23 +165,25 @@ header {
   display: flex;
   align-items: center;
   gap: .4rem;
-  font-size: .75rem;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--muted);
+  letter-spacing: .5px;
 }
 
 .legend-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 /* ── Controls ── */
 .controls {
-  padding: 1.25rem 2rem;
+  padding: .75rem 2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: .75rem;
   flex-wrap: wrap;
   border-bottom: 1px solid var(--border);
 }
@@ -154,33 +191,37 @@ header {
 .filter-pills {
   display: flex;
   gap: .4rem;
+  flex-wrap: wrap;
 }
 
 .pill {
-  padding: .3rem .85rem;
-  border-radius: 99px;
+  padding: .25rem .75rem;
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: transparent;
   color: var(--muted);
-  font-size: .8rem;
+  font-family: var(--mono);
+  font-size: 10px;
   font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   cursor: pointer;
+  border-radius: 3px;
   transition: all .15s;
   user-select: none;
 }
-.pill:hover { border-color: #2a4060; color: var(--text); }
-.pill.active { border-color: #3b82f6; background: rgba(59,130,246,.1); color: #93c5fd; }
+.pill:hover { border-color: var(--border2); color: var(--text); }
+.pill.active { border-color: var(--accent); color: var(--accent); }
 
 .search-wrap {
   position: relative;
   flex: 1;
-  min-width: 200px;
-  max-width: 360px;
+  min-width: 180px;
+  max-width: 320px;
 }
 
 .search-wrap svg {
   position: absolute;
-  left: .75rem;
+  left: .6rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
@@ -189,30 +230,50 @@ header {
 
 #search {
   width: 100%;
-  background: var(--surface);
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: .5rem .75rem .5rem 2.25rem;
+  border-radius: 3px;
+  padding: .3rem .6rem .3rem 2rem;
   color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: .85rem;
+  font-family: var(--mono);
+  font-size: 11px;
   outline: none;
-  transition: border-color .2s;
+  transition: border-color .15s;
 }
 #search::placeholder { color: var(--muted); }
-#search:focus { border-color: #2a4060; }
+#search:focus { border-color: var(--border2); }
 
 .results-count {
-  font-size: .78rem;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--muted);
+  letter-spacing: .5px;
   margin-left: auto;
 }
 
+.tag-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .75rem;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+.tag-clear:hover { opacity: .7; }
+
 /* ── Policy Grid ── */
 main {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
 }
 
 .policy-grid {
@@ -225,235 +286,222 @@ main {
 .policy-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.4rem;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: .75rem;
-  transition: border-color .2s, box-shadow .2s;
-  cursor: default;
+  gap: .6rem;
 }
-.policy-card:hover {
-  border-color: #2a4060;
-  box-shadow: 0 4px 24px rgba(0,0,0,.3);
-}
+.policy-card:hover { border-color: var(--border2); }
 
-.card-meta {
+.card-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: .5rem;
-  flex-wrap: wrap;
 }
 
 .source-badge {
-  font-size: .68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  padding: .2rem .6rem;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  padding: 2px 8px;
   border-radius: 4px;
   flex-shrink: 0;
 }
-.source-badge.us  { background: rgba(239,159,39,.12); color: #EF9F27; }
-.source-badge.eu  { background: rgba(29,158,117,.12); color: #1D9E75; }
-.source-badge.gb  { background: rgba(55,138,221,.12); color: #378ADD; }
-.source-badge.ca  { background: rgba(224,82,82,.12);  color: #e05252; }
-.source-badge.au  { background: rgba(127,119,221,.12);color: #7F77DD; }
+/* EU sources */
+.source-badge.eu  { background: #9FE1CB; color: #085041; }
+/* US sources */
+.source-badge.us  { background: #FAC775; color: #633806; }
+/* UK */
+.source-badge.gb  { background: rgba(55,138,221,.15); color: #378ADD; border: 1px solid rgba(55,138,221,.3); }
+/* Canada */
+.source-badge.ca  { background: rgba(224,82,82,.15); color: #e05252; border: 1px solid rgba(224,82,82,.3); }
+/* Australia */
+.source-badge.au  { background: rgba(127,119,221,.15); color: #7F77DD; border: 1px solid rgba(127,119,221,.3); }
 
 .card-date {
-  font-size: .75rem;
+  font-family: var(--mono);
+  font-size: 11px;
   color: var(--muted);
-}
-
-.card-type {
-  font-size: .68rem;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: .15rem .5rem;
+  white-space: nowrap;
 }
 
 .card-title {
-  font-size: .95rem;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text);
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-
-.card-title a:hover { color: #93c5fd; }
 
 .card-summary {
-  font-size: .83rem;
-  color: #8ca8c5;
-  line-height: 1.65;
+  font-size: 13px;
+  color: var(--sub);
+  line-height: 1.6;
 }
 
-/* ── Scores ── */
-.scores {
-  display: flex;
-  gap: .5rem;
-  flex-wrap: wrap;
+/* ── Score Row ── */
+.score-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--border);
+  padding-top: .75rem;
+  margin-top: .15rem;
 }
 
-.score-chip {
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  font-size: .75rem;
-  font-weight: 500;
-  padding: .25rem .65rem;
-  border-radius: 6px;
-  cursor: help;
+.score-col {
+  padding: 0 .75rem;
+  border-right: 1px solid var(--border);
   position: relative;
 }
+.score-col:first-child { padding-left: 0; }
+.score-col:last-child  { border-right: none; }
 
-.score-chip .score-num {
-  font-size: .85rem;
-  font-weight: 600;
+.score-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 2px;
 }
 
-.score-chip.social { background: rgba(59,130,246,.08); color: #93c5fd; }
-.score-chip.env    { background: rgba(34,197,94,.08);  color: #86efac; }
-.score-chip.eco    { background: rgba(245,158,11,.08); color: #fcd34d; }
-
-/* Score number colour by direction */
-.score-chip .score-num { color: inherit; }
-.score-chip.negative .score-num { color: #f87171; }
-.score-chip.neutral  .score-num { color: var(--muted); }
-.score-chip.negative { opacity: .9; }
-.score-chip.neutral  { opacity: .6; }
-
-/* Tooltip on hover */
-.score-chip::after {
-  content: attr(data-reason);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
-  background: #1a2840;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: .5rem .75rem;
-  font-size: .75rem;
-  font-weight: 400;
-  color: var(--text);
-  white-space: normal;
-  width: 220px;
-  line-height: 1.5;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity .15s, transform .15s;
-  z-index: 10;
+.score-num {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  display: block;
+  margin-bottom: 4px;
 }
-.score-chip:hover::after { opacity: 1; transform: translateY(0); }
+
+.score-col.social .score-num { color: var(--social); }
+.score-col.env    .score-num { color: var(--env); }
+.score-col.eco    .score-num { color: var(--eco); }
+
+.score-col.negative .score-num { color: #f87171; }
+.score-col.neutral  .score-num { color: var(--muted); opacity: .7; }
+
+.score-reason {
+  font-size: 11px;
+  color: var(--sub);
+  line-height: 1.4;
+  display: block;
+}
 
 /* ── Tags ── */
 .tags {
   display: flex;
-  gap: .35rem;
+  gap: .3rem;
   flex-wrap: wrap;
 }
 
 .tag {
-  font-size: .68rem;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: .15rem .5rem;
-  font-weight: 400;
+  border-radius: 3px;
+  padding: 1px 6px;
   cursor: pointer;
-  transition: color .15s, border-color .15s;
+  transition: color .12s, border-color .12s;
   user-select: none;
+  letter-spacing: .3px;
 }
-.tag:hover { color: var(--text); border-color: #2a4060; }
-.tag.active { border-color: #3b82f6; background: rgba(59,130,246,.08); color: #93c5fd; }
-
-.tag-clear {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .3rem .85rem;
-  border-radius: 99px;
-  border: 1px solid #3b82f6;
-  background: rgba(59,130,246,.1);
-  color: #93c5fd;
-  font-size: .8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity .15s;
-  user-select: none;
-  white-space: nowrap;
-}
-.tag-clear:hover { opacity: .75; }
+.tag:hover  { color: var(--text); border-color: var(--border2); }
+.tag.active { border-color: var(--accent); color: var(--accent); }
 
 .card-link {
-  font-size: .75rem;
+  font-family: var(--mono);
+  font-size: 10px;
   color: var(--muted);
+  letter-spacing: .5px;
   display: inline-flex;
   align-items: center;
   gap: .3rem;
   margin-top: auto;
-  transition: color .15s;
+  transition: color .12s;
 }
-.card-link:hover { color: #60a5fa; }
+.card-link:hover { color: var(--text); }
 
-/* ── Empty / loading ── */
+/* ── Empty/loading ── */
 .state-msg {
   grid-column: 1 / -1;
   text-align: center;
   padding: 4rem 2rem;
   color: var(--muted);
-  font-size: .9rem;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .5px;
 }
 
 /* ── Footer ── */
 footer {
   border-top: 1px solid var(--border);
-  padding: 2rem;
-  text-align: center;
-  color: var(--muted);
-  font-size: .78rem;
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-footer a { color: var(--muted); }
-footer a:hover { color: var(--text); }
+.footer-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .3px;
+}
+
+.footer-text a { color: var(--muted); }
+.footer-text a:hover { color: var(--text); }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: 1fr; }
-  #world-map { height: 280px; }
+  #world-map { height: 250px; }
+  .header-clock { display: none; }
+  .header-sub { display: none; }
 }
 
 @media (max-width: 600px) {
-  header { padding: 1rem; }
-  .header-tag { display: none; }
-  .map-section, .controls, main { padding-left: 1rem; padding-right: 1rem; }
-  #world-map { height: 200px; }
+  header, .map-header, .map-legend, .controls, main, footer { padding-left: 1rem; padding-right: 1rem; }
+  #world-map { height: 180px; }
+  .score-reason { display: none; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <div class="logo">CivilGate</div>
-    <div class="header-tag">World Government Policy Tracker</div>
-  </div>
+  <div class="logo">CivilGate</div>
+  <div class="header-sub">live government data &mdash; eu &middot; us &middot; uk &middot; ca &middot; au</div>
   <div class="header-right">
-    <a href="https://volunteer.civilgate.org" class="volunteer-link">Volunteer matching →</a>
+    <div class="live-indicator">
+      <div class="live-dot"></div>
+      <span id="updated-label">loading&hellip;</span>
+    </div>
+    <div class="header-clock" id="clock"></div>
+    <a href="https://volunteer.civilgate.org" class="volunteer-link">volunteer &rarr;</a>
   </div>
 </header>
 
 <div class="map-section">
-  <div class="map-label">Data coverage</div>
+  <div class="map-header">select region</div>
   <svg id="world-map"></svg>
   <div class="map-legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU — live</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA — live</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>UK — live</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#e05252"></div>Canada — live</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#7F77DD"></div>Australia — live</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#2a3d55"></div>Coming soon</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--ca)"></div>Canada</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
   </div>
 </div>
 
@@ -468,27 +516,33 @@ footer a:hover { color: var(--text); }
   </div>
   <div id="tag-chip-wrap"></div>
   <div class="search-wrap">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input type="search" id="search" placeholder="Search policies…" autocomplete="off">
+    <input type="search" id="search" placeholder="search policies, tags&hellip;" autocomplete="off">
   </div>
   <div class="results-count" id="results-count"></div>
 </div>
 
 <main>
   <div class="policy-grid" id="policy-grid">
-    <div class="state-msg">Loading policies…</div>
+    <div class="state-msg">loading&hellip;</div>
   </div>
 </main>
 
 <footer>
-  <p>
-    © <span id="year"></span> CivilGate &mdash;
-    Data: <a href="https://www.federalregister.gov" target="_blank" rel="noopener">US Federal Register</a>,
-    <a href="https://ec.europa.eu/commission/presscorner" target="_blank" rel="noopener">EC Press Corner</a> &mdash;
-    <a href="https://volunteer.civilgate.org">Volunteer matching</a>
-  </p>
+  <div class="footer-text">
+    &copy; <span id="year"></span> CivilGate &mdash;
+    <a href="https://www.federalregister.gov" target="_blank" rel="noopener">Federal Register</a> &middot;
+    <a href="https://publications.europa.eu" target="_blank" rel="noopener">EUR-Lex</a> &middot;
+    <a href="https://ec.europa.eu/commission/presscorner" target="_blank" rel="noopener">EC Press</a> &middot;
+    <a href="https://www.gov.uk" target="_blank" rel="noopener">GOV.UK</a> &middot;
+    <a href="https://www.gazette.gc.ca" target="_blank" rel="noopener">Canada Gazette</a> &middot;
+    <a href="https://www.legislation.gov.au" target="_blank" rel="noopener">AU Legislation</a>
+  </div>
+  <div class="footer-text">
+    <a href="https://volunteer.civilgate.org">volunteer matching</a>
+  </div>
 </footer>
 
 <script>
@@ -505,15 +559,13 @@ async function renderMap(world) {
   const svg = d3.select('#world-map');
   const el  = document.getElementById('world-map');
 
-  // Wait one frame so the element has a rendered size before reading it
   await new Promise(r => requestAnimationFrame(r));
   const rect = el.getBoundingClientRect();
   const W = rect.width  || 960;
-  const H = rect.height || 420;
+  const H = rect.height || 380;
 
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  // fitSize auto-calculates scale + translate to fit the world into [W, H]
   const projection = d3.geoNaturalEarth1().fitSize([W, H], {type: 'Sphere'});
   const path = d3.geoPath().projection(projection);
 
@@ -521,15 +573,18 @@ async function renderMap(world) {
 
   const tooltip = d3.select('body').append('div')
     .style('position', 'fixed')
-    .style('background', '#1a2840')
-    .style('border', '1px solid #1c2d45')
-    .style('border-radius', '6px')
-    .style('padding', '.35rem .65rem')
-    .style('font-size', '.75rem')
-    .style('color', '#dde8f5')
+    .style('background', '#1f2937')
+    .style('border', '1px solid #374151')
+    .style('border-radius', '4px')
+    .style('padding', '.3rem .6rem')
+    .style('font-family', 'JetBrains Mono, monospace')
+    .style('font-size', '10px')
+    .style('letter-spacing', '1px')
+    .style('text-transform', 'uppercase')
+    .style('color', '#9ca3af')
     .style('pointer-events', 'none')
     .style('opacity', '0')
-    .style('transition', 'opacity .15s')
+    .style('transition', 'opacity .12s')
     .style('z-index', '100');
 
   svg.selectAll('path')
@@ -544,16 +599,16 @@ async function renderMap(world) {
       if (CA_CODES.has(id)) return '#e05252';
       if (AU_CODES.has(id)) return '#7F77DD';
       if (PLANNED.has(id))  return '#1e3050';
-      return '#111d30';
+      return '#1f2937';
     })
-    .attr('stroke', '#0c1422')
-    .attr('stroke-width', .4)
+    .attr('stroke', '#0a0e18')
+    .attr('stroke-width', .3)
     .on('mouseover', function(event, d) {
       const id = +d.id;
       const active = EU_CODES.has(id) || US_CODES.has(id) || GB_CODES.has(id) || CA_CODES.has(id) || AU_CODES.has(id);
       if (!active && PLANNED.has(id)) {
-        d3.select(this).attr('fill', '#2a4060');
-        tooltip.style('opacity', '1').text('Coming soon');
+        d3.select(this).attr('fill', '#2d3748');
+        tooltip.style('opacity', '1').text('coming soon');
       }
     })
     .on('mousemove', event => {
@@ -562,9 +617,7 @@ async function renderMap(world) {
     .on('mouseout', function(event, d) {
       const id = +d.id;
       const active = EU_CODES.has(id) || US_CODES.has(id) || GB_CODES.has(id) || CA_CODES.has(id) || AU_CODES.has(id);
-      if (PLANNED.has(id) && !active) {
-        d3.select(this).attr('fill', '#1e3050');
-      }
+      if (PLANNED.has(id) && !active) d3.select(this).attr('fill', '#1e3050');
       tooltip.style('opacity', '0');
     });
 }
@@ -572,8 +625,20 @@ async function renderMap(world) {
 document.addEventListener('DOMContentLoaded', () => {
   d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     .then(world => renderMap(world))
-    .catch(() => {}); // fail silently if CDN unavailable
+    .catch(() => {});
 });
+
+// ── Clock ──────────────────────────────────────────────────────────────────
+
+function tickClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.getUTCHours().toString().padStart(2,'0') + ':' +
+    now.getUTCMinutes().toString().padStart(2,'0') + ':' +
+    now.getUTCSeconds().toString().padStart(2,'0') + ' UTC';
+}
+setInterval(tickClock, 1000);
+tickClock();
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
 
@@ -582,20 +647,49 @@ let activeFilter = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
 
+function timeAgo(isoStr) {
+  if (!isoStr) return 'unknown';
+  const diff = Math.floor((Date.now() - new Date(isoStr)) / 60000);
+  if (diff < 1)   return 'just now';
+  if (diff < 60)  return diff + ' min ago';
+  const h = Math.floor(diff / 60);
+  if (h < 24)     return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
 function fmt(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function scoreChip(type, score, reason) {
-  const labels = { social: '👥 Social', env: '🌿 Env', eco: '💰 Economy' };
-  const esc = String(reason || '').replace(/"/g, '&quot;');
-  const dir = score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
-  const sign = score > 0 ? '+' : '';
-  return `<span class="score-chip ${type} ${dir}" data-score="${score}" data-reason="${esc}">
-    ${labels[type]} <span class="score-num">${sign}${score}</span>
-  </span>`;
+function scoreDir(score) {
+  return score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
+}
+
+function scoreDisplay(score) {
+  if (score === null || score === undefined) return '—';
+  return (score > 0 ? '+' : '') + score;
+}
+
+function badgeClass(country, source) {
+  if (country === 'EU') return 'eu';
+  if (country === 'US') return 'us';
+  if (country === 'GB') return 'gb';
+  if (country === 'CA') return 'ca';
+  if (country === 'AU') return 'au';
+  return 'us';
+}
+
+function badgeLabel(source) {
+  return {
+    federal_register: 'FED. REGISTER',
+    ec_press:         'EC PRESS',
+    eurlex:           'EUR-LEX',
+    uk_gov:           'GOV.UK',
+    canada_gazette:   'CA GAZETTE',
+    au_legislation:   'AU LEG.',
+  }[source] || source.toUpperCase();
 }
 
 function setTag(tag) {
@@ -611,7 +705,7 @@ function renderTagChip() {
 }
 
 function renderGrid() {
-  const grid = document.getElementById('policy-grid');
+  const grid  = document.getElementById('policy-grid');
   const count = document.getElementById('results-count');
   renderTagChip();
 
@@ -627,40 +721,44 @@ function renderGrid() {
     );
   }
 
-  count.textContent = list.length ? `${list.length} policies` : '';
+  count.textContent = list.length ? list.length + ' policies' : '';
 
   if (!list.length) {
-    grid.innerHTML = `<div class="state-msg">${allPolicies.length ? 'No results. Try a different filter or search term.' : 'No policies loaded yet. Run the pipeline to fetch data.'}</div>`;
+    grid.innerHTML = `<div class="state-msg">${allPolicies.length ? 'no results' : 'no policies loaded'}</div>`;
     return;
   }
 
-  grid.innerHTML = list.slice(0, 50).map(p => {
-    const country = (p.country || 'US').toUpperCase();
-    const tags = (p.tags || []).map(t => `<span class="tag${t.toLowerCase() === activeTag ? ' active' : ''}" data-tag="${t.toLowerCase()}">${t}</span>`).join('');
-    const sourceName = {
-      federal_register: 'Federal Register',
-      ec_press: 'EC Press Corner',
-      eurlex: 'EUR-Lex',
-      uk_gov: 'GOV.UK',
-      canada_gazette: 'Canada Gazette',
-      au_legislation: 'AU Legislation',
-    }[p.source] || p.source;
+  grid.innerHTML = list.slice(0, 60).map(p => {
+    const tags = (p.tags || []).map(t =>
+      `<span class="tag${t.toLowerCase() === activeTag ? ' active' : ''}" data-tag="${t.toLowerCase()}">${t}</span>`
+    ).join('');
 
     return `<div class="policy-card">
-      <div class="card-meta">
-        <span class="source-badge ${country.toLowerCase()}">${country}</span>
+      <div class="card-top">
+        <span class="source-badge ${badgeClass(p.country, p.source)}">${badgeLabel(p.source)}</span>
         <span class="card-date">${fmt(p.published_date)}</span>
-        <span class="card-type">${sourceName}</span>
       </div>
       <div class="card-title">${p.title || 'Untitled'}</div>
       <div class="card-summary">${p.summary || ''}</div>
-      <div class="scores">
-        ${scoreChip('social', p.social_score, p.social_reason)}
-        ${scoreChip('env',    p.environmental_score, p.environmental_reason)}
-        ${scoreChip('eco',    p.economic_score, p.economic_reason)}
+      <div class="score-row">
+        <div class="score-col social ${scoreDir(p.social_score)}">
+          <span class="score-label">Social</span>
+          <span class="score-num">${scoreDisplay(p.social_score)}</span>
+          <span class="score-reason">${p.social_reason || ''}</span>
+        </div>
+        <div class="score-col env ${scoreDir(p.environmental_score)}">
+          <span class="score-label">Env</span>
+          <span class="score-num">${scoreDisplay(p.environmental_score)}</span>
+          <span class="score-reason">${p.environmental_reason || ''}</span>
+        </div>
+        <div class="score-col eco ${scoreDir(p.economic_score)}">
+          <span class="score-label">Econ</span>
+          <span class="score-num">${scoreDisplay(p.economic_score)}</span>
+          <span class="score-reason">${p.economic_reason || ''}</span>
+        </div>
       </div>
       ${tags ? `<div class="tags">${tags}</div>` : ''}
-      ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">Read source ↗</a>` : ''}
+      ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">source &rarr;</a>` : ''}
     </div>`;
   }).join('');
 }
@@ -668,7 +766,6 @@ function renderGrid() {
 async function init() {
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Filter pills
   document.getElementById('filter-pills').addEventListener('click', e => {
     const btn = e.target.closest('.pill');
     if (!btn) return;
@@ -679,26 +776,30 @@ async function init() {
     renderGrid();
   });
 
-  // Tag clicks (delegated — grid is re-rendered dynamically)
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    renderGrid();
+  });
+
   document.getElementById('policy-grid').addEventListener('click', e => {
     const tag = e.target.closest('.tag');
     if (!tag) return;
     setTag(tag.dataset.tag);
   });
 
-  // Search
-  document.getElementById('search').addEventListener('input', e => {
-    searchQuery = e.target.value.trim();
-    renderGrid();
-  });
-
-  // Load data
   try {
-    const res = await fetch(`policies.json?v=${Date.now()}`);
-    allPolicies = await res.json();
+    const res  = await fetch(`policies.json?v=${Date.now()}`);
+    const data = await res.json();
+    allPolicies = Array.isArray(data) ? data : (data.policies || []);
+    const lastUpdated = data.last_updated || null;
+    const label = document.getElementById('updated-label');
+    label.textContent = lastUpdated ? 'updated ' + timeAgo(lastUpdated) : 'live';
+    if (lastUpdated) setInterval(() => { label.textContent = 'updated ' + timeAgo(lastUpdated); }, 30000);
   } catch {
     allPolicies = [];
+    document.getElementById('updated-label').textContent = 'offline';
   }
+
   renderGrid();
 }
 
