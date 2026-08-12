@@ -342,6 +342,20 @@ main {
 .status-badge.proposed { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.3); }
 .status-badge.decision { background: rgba(127,119,221,.12); color: #7F77DD; border: 1px solid rgba(127,119,221,.3); }
 
+.scope-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.scope-badge.global   { background: rgba(239,159,39,.1);   color: #EF9F27; border: 1px solid rgba(239,159,39,.2); }
+.scope-badge.regional { background: rgba(93,202,165,.1);   color: #5DCAA5; border: 1px solid rgba(93,202,165,.2); }
+.scope-badge.national { background: rgba(55,138,221,.1);   color: #378ADD; border: 1px solid rgba(55,138,221,.2); }
+.scope-badge.local    { background: rgba(156,163,175,.1);  color: #9ca3af; border: 1px solid rgba(156,163,175,.2); }
+
 .card-date {
   font-family: var(--mono);
   font-size: 11px;
@@ -878,6 +892,14 @@ footer {
     <button class="pill" data-status="proposed">&#9680; Proposed</button>
   </div>
   <div class="filter-sep"></div>
+  <div class="filter-pills" id="scope-pills">
+    <button class="pill active" data-scope="ALL">All scope</button>
+    <button class="pill" data-scope="global">Global</button>
+    <button class="pill" data-scope="regional">Regional</button>
+    <button class="pill" data-scope="national">National</button>
+    <button class="pill" data-scope="local">Local</button>
+  </div>
+  <div class="filter-sep"></div>
   <div id="tag-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1373,6 +1395,7 @@ function initTrend(policies) {
 let allPolicies  = [];
 let activeFilter = 'ALL';
 let activeStatus = 'ALL';
+let activeScope  = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
 
@@ -1429,6 +1452,11 @@ function statusBadge(status) {
   return '';
 }
 
+function scopeBadge(scope) {
+  if (!scope) return '';
+  return `<span class="scope-badge ${scope}">${scope.toUpperCase()}</span>`;
+}
+
 function setTag(tag) {
   activeTag = (activeTag === tag) ? '' : tag;
   renderGrid();
@@ -1449,6 +1477,7 @@ function renderGrid() {
   let list = allPolicies;
   if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
   if (activeStatus !== 'ALL') list = list.filter(p => p.status === activeStatus);
+  if (activeScope  !== 'ALL') list = list.filter(p => p.scope  === activeScope);
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -1478,6 +1507,7 @@ function renderGrid() {
       <div class="card-top">
         <span class="source-badge ${badgeClass(p.country, p.source)}">${badgeLabel(p.source)}</span>
         ${statusBadge(p.status)}
+        ${scopeBadge(p.scope)}
         <span class="card-date">${fmt(p.published_date)}</span>
       </div>
       <div class="card-title">${p.title || 'Untitled'}</div>
@@ -1722,6 +1752,15 @@ async function init() {
     if (!btn) return;
     activeStatus = btn.dataset.status;
     document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  });
+
+  document.getElementById('scope-pills').addEventListener('click', e => {
+    const btn = e.target.closest('[data-scope]');
+    if (!btn) return;
+    activeScope = btn.dataset.scope;
+    document.querySelectorAll('#scope-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     renderGrid();
   });

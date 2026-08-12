@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-12T21:52:15.728180Z",
+  "last_updated": "2026-08-12T21:58:56.556468Z",
   "policies": [
     {
       "source": "federal_register",
@@ -22,7 +22,9 @@
         "government administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -46,7 +48,9 @@
         "heritage protection"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -69,7 +73,9 @@
         "public event"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -93,7 +99,9 @@
         "recreation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -117,7 +125,9 @@
         "traffic safety"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -141,7 +151,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -165,7 +177,9 @@
         "dea"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -189,7 +203,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -212,7 +228,9 @@
         "transportation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -235,7 +253,9 @@
         "safety standards"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -259,7 +279,9 @@
         "transportation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -283,7 +305,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -307,7 +331,9 @@
         "funding"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -330,7 +356,9 @@
         "social policy"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -354,7 +382,9 @@
         "green finance"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -378,7 +408,9 @@
         "uk government"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -402,7 +434,9 @@
         "appointments"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -426,7 +460,9 @@
         "economy"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -450,7 +486,9 @@
         "medicine"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -474,7 +512,9 @@
         "cma"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -498,7 +538,9 @@
         "public safety"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -522,7 +564,9 @@
         "uk and australia"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -546,7 +590,9 @@
         "transparency"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -569,7 +615,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -593,7 +641,9 @@
         "diplomacy"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -617,7 +667,9 @@
         "executive action"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -640,7 +692,9 @@
         "national security"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -664,7 +718,9 @@
         "commemoration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -688,7 +744,9 @@
         "semiconductors"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -712,7 +770,9 @@
         "government reform"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -736,7 +796,9 @@
         "sba"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -760,7 +822,9 @@
         "banking"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -784,7 +848,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -808,7 +874,9 @@
         "infrastructure"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -832,7 +900,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -856,7 +926,9 @@
         "coast guard"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -879,7 +951,9 @@
         "bureaucracy"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -903,7 +977,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -927,7 +1003,9 @@
         "emissions"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -951,7 +1029,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -975,7 +1055,9 @@
         "permitting"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -998,7 +1080,9 @@
         "government efficiency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1022,7 +1106,9 @@
         "infrastructure"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1046,7 +1132,9 @@
         "marriage brokers"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1070,7 +1158,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1094,7 +1184,9 @@
         "government review"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1118,7 +1210,9 @@
         "electricity"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1141,7 +1235,9 @@
         "cost of living"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1165,7 +1261,9 @@
         "urban planning"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1189,7 +1287,9 @@
         "pollution"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1213,7 +1313,9 @@
         "transparency"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1236,7 +1338,9 @@
         "administration"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1259,7 +1363,9 @@
         "government strategy"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1283,7 +1389,9 @@
         "management"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1306,7 +1414,9 @@
         "nonprofit"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1330,7 +1440,9 @@
         "regulation"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1354,7 +1466,9 @@
         "public safety"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -1378,7 +1492,9 @@
         "funding"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -1402,7 +1518,9 @@
         "manufacturing"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1426,7 +1544,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1450,7 +1570,9 @@
         "payments"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1474,7 +1596,9 @@
         "michigan"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1498,7 +1622,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1521,7 +1647,9 @@
         "department of homeland security"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1545,7 +1673,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1569,7 +1699,9 @@
         "social security"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1593,7 +1725,9 @@
         "airspace"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "federal_register",
@@ -1617,7 +1751,9 @@
         "employment"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -1641,7 +1777,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -1665,7 +1803,9 @@
         "compliance"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -1689,7 +1829,9 @@
         "health insurance"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1713,7 +1855,9 @@
         "civic engagement"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1737,7 +1881,9 @@
         "england"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1761,7 +1907,9 @@
         "efficiency"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1785,7 +1933,9 @@
         "local government"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1809,7 +1959,9 @@
         "mhra"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1833,7 +1985,9 @@
         "climate resilience"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1857,7 +2011,9 @@
         "government response"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1881,7 +2037,9 @@
         "government"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1905,7 +2063,9 @@
         "regulation"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1929,7 +2089,9 @@
         "investment"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1953,7 +2115,9 @@
         "government"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -1976,7 +2140,9 @@
         "cyber security"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -2000,7 +2166,9 @@
         "economy"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -2024,7 +2192,9 @@
         "uk waters"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -2047,7 +2217,9 @@
         "regulations"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -2071,7 +2243,9 @@
         "recovery"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2095,7 +2269,9 @@
         "mining"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2118,7 +2294,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2142,7 +2320,9 @@
         "legislation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_gov",
@@ -2166,7 +2346,9 @@
         "mhra"
       ],
       "status": "unknown",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -2190,7 +2372,9 @@
         "infrastructure"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -2214,7 +2398,9 @@
         "european union"
       ],
       "status": "proposed",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -2238,7 +2424,9 @@
         "netherlands"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2262,7 +2450,9 @@
         "market competition"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2286,7 +2476,9 @@
         "compliance"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2310,7 +2502,9 @@
         "medicine"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2333,7 +2527,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2357,7 +2553,9 @@
         "australia"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2381,7 +2579,9 @@
         "international law"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2404,7 +2604,9 @@
         "public_finance"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -2428,7 +2630,9 @@
         "foreign aid"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2452,7 +2656,9 @@
         "government"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2476,7 +2682,9 @@
         "licensing"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "ec_press",
@@ -2500,7 +2708,9 @@
         "finance"
       ],
       "status": "decision",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2524,7 +2734,9 @@
         "oversight"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2548,7 +2760,9 @@
         "workforce"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2572,7 +2786,9 @@
         "legislation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2596,7 +2812,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2620,7 +2838,9 @@
         "transportation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -2644,7 +2864,9 @@
         "regulations"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2668,7 +2890,9 @@
         "compliance"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -2692,7 +2916,9 @@
         "regulation"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -2716,7 +2942,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -2740,7 +2968,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2763,7 +2993,9 @@
         "conditions of service"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2787,7 +3019,9 @@
         "medication"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2811,7 +3045,9 @@
         "policy"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2835,7 +3071,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2858,7 +3096,9 @@
         "healthcare"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2882,7 +3122,9 @@
         "welfare"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2905,7 +3147,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2929,7 +3173,9 @@
         "national health"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "au_legislation",
@@ -2953,7 +3199,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -2977,7 +3225,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3001,7 +3251,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3024,7 +3276,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3048,7 +3302,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3071,7 +3327,9 @@
         "administrative"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3095,7 +3353,9 @@
         "telecommunications"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3119,7 +3379,9 @@
         "geopolitics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3143,7 +3405,9 @@
         "trade restrictions"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3167,7 +3431,9 @@
         "geopolitics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3191,7 +3457,9 @@
         "environment"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3215,7 +3483,9 @@
         "administration"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3239,7 +3509,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_parliament",
@@ -3263,7 +3535,9 @@
         "parliament"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3286,7 +3560,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3310,7 +3586,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3334,7 +3612,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3358,7 +3638,9 @@
         "sustainability"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3381,7 +3663,9 @@
         "federal notice"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3405,7 +3689,9 @@
         "public finance"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3429,7 +3715,9 @@
         "compliance"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3453,7 +3741,9 @@
         "sustainability"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3477,7 +3767,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3501,7 +3793,9 @@
         "market regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3525,7 +3819,9 @@
         "law"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3549,7 +3845,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3573,7 +3871,9 @@
         "baltic sea"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3597,7 +3897,9 @@
         "vehicle standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3620,7 +3922,9 @@
         "administrative"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3644,7 +3948,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3668,7 +3974,9 @@
         "imports"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3692,7 +4000,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3716,7 +4026,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3740,7 +4052,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3764,7 +4078,9 @@
         "plastics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3788,7 +4104,9 @@
         "conservation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3812,7 +4130,9 @@
         "administrative law"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3836,7 +4156,9 @@
         "law"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -3859,7 +4181,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3883,7 +4207,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3907,7 +4233,9 @@
         "import tariffs"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3931,7 +4259,9 @@
         "human rights"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3955,7 +4285,9 @@
         "sustainable development"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -3979,7 +4311,9 @@
         "innovation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4003,7 +4337,9 @@
         "critical infrastructure"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4027,7 +4363,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4051,7 +4389,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4075,7 +4415,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4099,7 +4441,9 @@
         "consumer protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -4123,7 +4467,9 @@
         "regulations"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4147,7 +4493,9 @@
         "international relations"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -4171,7 +4519,61 @@
         "publication"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-06-08-x5/html/extra5-eng.html",
+      "title": "Canada Gazette - Part I, June 8, 2026, volume 160, extra number 5",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-06-08-x5/html/extra5-eng.html",
+      "published_date": "2026-06-08",
+      "summary": "This is an administrative publication notice for the Canada Gazette Part I, which releases official government notices, proposed regulations, and official documents. It simply outlines the standard publishing schedule for weekly issues, quarterly indexes, and special extra editions.",
+      "social_score": 0,
+      "social_reason": "Maintains routine administrative transparency without directly affecting citizens' rights, health, or welfare.",
+      "environmental_score": 0,
+      "environmental_reason": "Has no direct impact on the environment or natural resources.",
+      "economic_score": 0,
+      "economic_reason": "Represents standard government publishing operations with no direct economic impact on markets or jobs.",
+      "tags": [
+        "government",
+        "regulation",
+        "canada",
+        "administration",
+        "public notice"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to the official publication practices of the federal government of Canada."
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-06-06/html/index-eng.html",
+      "title": "Canada Gazette - Part I, June 6, 2026, volume 160, number 23",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-06-06/html/index-eng.html",
+      "published_date": "2026-06-06",
+      "summary": "This document is the weekly official publication of the Government of Canada, known as the Canada Gazette, Part I. It serves as a public registry for official notices, proposed regulations, and statutory instruments. It is published routinely to ensure transparency and allow public review of upcoming government actions.",
+      "social_score": 0,
+      "social_reason": "Serves as an administrative and informational publication without directly altering social rights, welfare, or health outcomes.",
+      "environmental_score": 0,
+      "environmental_reason": "Contains administrative notices and regulatory proposals rather than direct environmental policies or changes.",
+      "economic_score": 0,
+      "economic_reason": "Acts as a legal communication channel rather than an economic intervention that directly impacts jobs, growth, or consumer costs.",
+      "tags": [
+        "government publication",
+        "regulations",
+        "canada gazette",
+        "transparency",
+        "public notices"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Affects only Canada as the official federal publication for government notices and regulations."
     },
     {
       "source": "canada_gazette",
@@ -4195,7 +4597,9 @@
         "federal legislation"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4219,7 +4623,35 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-05-30/html/index-eng.html",
+      "title": "Canada Gazette - Part I, May 30, 2026, volume 160, number 22",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-05-30/html/index-eng.html",
+      "published_date": "2026-05-30",
+      "summary": "This document is the weekly administrative publication of the official newspaper of the Government of Canada, which records public notices, proposed regulations, and official government announcements. It serves primarily an informational and procedural function for legal and administrative transparency rather than establishing a specific new policy.",
+      "social_score": 0,
+      "social_reason": "Maintains democratic transparency and public access to government notices without directly altering social rights or welfare.",
+      "environmental_score": 0,
+      "environmental_reason": "Serves as an administrative publication without any direct impact on environmental protection or pollution.",
+      "economic_score": 0,
+      "economic_reason": "Functions as a routine government gazette rather than a policy that directly influences market growth, jobs, or costs.",
+      "tags": [
+        "government publication",
+        "canada gazette",
+        "public notices",
+        "regulations",
+        "transparency"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to federal government notices and regulations within Canada."
     },
     {
       "source": "eurlex",
@@ -4243,7 +4675,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4267,7 +4701,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4291,7 +4727,9 @@
         "democracy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4315,7 +4753,9 @@
         "chemical safety"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4339,7 +4779,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4363,7 +4805,34 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-05-23/html/index-eng.html",
+      "title": "Canada Gazette - Part I, May 23, 2026, volume 160, number 21",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-05-23/html/index-eng.html",
+      "published_date": "2026-05-23",
+      "summary": "This document is the weekly publication notice for the Canada Gazette, Part I, which is the official government newspaper. It serves a purely administrative purpose by detailing the regular publishing schedule for official government notices, regulations, and public laws.",
+      "social_score": 0,
+      "social_reason": "Maintains routine administrative transparency without directly altering citizens' rights, welfare, or health.",
+      "environmental_score": 0,
+      "environmental_reason": "Has no direct impact on environmental protection, emissions, or resource management.",
+      "economic_score": 0,
+      "economic_reason": "Serves a purely informational and procedural function with no direct economic impact on markets or employment.",
+      "tags": [
+        "government",
+        "publication",
+        "regulation",
+        "canada"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to the official publication practices of the Canadian federal government."
     },
     {
       "source": "eurlex",
@@ -4387,7 +4856,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4411,7 +4882,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4435,7 +4908,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -4458,7 +4933,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4482,7 +4959,9 @@
         "logistics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4506,7 +4985,9 @@
         "social protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4530,7 +5011,9 @@
         "intellectual property"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4554,7 +5037,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4578,7 +5063,59 @@
         "transportation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-05-16/html/index-eng.html",
+      "title": "Canada Gazette - Part I, May 16, 2026, volume 160, number 20",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-05-16/html/index-eng.html",
+      "published_date": "2026-05-16",
+      "summary": "This document is an official weekly publication notice for the Canada Gazette, Part I, which releases government notices, official regulations, and public announcements. It outlines the routine publication schedule, including weekly issues, quarterly indexes, and special extra editions as legally required.",
+      "social_score": 0,
+      "social_reason": "Maintains routine government transparency and public information access without directly altering social rights or welfare.",
+      "environmental_score": 0,
+      "environmental_reason": "Has no direct impact on environmental protection, pollution, or conservation efforts.",
+      "economic_score": 0,
+      "economic_reason": "Serves as an administrative publication mechanism with no direct effect on economic growth, jobs, or costs.",
+      "tags": [
+        "government transparency",
+        "canada gazette",
+        "public notice",
+        "legislation"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to the federal government operations and publication requirements of Canada."
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-05-09/html/index-eng.html",
+      "title": "Canada Gazette - Part I, May 9, 2026, volume 160, number 19",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-05-09/html/index-eng.html",
+      "published_date": "2026-05-09",
+      "summary": "This document is the weekly publication notice for the Canada Gazette Part I, the official newspaper of the Government of Canada where public notices, official regulations, and proposed laws are published. It outlines the standard publishing schedule for weekly issues, quarterly indexes, and extra editions as required by law.",
+      "social_score": 0,
+      "social_reason": "Neutral because this is purely an administrative publication notice with no direct impact on individual rights, welfare, or health.",
+      "environmental_score": 0,
+      "environmental_reason": "Neutral because this document only describes the publication schedule of an official gazette and contains no environmental policies or measures.",
+      "economic_score": 0,
+      "economic_reason": "Neutral because the administrative publication of government notices does not directly affect markets, jobs, or economic growth.",
+      "tags": [
+        "canada gazette",
+        "government publication",
+        "public notice",
+        "regulation"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to the official publication operations of the federal government of Canada."
     },
     {
       "source": "canada_gazette",
@@ -4602,7 +5139,34 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-05-02/html/index-eng.html",
+      "title": "Canada Gazette - Part I, May 2, 2026, volume 160, number 18",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-05-02/html/index-eng.html",
+      "published_date": "2026-05-02",
+      "summary": "This document is the weekly publication notice for the Canada Gazette, Part I, which serves as the official newspaper of the Government of Canada. It includes public notices, official regulations, and proposed law changes that citizens and stakeholders are legally entitled to review.",
+      "social_score": 1,
+      "social_reason": "Expands government transparency and public access to official regulatory processes.",
+      "environmental_score": 0,
+      "environmental_reason": "Neutral because the publication itself does not enact specific environmental policies.",
+      "economic_score": 0,
+      "economic_reason": "Neutral because publishing administrative notices does not directly alter economic conditions or market activity.",
+      "tags": [
+        "government transparency",
+        "public notice",
+        "regulations",
+        "canada"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies strictly to the dissemination of federal government notices and regulations within Canada."
     },
     {
       "source": "uk_parliament",
@@ -4626,7 +5190,34 @@
         "economy"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "uk_parliament",
+      "country": "GB",
+      "external_id": "ukparl:3800",
+      "title": "Access to Telecommunications Networks Bill",
+      "url": "https://bills.parliament.uk/bills/3800",
+      "published_date": "2026-04-30",
+      "summary": "The Access to Telecommunications Networks Bill is a legislative proposal currently undergoing its second reading in the House of Commons. While the document title indicates its subject matter, no further details or specific provisions are provided in the text.",
+      "social_score": 0,
+      "social_reason": "Negligible or neutral social impact due to the lack of substantive policy details provided in the text.",
+      "environmental_score": 0,
+      "environmental_reason": "Negligible or neutral environmental impact as the document contains no text regarding ecological policies.",
+      "economic_score": 0,
+      "economic_reason": "Negligible or neutral economic impact because no specific market regulations or financial measures are detailed.",
+      "tags": [
+        "telecommunications",
+        "infrastructure",
+        "legislation",
+        "commons"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies to a single country as indicated by its passage through the House of Commons."
     },
     {
       "source": "eurlex",
@@ -4650,7 +5241,9 @@
         "recruitment"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4674,7 +5267,9 @@
         "sustainability"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4698,7 +5293,9 @@
         "external action"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4722,7 +5319,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4745,7 +5344,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4769,7 +5370,9 @@
         "law enforcement"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4793,7 +5396,35 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-04-25/html/index-eng.html",
+      "title": "Canada Gazette - Part I, April 25, 2026, volume 160, number 17",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-04-25/html/index-eng.html",
+      "published_date": "2026-04-25",
+      "summary": "This document is an official weekly publication notice for the Canada Gazette, Part I, which serves as the official newspaper of the Government of Canada for public notices, official regulations, and proposed laws. It outlines the regular schedule for publishing weekly issues, quarterly indexes, and extra editions as legally required. Because it is merely an administrative publishing notice rather than a specific substantive policy, it does not directly change laws, rights, or the economy.",
+      "social_score": 0,
+      "social_reason": "Maintains administrative transparency without directly altering social rights, welfare, or public services.",
+      "environmental_score": 0,
+      "environmental_reason": "Serves purely as an administrative publication schedule with no direct environmental impact.",
+      "economic_score": 0,
+      "economic_reason": "Represents standard government publishing operations with no direct effect on markets, costs, or employment.",
+      "tags": [
+        "government",
+        "publication",
+        "administrative",
+        "canada",
+        "transparency"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies strictly to the official publication operations and statutory notices of the Canadian federal government."
     },
     {
       "source": "eurlex",
@@ -4817,7 +5448,9 @@
         "vehicle regulations"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4841,7 +5474,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4865,7 +5500,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4889,7 +5526,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4913,7 +5552,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -4937,7 +5578,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4961,7 +5604,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -4985,7 +5630,60 @@
         "toxic substances"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/2026-04-18/html/index-eng.html",
+      "title": "Canada Gazette - Part I, April 18, 2026, volume 160, number 16",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/2026-04-18/html/index-eng.html",
+      "published_date": "2026-04-18",
+      "summary": "This document is an official weekly publication notice for the Canada Gazette Part I, which shares government notices, proposed regulations, and official announcements. It serves an administrative and transparency purpose rather than establishing a new substantive law or policy.",
+      "social_score": 0,
+      "social_reason": "Maintains civic transparency and access to government information without directly altering social rights or welfare.",
+      "environmental_score": 0,
+      "environmental_reason": "Has no direct environmental impact as it merely announces the publication schedule of an official gazette.",
+      "economic_score": 0,
+      "economic_reason": "Contains no economic policies, market interventions, or financial changes.",
+      "tags": [
+        "government",
+        "transparency",
+        "regulations",
+        "publications"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to the publication of Canadian federal government notices and laws within Canada."
+    },
+    {
+      "source": "canada_gazette",
+      "country": "CA",
+      "external_id": "ca_gazette:https://gazette.gc.ca/rp-pr/p1/2026/indexq1-eng.html",
+      "title": "Canada Gazette - 1st Quarterly Index",
+      "url": "https://gazette.gc.ca/rp-pr/p1/2026/indexq1-eng.html",
+      "published_date": "2026-04-17",
+      "summary": "This is an index document for the Canada Gazette, which is the official newspaper of the Canadian government used to publish new laws, regulations, and public notices. It simply helps the public and researchers find past government publications and has no direct impact on policy, rights, the environment, or the economy.",
+      "social_score": 0,
+      "social_reason": "Maintains transparency by organizing public records without altering rights or social welfare.",
+      "environmental_score": 0,
+      "environmental_reason": "Serves as an administrative index with no direct environmental impact.",
+      "economic_score": 0,
+      "economic_reason": "Functions purely as an administrative reference tool with no direct effect on the economy.",
+      "tags": [
+        "government",
+        "transparency",
+        "administrative",
+        "public-records",
+        "canada"
+      ],
+      "status": "proposed",
+      "level": "national",
+      "scope": "national",
+      "scope_reason": "Applies exclusively to the publication of federal government documents within Canada."
     },
     {
       "source": "eurlex",
@@ -5009,7 +5707,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5033,7 +5733,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5057,7 +5759,9 @@
         "public safety"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5081,7 +5785,9 @@
         "automotive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -5105,7 +5811,9 @@
         "public notice"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5129,7 +5837,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5153,7 +5863,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5177,7 +5889,9 @@
         "international security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5201,7 +5915,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5225,7 +5941,9 @@
         "consumer protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5249,7 +5967,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5273,7 +5993,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5297,7 +6019,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5321,7 +6045,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5345,7 +6071,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5369,7 +6097,9 @@
         "carbon trading"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -5393,7 +6123,9 @@
         "publishing"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5417,7 +6149,9 @@
         "consumer protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5441,7 +6175,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -5465,7 +6201,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5489,7 +6227,9 @@
         "alternative fuels"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5513,7 +6253,9 @@
         "safeguard"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5537,7 +6279,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5561,7 +6305,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5585,7 +6331,9 @@
         "codification"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5609,7 +6357,9 @@
         "safety standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5633,7 +6383,9 @@
         "automotive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5657,7 +6409,9 @@
         "circular economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5681,7 +6435,9 @@
         "eu directive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5705,7 +6461,9 @@
         "standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5729,7 +6487,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5753,7 +6513,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -5777,7 +6539,9 @@
         "procedural"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5801,7 +6565,9 @@
         "vehicle equipment"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5825,7 +6591,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5849,7 +6617,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5873,7 +6643,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5897,7 +6669,9 @@
         "border control"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5921,7 +6695,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5945,7 +6721,9 @@
         "macroeconomic support"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5969,7 +6747,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -5993,7 +6773,9 @@
         "manufacturing standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6017,7 +6799,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6041,7 +6825,9 @@
         "translation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6065,7 +6851,9 @@
         "automotive regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6089,7 +6877,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -6113,7 +6903,9 @@
         "federal administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6137,7 +6929,9 @@
         "taxation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6161,7 +6955,9 @@
         "consumer products"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6185,7 +6981,9 @@
         "eu directive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6209,7 +7007,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6233,7 +7033,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6257,7 +7059,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6281,7 +7085,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6305,7 +7111,9 @@
         "public transit"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6329,7 +7137,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -6353,7 +7163,9 @@
         "canada"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6377,7 +7189,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6401,7 +7215,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6425,7 +7241,9 @@
         "pharmaceuticals"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6449,7 +7267,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6473,7 +7293,9 @@
         "food industry"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6497,7 +7319,9 @@
         "food additives"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6521,7 +7345,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6545,7 +7371,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6569,7 +7397,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6593,7 +7423,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6617,7 +7449,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6641,7 +7475,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6665,7 +7501,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6689,7 +7527,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6713,7 +7553,9 @@
         "public transit"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -6736,7 +7578,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6760,7 +7604,9 @@
         "fishing_quotas"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6784,7 +7630,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6808,7 +7656,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6832,7 +7682,9 @@
         "fishing quota"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -6856,7 +7708,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6880,7 +7734,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6904,7 +7760,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6928,7 +7786,9 @@
         "rearm"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6952,7 +7812,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -6976,7 +7838,9 @@
         "consumer rights"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7000,7 +7864,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7024,7 +7890,9 @@
         "health and safety"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -7048,7 +7916,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7072,7 +7942,9 @@
         "ecommerce"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7096,7 +7968,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7120,7 +7994,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7144,7 +8020,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7168,7 +8046,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7192,7 +8072,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7216,7 +8098,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7240,7 +8124,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7264,7 +8150,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7288,7 +8176,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7312,7 +8202,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7336,7 +8228,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7360,7 +8254,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7384,7 +8280,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7408,7 +8306,9 @@
         "consumer protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -7432,7 +8332,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7456,7 +8358,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7480,7 +8384,9 @@
         "sustainability"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7504,7 +8410,9 @@
         "workers"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7528,7 +8436,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7552,7 +8462,9 @@
         "eu directive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7576,7 +8488,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7600,7 +8514,9 @@
         "travel"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7624,7 +8540,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7648,7 +8566,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7672,7 +8592,9 @@
         "electronics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7696,7 +8618,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7720,7 +8644,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7744,7 +8670,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7768,7 +8696,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7792,7 +8722,9 @@
         "administrative deadline"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7816,7 +8748,9 @@
         "finance"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -7840,7 +8774,9 @@
         "canada"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -7863,7 +8799,9 @@
         "federal regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7887,7 +8825,9 @@
         "marine resources"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7911,7 +8851,9 @@
         "fishing quota"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7935,7 +8877,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7959,7 +8903,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -7983,7 +8929,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8007,7 +8955,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8031,7 +8981,9 @@
         "electronic waste"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8055,7 +9007,9 @@
         "marine life"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8079,7 +9033,9 @@
         "france"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -8103,7 +9059,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8127,7 +9085,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8151,7 +9111,9 @@
         "packaging"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8175,7 +9137,9 @@
         "dietary supplements"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8199,7 +9163,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8223,7 +9189,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8247,7 +9215,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_parliament",
@@ -8271,7 +9241,9 @@
         "democracy"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8295,7 +9267,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8319,7 +9293,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8343,7 +9319,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8367,7 +9345,9 @@
         "geopolitics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8391,7 +9371,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -8415,7 +9397,9 @@
         "administrative notice"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8439,7 +9423,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8463,7 +9449,9 @@
         "driving license"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8486,7 +9474,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8510,7 +9500,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8534,7 +9526,9 @@
         "consumer protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8558,7 +9552,9 @@
         "electronics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -8582,7 +9578,9 @@
         "law"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8606,7 +9604,9 @@
         "investment support"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8630,7 +9630,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8654,7 +9656,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8678,7 +9682,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8702,7 +9708,9 @@
         "emissions trading"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8726,7 +9734,9 @@
         "digital case management"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8750,7 +9760,9 @@
         "veterinary rules"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8774,7 +9786,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8798,7 +9812,9 @@
         "environmental protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8822,7 +9838,9 @@
         "sustainability"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8846,7 +9864,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8870,7 +9890,9 @@
         "trade restrictions"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8894,7 +9916,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8918,7 +9942,9 @@
         "standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8942,7 +9968,9 @@
         "energy efficiency"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -8966,7 +9994,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -8990,7 +10020,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9014,7 +10046,9 @@
         "social inclusion"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9038,7 +10072,9 @@
         "maritime"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9062,7 +10098,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "uk_parliament",
@@ -9085,7 +10123,9 @@
         "local government"
       ],
       "status": "proposed",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9109,7 +10149,9 @@
         "administrative law"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9133,7 +10175,9 @@
         "eu directive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9157,7 +10201,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9181,7 +10227,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9205,7 +10253,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9229,7 +10279,9 @@
         "ireland"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9252,7 +10304,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9276,7 +10330,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9300,7 +10356,9 @@
         "toxics"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9324,7 +10382,9 @@
         "automotive"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9348,7 +10408,9 @@
         "canada"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9372,7 +10434,9 @@
         "conservation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9396,7 +10460,9 @@
         "public notice"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9420,7 +10486,9 @@
         "transport"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9444,7 +10512,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9468,7 +10538,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9492,7 +10564,9 @@
         "compliance"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9516,7 +10590,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9540,7 +10616,9 @@
         "imports"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9564,7 +10642,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9588,7 +10668,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9611,7 +10693,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9635,7 +10719,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9659,7 +10745,9 @@
         "monetary policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9683,7 +10771,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9706,7 +10796,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9730,7 +10822,9 @@
         "standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9754,7 +10848,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9778,7 +10874,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9802,7 +10900,9 @@
         "sustainability"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -9826,7 +10926,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9850,7 +10952,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9874,7 +10978,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9898,7 +11004,9 @@
         "standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9922,7 +11030,9 @@
         "fishing quota"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9946,7 +11056,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9970,7 +11082,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -9994,7 +11108,9 @@
         "governance"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10018,7 +11134,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10042,7 +11160,9 @@
         "radiation protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10066,7 +11186,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10090,7 +11212,9 @@
         "publication"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10114,7 +11238,9 @@
         "eu_policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10138,7 +11264,9 @@
         "transport"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10162,7 +11290,9 @@
         "belarus"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10186,7 +11316,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10210,7 +11342,9 @@
         "law"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10234,7 +11368,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10258,7 +11394,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10282,7 +11420,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10306,7 +11446,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10330,7 +11472,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10353,7 +11497,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10377,7 +11523,9 @@
         "food additives"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10401,7 +11549,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10425,7 +11575,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10449,7 +11601,9 @@
         "standards"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10473,7 +11627,9 @@
         "industry"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10497,7 +11653,9 @@
         "international relations"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10521,7 +11679,9 @@
         "public safety"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10545,7 +11705,9 @@
         "eu"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10569,7 +11731,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10593,7 +11757,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10617,7 +11783,9 @@
         "canada"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10641,7 +11809,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10665,7 +11835,9 @@
         "trade"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10689,7 +11861,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10713,7 +11887,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10737,7 +11913,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10761,7 +11939,9 @@
         "energy markets"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10785,7 +11965,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10808,7 +11990,9 @@
         "canada gazette"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10832,7 +12016,9 @@
         "cross-border cooperation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10856,7 +12042,9 @@
         "economy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10880,7 +12068,9 @@
         "european union"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10904,7 +12094,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10928,7 +12120,9 @@
         "côte d'ivoire"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -10952,7 +12146,9 @@
         "eu law"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -10976,7 +12172,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11000,7 +12198,9 @@
         "spain"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11024,7 +12224,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11048,7 +12250,9 @@
         "finance"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11072,7 +12276,9 @@
         "import duty"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11096,7 +12302,9 @@
         "law"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11120,7 +12328,9 @@
         "marine life"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11144,7 +12354,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11167,7 +12379,9 @@
         "food additives"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11191,7 +12405,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11215,7 +12431,9 @@
         "environmental protection"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11239,7 +12457,9 @@
         "eu regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11263,7 +12483,9 @@
         "regulation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11287,7 +12509,9 @@
         "translation"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11311,7 +12535,9 @@
         "fishing industry"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11335,7 +12561,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11358,7 +12586,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11382,7 +12612,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11406,7 +12638,9 @@
         "canada"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11429,7 +12663,9 @@
         "regulations"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11453,7 +12689,9 @@
         "foreign policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11477,7 +12715,9 @@
         "security"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11501,7 +12741,9 @@
         "structural reforms"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11525,7 +12767,9 @@
         "public health"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11549,7 +12793,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11573,7 +12819,9 @@
         "transparency"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11597,7 +12845,9 @@
         "administrative"
       ],
       "status": "enacted",
-      "level": "national"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11621,7 +12871,9 @@
         "e-commerce"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11645,7 +12897,9 @@
         "eu policy"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "eurlex",
@@ -11669,7 +12923,9 @@
         "administration"
       ],
       "status": "enacted",
-      "level": "eu"
+      "level": "eu",
+      "scope": null,
+      "scope_reason": null
     },
     {
       "source": "canada_gazette",
@@ -11693,271 +12949,9 @@
         "publications"
       ],
       "status": "enacted",
-      "level": "national"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0395",
-      "title": "Council Regulation (EU) 2025/395 of 24 February 2025 amending Regulation (EU) No 833/2014 concerning restrictive measures in view of Russia’s actions destabilising the situation in Ukraine",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0395",
-      "published_date": "2025-02-24",
-      "summary": "This European Union regulation updates and strengthens economic sanctions against Russia in response to its ongoing actions that destabilize Ukraine. It maintains and tightens restrictive measures aimed at curtailing Russia's financial and industrial capacity to wage war. These measures are designed to pressure the Russian government to alter its policies by restricting trade, finance, and access to key goods.",
-      "social_score": 1,
-      "social_reason": "Supports international stability and human rights protection by penalizing military aggression, though with minimal direct social impact on EU citizens.",
-      "environmental_score": 1,
-      "environmental_reason": "Reduces industrial activity and fossil fuel reliance linked to the targeted Russian sectors, yielding a minor indirect environmental benefit.",
-      "economic_score": -3,
-      "economic_reason": "Imposes costs and market disruptions on certain European industries dependent on trade with Russia, though necessary for long-term security.",
-      "tags": [
-        "sanctions",
-        "russia",
-        "ukraine",
-        "foreign policy",
-        "trade restrictions"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0407",
-      "title": "Council Regulation (EU) 2025/407 of 24 February 2025 amending Regulation (EU) No 36/2012 concerning restrictive measures in view of the situation in Syria",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0407",
-      "published_date": "2025-02-24",
-      "summary": "This European Union regulation updates and modifies existing restrictive measures, such as sanctions, regarding the political situation in Syria. It adjusts the legal framework to address ongoing concerns and maintain targeted penalties against designated entities or individuals. These updates ensure the EU's foreign policy tools remain aligned with current diplomatic and security objectives in the region.",
-      "social_score": 0,
-      "social_reason": "Maintains geopolitical sanctions without directly altering domestic social rights, welfare, or public services.",
-      "environmental_score": 0,
-      "environmental_reason": "Focuses strictly on diplomatic and restrictive measures with no direct impact on environmental protection or emissions.",
-      "economic_score": -2,
-      "economic_reason": "Imposes restrictive trade and financial measures that slightly burden specific commercial sectors linked to the targeted regime.",
-      "tags": [
-        "sanctions",
-        "foreign policy",
-        "syria",
-        "eu regulation",
-        "trade restrictions"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0401",
-      "title": "Council Regulation (EU) 2025/401 of 24 February 2025 amending Regulation (EU) No 692/2014 concerning restrictive measures in response to the illegal annexation of Crimea and Sevastopol",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0401",
-      "published_date": "2025-02-24",
-      "summary": "This European Union regulation continues and updates restrictive economic measures in response to the illegal annexation of Crimea and Sevastopol. It maintains sanctions aimed at discouraging actions that undermine Ukraine's territorial integrity, sovereignty, and independence.",
-      "social_score": 1,
-      "social_reason": "Expands international support for human rights and territorial sovereignty by penalizing unlawful annexation.",
-      "environmental_score": 0,
-      "environmental_reason": "This policy focuses on geopolitical sanctions and has no direct impact on environmental protection or emissions.",
-      "economic_score": -2,
-      "economic_reason": "Restricts trade and investment in specific regions, creating minor economic friction in pursuit of geopolitical stability.",
-      "tags": [
-        "sanctions",
-        "crimea",
-        "ukraine",
-        "geopolitics",
-        "eu"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0390",
-      "title": "Council Regulation (EU) 2025/390 of 24 February 2025 amending Regulation (EU) No 269/2014 concerning restrictive measures in respect of actions undermining or threatening the territorial integrity, sovereignty and independence of Ukraine",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0390",
-      "published_date": "2025-02-24",
-      "summary": "This European Union regulation updates and enforces restrictive measures, such as asset freezes and travel bans, against individuals and entities that undermine Ukraine's sovereignty. It is designed to maintain diplomatic and economic pressure in response to ongoing threats to Ukraine's territorial integrity.",
-      "social_score": 3,
-      "social_reason": "Supports international law and human rights by penalizing actions that threaten a sovereign nation's stability and security.",
-      "environmental_score": 0,
-      "environmental_reason": "The policy focuses entirely on geopolitical sanctions and has no direct impact on the environment.",
-      "economic_score": -2,
-      "economic_reason": "Imposes targeted economic restrictions and trade limitations, which can create minor disruptions in international markets.",
-      "tags": [
-        "sanctions",
-        "ukraine",
-        "foreign policy",
-        "eu law",
-        "geopolitics"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0392",
-      "title": "Council Regulation (EU) 2025/392 of 24 February 2025 amending Regulation (EC) No 765/2006 concerning restrictive measures in view of the situation in Belarus and the involvement of Belarus in the Russian aggression against Ukraine",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0392",
-      "published_date": "2025-02-24",
-      "summary": "This European Union regulation updates and strengthens economic sanctions against Belarus due to its involvement in Russia's aggression against Ukraine. It aims to increase pressure on the Belarusian government by restricting trade and financial activities linked to the regime. Ultimately, these measures are designed to deter ongoing support for the war and encourage compliance with international law.",
-      "social_score": 1,
-      "social_reason": "Supports international human rights and global stability by holding an oppressive regime accountable for war complicity.",
-      "environmental_score": 0,
-      "environmental_reason": "Does not directly target environmental protection or cause environmental harm.",
-      "economic_score": -2,
-      "economic_reason": "Imposes trade restrictions and sanctions that may cause minor economic friction and compliance costs for European businesses operating near the region.",
-      "tags": [
-        "sanctions",
-        "belarus",
-        "russia",
-        "trade",
-        "foreign policy"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0398",
-      "title": "Council Regulation (EU) 2025/398 of 24 February 2025 amending Regulation (EU) 2022/263 concerning restrictive measures in response to the illegal recognition, occupation or annexation by the Russian Federation of certain non-government controlled areas of Ukraine",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0398",
-      "published_date": "2025-02-24",
-      "summary": "This European Union regulation updates and enforces existing sanctions against Russia in response to its illegal occupation of certain areas of Ukraine. It ensures that restrictive economic measures remain active to penalize and deter ongoing violations of international law. The policy aims to isolate the targeted regions economically and politically.",
-      "social_score": 2,
-      "social_reason": "Supports international law and regional stability, indirectly protecting the safety and rights of populations affected by unlawful annexation.",
-      "environmental_score": 0,
-      "environmental_reason": "Has no direct impact on environmental protection or pollution levels.",
-      "economic_score": -3,
-      "economic_reason": "Restricts trade and economic activity in the targeted non-government controlled regions, imposing costs on specific markets.",
-      "tags": [
-        "sanctions",
-        "russia",
-        "ukraine",
-        "foreign policy",
-        "eu law"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0351",
-      "title": "Commission Regulation (EU) 2025/351 of 21 February 2025 amending Regulation (EU) No 10/2011 on plastic materials and articles intended to come into contact with food, amending Regulation (EU) 2022/1616 on recycled plastic materials and articles intended to come into contact with foods, and repealing Regulation (EC) No 282/2008, and amending Regulation (EC) No 2023/2006 on good manufacturing practice for materials and articles intended to come into contact with food as regards recycled plastic and other matters related to quality control and manufacturing of plastic materials and articles intended to come into contact with food",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0351",
-      "published_date": "2025-02-21",
-      "summary": "This EU regulation updates safety and quality rules for plastic materials that come into contact with food, specifically focusing on the use of recycled plastics and manufacturing standards. It aims to protect public health by ensuring that recycled food packaging does not leach harmful chemicals into food while modernizing regulatory compliance. The update streamlines rules for manufacturers while maintaining strict consumer safety safeguards.",
-      "social_score": 5,
-      "social_reason": "Protects public health by strengthening safety standards for materials that come into direct contact with the food we eat.",
-      "environmental_score": 6,
-      "environmental_reason": "Encourages a circular economy by providing clearer, safer pathways for the use of recycled plastics in food packaging.",
-      "economic_score": 2,
-      "economic_reason": "Reduces regulatory uncertainty for packaging manufacturers using recycled materials, though it may impose initial compliance costs.",
-      "tags": [
-        "food safety",
-        "plastic packaging",
-        "recycling",
-        "public health",
-        "manufacturing"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0350",
-      "title": "Commission Regulation (EU) 2025/350 of 21 February 2025 refusing to authorise a health claim made on foods, other than those referring to the reduction of disease risk and to children’s development and health",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0350",
-      "published_date": "2025-02-21",
-      "summary": "This EU regulation bans food companies from making a specific health claim on their products because there is not enough scientific proof to back it up. The rule is designed to protect shoppers from being misled by false or unproven health benefits on food labels. Overall, it ensures that food marketing remains truthful and based on solid medical science.",
-      "social_score": 2,
-      "social_reason": "Protects public health and consumer rights by preventing misleading health claims on food products.",
-      "environmental_score": 0,
-      "environmental_reason": "The policy has no direct impact on environmental protection, emissions, or natural habitats.",
-      "economic_score": 0,
-      "economic_reason": "Creates a minor compliance requirement for food manufacturers without significantly altering broader market conditions.",
-      "tags": [
-        "food safety",
-        "consumer protection",
-        "health claims",
-        "european union",
-        "regulation"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0352",
-      "title": "Commission Regulation (EU) 2025/352 of 21 February 2025 amending Directive 2002/46/EC of the European Parliament and of the Council as regards calcidiol monohydrate used in the manufacture of food supplements",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0352",
-      "published_date": "2025-02-21",
-      "summary": "This European Union regulation updates food supplement laws to allow the use of a new vitamin D ingredient called calcidiol monohydrate. It ensures that this new supplement option meets safety standards so manufacturers can legally include it in products sold to consumers.",
-      "social_score": 2,
-      "social_reason": "Expands access to a new, potentially more effective form of vitamin D that can improve public health and nutritional intake.",
-      "environmental_score": 0,
-      "environmental_reason": "Has no direct or significant impact on environmental protection, pollution, or natural habitats.",
-      "economic_score": 1,
-      "economic_reason": "Creates minor economic benefits by opening up new product development opportunities for food supplement manufacturers.",
-      "tags": [
-        "food supplements",
-        "vitamin d",
-        "public health",
-        "european union",
-        "food safety"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025L0425",
-      "title": "Council Directive (EU) 2025/425 of 18 February 2025 amending Directive 2006/112/EC as regards the electronic value added tax exemption certificate",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025L0425",
-      "published_date": "2025-02-18",
-      "summary": "This EU directive updates the rules for electronic value added tax (VAT) exemption certificates, making the process digital and more streamlined for businesses and tax authorities. It aims to reduce administrative burdens and paperwork associated with cross-border trade tax exemptions within the European Union.",
-      "social_score": 1,
-      "social_reason": "Reduces bureaucratic friction for businesses, indirectly supporting smoother market operations with minimal direct impact on citizen welfare.",
-      "environmental_score": 0,
-      "environmental_reason": "Digitizing paperwork yields a negligible environmental benefit by slightly reducing paper consumption.",
-      "economic_score": 3,
-      "economic_reason": "Streamlines administrative processes and reduces compliance costs for businesses engaged in cross-border trade within the EU.",
-      "tags": [
-        "vat",
-        "taxation",
-        "digital governance",
-        "eu law",
-        "trade"
-      ],
-      "status": "enacted",
-      "level": "eu"
-    },
-    {
-      "source": "eurlex",
-      "country": "EU",
-      "external_id": "eurlex:32025R0370",
-      "title": "Commission Regulation (EU) 2025/370 of 18 February 2025 establishing a fisheries closure for yellowtail flounder in NAFO Divisions 3LNO for vessels flying the flag of or registered in a Member State of the European Union fishing under the quota allocated to others",
-      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32025R0370",
-      "published_date": "2025-02-18",
-      "summary": "This European Union regulation bans fishing for yellowtail flounder in a specific Atlantic Ocean area because the allowed catch limit has been reached. It applies to all EU vessels fishing under certain international quotas to prevent overfishing. The rule aims to protect fish populations and ensure long-term sustainability in the region.",
-      "social_score": 1,
-      "social_reason": "Supports long-term food security and sustainable coastal communities by preventing the collapse of a shared fish stock.",
-      "environmental_score": 5,
-      "environmental_reason": "Protects marine biodiversity and prevents overexploitation of yellowtail flounder populations in the Northwest Atlantic.",
-      "economic_score": -1,
-      "economic_reason": "Imposes short-term economic losses on commercial fishing operations by halting their ability to harvest this specific species.",
-      "tags": [
-        "fisheries",
-        "conservation",
-        "eu policy",
-        "marine protection",
-        "quotas"
-      ],
-      "status": "enacted",
-      "level": "eu"
+      "level": "national",
+      "scope": null,
+      "scope_reason": null
     }
   ]
 }

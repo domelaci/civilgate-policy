@@ -96,7 +96,13 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.commit()
         log.info("Migrated: added scorer_version column")
     except Exception:
-        pass  # already exists
+        pass
+    for _col in ("scope TEXT", "scope_reason TEXT"):
+        try:
+            conn.execute(f"ALTER TABLE policies ADD COLUMN {_col}")
+            conn.commit()
+        except Exception:
+            pass  # already exists
     # Backfill level for existing records
     conn.executescript("""
     UPDATE policies SET level='eu'
@@ -574,6 +580,8 @@ return a JSON object with exactly these keys:
 - "economic_score": integer from -10 to +10. Positive = economic benefit (jobs, growth, fair trade). Negative = economic harm (costs, market distortion, inequality). Score from a public-interest perspective.
 - "economic_reason": one sentence
 - "tags": array of up to 5 lowercase topic keywords
+- "scope": one of "global", "regional", "national", "local". global = affects multiple countries or international relations (trade deals, climate agreements, sanctions, tariffs). regional = affects a multi-country bloc (EU single market rules, NATO, G7, Schengen). national = affects one country only — an EU fund payment or enforcement decision directed at a single member state is national, not regional. local = affects a specific region, city, or locality within one country.
+- "scope_reason": one sentence explaining the scope classification
 
 Examples of calibration:
 - US approves new offshore oil drilling rights → environmental_score: -8
@@ -581,6 +589,9 @@ Examples of calibration:
 - Government cuts unemployment benefits → social_score: -6
 - Universal healthcare expansion → social_score: +9
 - Tariff that raises consumer prices but protects domestic jobs → economic_score: -3 (net negative for public)
+- EU NextGenerationEU payment to Poland → scope: national (effect is within Poland only)
+- EU-US trade agreement → scope: global
+- New EU single market regulation → scope: regional
 
 Return ONLY valid JSON. No markdown, no code fences.
 
@@ -699,7 +710,8 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
                    summary=?, social_score=?, social_reason=?,
                    environmental_score=?, environmental_reason=?,
                    economic_score=?, economic_reason=?,
-                   tags=?, scored_at=?, scorer_version=?, score_failed=0
+                   tags=?, scored_at=?, scorer_version=?,
+                   scope=?, scope_reason=?, score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
@@ -709,6 +721,8 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
                     json.dumps(result.get("tags", []), ensure_ascii=False),
                     datetime.utcnow().isoformat(),
                     SCORER_VERSION,
+                    result.get("scope"),
+                    result.get("scope_reason"),
                     row_id,
                 ),
             )
@@ -733,6 +747,7 @@ def export_json(conn: sqlite3.Connection) -> None:
         "summary", "social_score", "social_reason",
         "environmental_score", "environmental_reason",
         "economic_score", "economic_reason", "tags", "status", "level",
+        "scope", "scope_reason",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies

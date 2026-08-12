@@ -137,6 +137,8 @@ return a JSON object with exactly these keys:
 - "economic_score": integer from -10 to +10. Positive = economic benefit (jobs, growth, fair trade). Negative = economic harm (costs, market distortion, inequality). Score from a public-interest perspective.
 - "economic_reason": one sentence
 - "tags": array of up to 5 lowercase topic keywords
+- "scope": one of "global", "regional", "national", "local". global = affects multiple countries or international relations (trade deals, climate agreements, sanctions, tariffs). regional = affects a multi-country bloc (EU single market rules, NATO, G7, Schengen). national = affects one country only — an EU fund payment or enforcement decision directed at a single member state is national, not regional. local = affects a specific region, city, or locality within one country.
+- "scope_reason": one sentence explaining the scope classification
 
 Return ONLY valid JSON. No markdown, no code fences.
 
@@ -263,7 +265,8 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
                    summary=?, social_score=?, social_reason=?,
                    environmental_score=?, environmental_reason=?,
                    economic_score=?, economic_reason=?,
-                   tags=?, scored_at=?, scorer_version=?, score_failed=0
+                   tags=?, scored_at=?, scorer_version=?,
+                   scope=?, scope_reason=?, score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
@@ -273,6 +276,8 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
                     json.dumps(result.get("tags", []), ensure_ascii=False),
                     datetime.utcnow().isoformat(),
                     SCORER_VERSION,
+                    result.get("scope"),
+                    result.get("scope_reason"),
                     row_id,
                 ),
             )
@@ -299,6 +304,7 @@ def export_json(conn: sqlite3.Connection) -> None:
         "summary", "social_score", "social_reason",
         "environmental_score", "environmental_reason",
         "economic_score", "economic_reason", "tags", "status", "level",
+        "scope", "scope_reason",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
@@ -334,7 +340,7 @@ if __name__ == "__main__":
     conn = sqlite3.connect(DB_FILE)
 
     # Ensure schema is up to date (adds scorer_version and any other new columns)
-    for col, definition in [("scorer_version", "TEXT"), ("level", "TEXT"), ("status", "TEXT")]:
+    for col, definition in [("scorer_version", "TEXT"), ("level", "TEXT"), ("status", "TEXT"), ("scope", "TEXT"), ("scope_reason", "TEXT")]:
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {col} {definition}")
             conn.commit()
