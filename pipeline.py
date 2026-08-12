@@ -602,12 +602,15 @@ Document:
 def _parse_llm_response(raw: str) -> dict:
     raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
     raw = re.sub(r"\s*```$", "", raw).strip()
+    # Remove trailing commas before } or ] (common LLM mistake)
+    cleaned = re.sub(r",\s*([}\]])", r"\1", raw)
     try:
-        return json.loads(raw)
+        return json.loads(cleaned)
     except json.JSONDecodeError:
-        m = re.search(r'\{.*\}', raw, re.DOTALL)
+        m = re.search(r'\{.*\}', cleaned, re.DOTALL)
         if m:
-            return json.loads(m.group())
+            candidate = re.sub(r",\s*([}\]])", r"\1", m.group())
+            return json.loads(candidate)
         raise
 
 
@@ -665,12 +668,10 @@ def call_groq(text: str) -> dict:
 
 
 def call_llm(text: str) -> dict:
-    """Try Gemini → Cerebras → Groq; raise if all exhausted."""
+    """Try Gemini → Groq; raise if all exhausted. (Cerebras moved to paid tier.)"""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
-    if CEREBRAS_API_KEY:
-        providers.append(("Cerebras", call_cerebras))
     if GROQ_API_KEY:
         providers.append(("Groq", call_groq))
 
