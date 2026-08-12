@@ -462,6 +462,59 @@ footer {
 .footer-text a { color: var(--muted); }
 .footer-text a:hover { color: var(--text); }
 
+/* ── Trend section ── */
+.trend-section {
+  border-bottom: 1px solid var(--border);
+}
+
+.trend-header {
+  padding: .6rem 2rem;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.trend-tabs {
+  display: flex;
+  gap: .75rem;
+}
+
+.trend-tab {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  padding-bottom: 1px;
+  border-bottom: 1px solid transparent;
+  transition: color .12s, border-color .12s;
+  user-select: none;
+}
+.trend-tab.active { color: var(--text); border-color: var(--text); }
+.trend-tab:hover  { color: var(--sub); }
+
+#trend-chart {
+  width: 100%;
+  height: 180px;
+  display: block;
+  background: var(--surface);
+}
+
+.trend-legend {
+  display: flex;
+  gap: 1.5rem;
+  padding: .5rem 2rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: 1fr; }
@@ -503,6 +556,20 @@ footer {
     <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
   </div>
+</div>
+
+<div class="trend-section">
+  <div class="trend-header">
+    policy volume
+    <div class="trend-tabs">
+      <span class="trend-tab active" data-metric="volume">Volume</span>
+      <span class="trend-tab" data-metric="social">Avg Social</span>
+      <span class="trend-tab" data-metric="env">Avg Env</span>
+      <span class="trend-tab" data-metric="eco">Avg Econ</span>
+    </div>
+  </div>
+  <svg id="trend-chart"></svg>
+  <div class="trend-legend" id="trend-legend"></div>
 </div>
 
 <div class="controls">
@@ -639,6 +706,127 @@ function tickClock() {
 }
 setInterval(tickClock, 1000);
 tickClock();
+
+// ── Trend Chart ───────────────────────────────────────────────────────────
+
+const REGION_COLORS = { EU: '#1D9E75', US: '#EF9F27', GB: '#378ADD', CA: '#e05252', AU: '#7F77DD' };
+let trendMetric = 'volume';
+
+function renderTrend(policies) {
+  const svg   = d3.select('#trend-chart');
+  const el    = document.getElementById('trend-chart');
+  const W     = el.getBoundingClientRect().width || 960;
+  const H     = 180;
+  const pad   = { top: 16, right: 24, bottom: 28, left: 36 };
+
+  svg.selectAll('*').remove();
+  svg.attr('viewBox', `0 0 ${W} ${H}`);
+
+  // Build monthly buckets for the last 12 months
+  const now      = new Date();
+  const months   = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  }
+
+  const regions  = Object.keys(REGION_COLORS);
+  const scoreKey = { volume: null, social: 'social_score', env: 'environmental_score', eco: 'economic_score' };
+  const key      = scoreKey[trendMetric];
+
+  // Aggregate
+  const data = regions.map(region => ({
+    region,
+    values: months.map(month => {
+      const items = policies.filter(p =>
+        p.country === region && (p.published_date || '').startsWith(month)
+      );
+      if (!items.length) return { month, v: 0 };
+      if (!key) return { month, v: items.length };
+      const valid = items.filter(p => p[key] !== null && p[key] !== undefined);
+      return { month, v: valid.length ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
+    }),
+  })).filter(d => d.values.some(v => v.v !== 0));
+
+  if (!data.length) return;
+
+  const allVals = data.flatMap(d => d.values.map(v => v.v));
+  const minV    = trendMetric === 'volume' ? 0 : Math.min(0, d3.min(allVals));
+  const maxV    = d3.max(allVals) || 1;
+
+  const xScale  = d3.scalePoint().domain(months).range([pad.left, W - pad.right]);
+  const yScale  = d3.scaleLinear().domain([minV, maxV]).nice().range([H - pad.bottom, pad.top]);
+
+  const g = svg.append('g');
+
+  // Zero line for score metrics
+  if (trendMetric !== 'volume') {
+    g.append('line')
+      .attr('x1', pad.left).attr('x2', W - pad.right)
+      .attr('y1', yScale(0)).attr('y2', yScale(0))
+      .attr('stroke', '#374151').attr('stroke-width', 1).attr('stroke-dasharray', '3,3');
+  }
+
+  // Y axis ticks
+  g.append('g')
+    .attr('transform', `translate(${pad.left},0)`)
+    .call(d3.axisLeft(yScale).ticks(4).tickSize(-W + pad.left + pad.right))
+    .call(ax => {
+      ax.select('.domain').remove();
+      ax.selectAll('line').attr('stroke', '#1f2937');
+      ax.selectAll('text').attr('fill', '#4b5563').attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9);
+    });
+
+  // X axis labels — show only every 3rd month
+  g.append('g')
+    .attr('transform', `translate(0,${H - pad.bottom})`)
+    .call(d3.axisBottom(xScale).tickValues(months.filter((_, i) => i % 3 === 0)).tickSize(0))
+    .call(ax => {
+      ax.select('.domain').remove();
+      ax.selectAll('text').attr('fill', '#4b5563').attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9).attr('dy', '1.2em');
+    });
+
+  // Lines
+  const line = d3.line().x(d => xScale(d.month)).y(d => yScale(d.v)).curve(d3.curveMonotoneX);
+
+  data.forEach(series => {
+    g.append('path')
+      .datum(series.values)
+      .attr('fill', 'none')
+      .attr('stroke', REGION_COLORS[series.region])
+      .attr('stroke-width', 1.5)
+      .attr('opacity', .85)
+      .attr('d', line);
+
+    // Dots at data points
+    g.selectAll(null)
+      .data(series.values.filter(v => v.v !== 0))
+      .join('circle')
+      .attr('cx', d => xScale(d.month))
+      .attr('cy', d => yScale(d.v))
+      .attr('r', 2.5)
+      .attr('fill', REGION_COLORS[series.region])
+      .attr('opacity', .9);
+  });
+
+  // Legend
+  const legend = document.getElementById('trend-legend');
+  legend.innerHTML = data.map(d =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${REGION_COLORS[d.region]}"></div>${d.region}</div>`
+  ).join('');
+}
+
+function initTrend(policies) {
+  renderTrend(policies);
+  document.querySelectorAll('.trend-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.trend-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      trendMetric = tab.dataset.metric;
+      renderTrend(policies);
+    });
+  });
+}
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
 
@@ -791,6 +979,8 @@ async function init() {
     const res  = await fetch(`policies.json?v=${Date.now()}`);
     const data = await res.json();
     allPolicies = Array.isArray(data) ? data : (data.policies || []);
+    await new Promise(r => requestAnimationFrame(r));
+    initTrend(allPolicies);
     const lastUpdated = data.last_updated || null;
     const label = document.getElementById('updated-label');
     label.textContent = lastUpdated ? 'updated ' + timeAgo(lastUpdated) : 'live';
