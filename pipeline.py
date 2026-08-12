@@ -114,7 +114,7 @@ def init_db(conn: sqlite3.Connection) -> None:
     UPDATE policies SET status='enacted'
       WHERE status='unknown' AND source='canada_gazette'
         AND (external_id LIKE '%/p2/%' OR external_id NOT LIKE '%/p1/%');
-    UPDATE policies SET status='enacted'
+    UPDATE policies SET status='decision'
       WHERE source='ec_press'
         AND NOT (LOWER(raw_text) LIKE '%proposal%'
               OR LOWER(raw_text) LIKE '%consultation%'
@@ -481,7 +481,7 @@ def fetch_ec_press(conn: sqlite3.Connection, max_new: int = 10) -> int:
         raw = f"Title: {title}\nSummary: {desc}"
         proposal_words = ("proposal", "consultation", "draft", "open for comment")
         haystack = (title + " " + desc).lower()
-        ec_status = "proposed" if any(w in haystack for w in proposal_words) else "enacted"
+        ec_status = "proposed" if any(w in haystack for w in proposal_words) else "decision"
 
         conn.execute(
             """INSERT OR IGNORE INTO policies

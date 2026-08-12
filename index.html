@@ -340,6 +340,7 @@ main {
 }
 .status-badge.enacted  { background: rgba(29,158,117,.12); color: #1D9E75; border: 1px solid rgba(29,158,117,.3); }
 .status-badge.proposed { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.3); }
+.status-badge.decision { background: rgba(127,119,221,.12); color: #7F77DD; border: 1px solid rgba(127,119,221,.3); }
 
 .card-date {
   font-family: var(--mono);
@@ -873,6 +874,7 @@ footer {
   <div class="filter-pills" id="status-pills">
     <button class="pill active" data-status="ALL">All status</button>
     <button class="pill" data-status="enacted">&#9679; Law</button>
+    <button class="pill" data-status="decision">&#9670; Decision</button>
     <button class="pill" data-status="proposed">&#9680; Proposed</button>
   </div>
   <div class="filter-sep"></div>
@@ -1423,6 +1425,7 @@ function badgeLabel(source) {
 function statusBadge(status) {
   if (status === 'enacted')  return '<span class="status-badge enacted">&#9679; LAW</span>';
   if (status === 'proposed') return '<span class="status-badge proposed">&#9680; PROPOSED</span>';
+  if (status === 'decision') return '<span class="status-badge decision">&#9670; DECISION</span>';
   return '';
 }
 
