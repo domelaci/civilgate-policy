@@ -323,6 +323,14 @@ if __name__ == "__main__":
 
     conn = sqlite3.connect(DB_FILE)
 
+    # Ensure schema is up to date (adds scorer_version and any other new columns)
+    for col, definition in [("scorer_version", "TEXT"), ("level", "TEXT"), ("status", "TEXT")]:
+        try:
+            conn.execute(f"ALTER TABLE policies ADD COLUMN {col} {definition}")
+            conn.commit()
+        except Exception:
+            pass
+
     if not args.score_only:
         log.info("Starting EUR-Lex backfill from %d-01-01 (regulations + directives, no corrigenda)…", args.start_year)
         backfill_eurlex(conn, start_year=args.start_year)
