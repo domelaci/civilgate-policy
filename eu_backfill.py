@@ -146,8 +146,14 @@ Document:
 
 def _parse_llm_response(raw: str) -> dict:
     raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
-    raw = re.sub(r"\s*```$", "", raw)
-    return json.loads(raw)
+    raw = re.sub(r"\s*```$", "", raw).strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        m = re.search(r'\{.*\}', raw, re.DOTALL)
+        if m:
+            return json.loads(m.group())
+        raise
 
 
 def call_gemini(text: str) -> dict:
@@ -172,7 +178,7 @@ def call_cerebras(text: str) -> dict:
         "https://api.cerebras.ai/v1/chat/completions",
         headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
         json={
-            "model": "llama3.3-70b",
+            "model": "gpt-oss-120b",
             "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
             "temperature": 0.3,
             "max_tokens": 1024,
