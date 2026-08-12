@@ -500,25 +500,6 @@ footer {
   gap: 1.5rem;
 }
 
-.trend-tabs {
-  display: flex;
-  gap: .75rem;
-}
-
-.trend-tab {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted);
-  cursor: pointer;
-  padding-bottom: 1px;
-  border-bottom: 1px solid transparent;
-  transition: color .12s, border-color .12s;
-  user-select: none;
-}
-.trend-tab.active { color: var(--text); border-color: var(--text); }
-.trend-tab:hover  { color: var(--sub); }
 
 #trend-chart {
   width: 100%;
@@ -869,13 +850,6 @@ footer {
 <div class="trend-section">
   <div class="trend-header">
     <span id="trend-title">avg impact score</span>
-    <div class="trend-tabs" id="region-tabs">
-      <span class="trend-tab active" data-region="EU">EU</span>
-      <span class="trend-tab" data-region="US">USA</span>
-      <span class="trend-tab" data-region="GB">UK</span>
-      <span class="trend-tab" data-region="CA">Canada</span>
-      <span class="trend-tab" data-region="AU">Australia</span>
-    </div>
   </div>
   <svg id="trend-chart"></svg>
   <div class="trend-legend" id="trend-legend"></div>
@@ -1149,6 +1123,7 @@ async function renderMap(world) {
         p.classList.toggle('active', p.dataset.filter === regionKey)
       );
       renderGrid();
+      renderTrend(allPolicies);
     });
 
   // Click on SVG background (ocean / empty space) to zoom out
@@ -1163,6 +1138,7 @@ async function renderMap(world) {
     );
     zoomMapToRegion(null);
     renderGrid();
+    renderTrend(allPolicies);
   });
 
   _mapState = { svg, g, path, countries, zoom, W, H };
@@ -1195,8 +1171,6 @@ const SCORES = [
   { key: 'economic_score',      label: 'Economic',      color: '#EF9F27' },
 ];
 
-let trendRegion = 'EU';
-
 function renderTrend(policies) {
   const svg = d3.select('#trend-chart');
   const el  = document.getElementById('trend-chart');
@@ -1207,7 +1181,9 @@ function renderTrend(policies) {
   svg.selectAll('*').remove();
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  const regionPolicies = policies.filter(p => p.country === trendRegion);
+  const regionPolicies = activeFilter === 'ALL'
+    ? policies
+    : policies.filter(p => p.country === activeFilter);
 
   // Dynamic x-axis: span only the months where data actually exists
   const now = new Date();
@@ -1388,14 +1364,6 @@ function renderMovers(policies) {
 function initTrend(policies) {
   renderTrend(policies);
   renderMovers(policies);
-  document.querySelectorAll('#region-tabs .trend-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('#region-tabs .trend-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      trendRegion = tab.dataset.region;
-      renderTrend(policies);
-    });
-  });
 }
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
@@ -1743,6 +1711,7 @@ async function init() {
     zoomMapToRegion(activeFilter === 'ALL' ? null : activeFilter);
     syncMapFills();
     renderGrid();
+    renderTrend(allPolicies);
   });
 
   document.getElementById('status-pills').addEventListener('click', e => {
