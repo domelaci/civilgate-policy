@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CivilGate — Government Policy Tracker</title>
-<meta name="description" content="Track EU and US government policy changes. Plain-language summaries, impact scores, and trend analysis — free and open to everyone.">
+<title>CivilGate — World Government Policy Tracker</title>
+<meta name="description" content="Track world government policy changes. Plain-language summaries, impact scores, and trend analysis — free and open to everyone.">
 <link rel="canonical" href="https://civilgate.org/">
-<meta property="og:title" content="CivilGate — Government Policy Tracker">
-<meta property="og:description" content="Track EU and US government policy changes. Plain-language summaries and impact scores — free and open to everyone.">
+<meta property="og:title" content="CivilGate — World Government Policy Tracker">
+<meta property="og:description" content="Track world government policy changes. Plain-language summaries and impact scores — free and open to everyone.">
 <meta property="og:url" content="https://civilgate.org/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CivilGate — Government Policy Tracker">
-<meta name="twitter:description" content="Track EU and US government policy changes. Plain-language summaries and impact scores.">
+<meta name="twitter:title" content="CivilGate — World Government Policy Tracker">
+<meta name="twitter:description" content="Track world government policy changes. Plain-language summaries and impact scores.">
 <meta name="google-site-verification" content="PASTE_GSC_CODE_HERE">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
@@ -408,7 +408,7 @@ footer a:hover { color: var(--text); }
 <header>
   <div>
     <div class="logo">CivilGate</div>
-    <div class="header-tag">Government Policy Tracker</div>
+    <div class="header-tag">World Government Policy Tracker</div>
   </div>
   <div class="header-right">
     <a href="https://volunteer.civilgate.org" class="volunteer-link">Volunteer matching →</a>
@@ -465,12 +465,16 @@ const PLANNED  = new Set([826,682,784,634,414,48,512,368,364,376,400,422,760,887
 async function renderMap() {
   const svg = d3.select('#world-map');
   const el  = document.getElementById('world-map');
-  const W   = el.clientWidth || 900;
-  const H   = el.clientHeight || 220;
 
-  svg.attr('viewBox', `0 0 ${W} ${H}`).attr('preserveAspectRatio', 'xMidYMid meet');
+  // Wait one frame so the element has a rendered size before reading it
+  await new Promise(r => requestAnimationFrame(r));
+  const W = el.getBoundingClientRect().width  || 960;
+  const H = el.getBoundingClientRect().height || 220;
 
-  const projection = d3.geoNaturalEarth1().scale(W / 6.3).translate([W / 2, H / 2]);
+  svg.attr('viewBox', `0 0 ${W} ${H}`);
+
+  // fitSize auto-calculates scale + translate to fit the world into [W, H]
+  const projection = d3.geoNaturalEarth1().fitSize([W, H], {type: 'Sphere'});
   const path = d3.geoPath().projection(projection);
 
   let world;
