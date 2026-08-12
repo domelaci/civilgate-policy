@@ -796,6 +796,11 @@ footer {
     <button class="pill" data-status="enacted">&#9679; Law</button>
     <button class="pill" data-status="proposed">&#9680; Proposed</button>
   </div>
+  <div class="filter-pills" id="level-pills" style="margin-top:.375rem">
+    <button class="pill active" data-level="ALL">All levels</button>
+    <button class="pill" data-level="eu">EU law</button>
+    <button class="pill" data-level="national">National law</button>
+  </div>
   <div id="tag-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1073,6 +1078,7 @@ function initTrend(policies) {
 let allPolicies  = [];
 let activeFilter = 'ALL';
 let activeStatus = 'ALL';
+let activeLevel  = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
 
@@ -1116,6 +1122,7 @@ function badgeLabel(source) {
     ec_press:         'EC PRESS',
     eurlex:           'EUR-LEX',
     uk_gov:           'GOV.UK',
+    uk_parliament:    'UK PARL.',
     canada_gazette:   'CA GAZETTE',
     au_legislation:   'AU LEG.',
   }[source] || source.toUpperCase();
@@ -1147,6 +1154,7 @@ function renderGrid() {
   let list = allPolicies;
   if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
   if (activeStatus !== 'ALL') list = list.filter(p => p.status === activeStatus);
+  if (activeLevel  !== 'ALL') list = list.filter(p => p.level  === activeLevel);
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -1197,7 +1205,7 @@ function renderGrid() {
       ${tags ? `<div class="tags">${tags}</div>` : ''}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:.25rem">
         ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">source &rarr;</a>` : '<span></span>'}
-        <button class="contact-btn" data-policy='${JSON.stringify({title:p.title,summary:(p.summary||'').slice(0,200),date:p.published_date,source:p.source,country:p.country,url:p.url||''}).replace(/'/g,"&#39;")}'>contact rep &rarr;</button>
+        <button class="contact-btn" data-policy='${JSON.stringify({title:p.title,summary:(p.summary||'').slice(0,200),date:p.published_date,source:p.source,country:p.country,level:p.level||'national',url:p.url||''}).replace(/'/g,"&#39;")}'>contact rep &rarr;</button>
       </div>
     </div>`;
   }).join('');
@@ -1209,11 +1217,21 @@ function renderGrid() {
 
 let currentPolicy = null;
 
+const LOCATION_HINT = {
+  eu:       'Enter your EU country (e.g. "France" or "FR")',
+  US:       'Enter your US address or zip code',
+  GB:       'Enter your UK postcode (e.g. SW1A 1AA)',
+  CA:       'Enter your city or province',
+  AU:       'Enter your suburb or postcode',
+};
+
 function openRepModal(policy) {
   currentPolicy = policy;
   document.getElementById('modal-policy-title').textContent = policy.title;
   document.getElementById('rep-results').innerHTML = '';
   document.getElementById('message-section').style.display = 'none';
+  const hint = policy.level === 'eu' ? LOCATION_HINT.eu : (LOCATION_HINT[policy.country] || 'Enter your location');
+  document.getElementById('location-input').placeholder = hint;
   const saved = localStorage.getItem('cg_location') || '';
   document.getElementById('location-input').value = saved;
   document.getElementById('rep-modal').classList.add('open');
@@ -1280,80 +1298,85 @@ function showReps(reps, policy) {
     firstRep.email ? `mailto:${firstRep.email}?subject=${subject}&body=${body}` : '#';
 }
 
+const EU_COUNTRIES = {
+  france:'FR', germany:'DE', spain:'ES', italy:'IT', poland:'PL',
+  netherlands:'NL', belgium:'BE', sweden:'SE', austria:'AT', denmark:'DK',
+  finland:'FI', ireland:'IE', portugal:'PT', czechia:'CZ', hungary:'HU',
+  romania:'RO', slovakia:'SK', croatia:'HR', bulgaria:'BG', slovenia:'SI',
+  estonia:'EE', latvia:'LV', lithuania:'LT', luxembourg:'LU', malta:'MT',
+  cyprus:'CY', greece:'GR',
+};
+
 async function findReps(location, policy) {
   const results = document.getElementById('rep-results');
   results.innerHTML = '<div class="rep-status">Looking up representatives&hellip;</div>';
   localStorage.setItem('cg_location', location);
 
-  // EU MEP lookup via Wikidata SPARQL (proxied through CF Function)
-  if (policy.country === 'EU') {
-    const euCountries = {
-      france:'FR', germany:'DE', spain:'ES', italy:'IT', poland:'PL',
-      netherlands:'NL', belgium:'BE', sweden:'SE', austria:'AT', denmark:'DK',
-      finland:'FI', ireland:'IE', portugal:'PT', czechia:'CZ', hungary:'HU',
-      romania:'RO', slovakia:'SK', croatia:'HR', bulgaria:'BG', slovenia:'SI',
-      estonia:'EE', latvia:'LV', lithuania:'LT', luxembourg:'LU', malta:'MT',
-      cyprus:'CY', greece:'GR',
-    };
+  // EU-level policy → show MEPs for the user's EU country
+  if (policy.level === 'eu') {
     const loc     = location.toLowerCase().trim();
-    const country = euCountries[loc] || (loc.length === 2 ? loc.toUpperCase() : null);
-
+    const country = EU_COUNTRIES[loc] || (loc.length === 2 ? loc.toUpperCase() : null);
     if (!country) {
       results.innerHTML = '<div class="rep-status">Enter an EU country name or 2-letter code (e.g. "France" or "FR").</div>';
       return;
     }
-
     try {
       const r    = await fetch(`/api/eu-reps?country=${country}`);
       const data = await r.json();
       if (data.error) { results.innerHTML = `<div class="rep-status">${data.error}</div>`; return; }
       const meps = (data.meps || []).slice(0, 5).map(m => ({
-        name: m.name, role: `MEP — ${country}`,
-        email: m.email, phone: '', url: '',
+        name: m.name, role: `MEP — ${country}`, email: m.email, phone: '', url: '',
       }));
       if (!meps.length) {
         results.innerHTML = '<div class="rep-status">No MEPs found for that country. Check the country code.</div>';
         return;
       }
       showReps(meps, policy);
-    } catch (e) {
+    } catch {
       results.innerHTML = '<div class="rep-status">Could not load MEP data. Try again later.</div>';
     }
     return;
   }
 
-  // US lookup proxied through Cloudflare Pages Function (/api/reps)
+  // National policy — route by country
   if (policy.country === 'US') {
     try {
-      const r = await fetch(`/api/reps?address=${encodeURIComponent(location)}`);
+      const r    = await fetch(`/api/reps?address=${encodeURIComponent(location)}`);
       const data = await r.json();
       if (data.error) { results.innerHTML = `<div class="rep-status">${data.error.message || data.error}</div>`; return; }
-
-      const offices  = data.offices  || [];
-      const officials = data.officials || [];
       const reps = [];
-      offices.forEach(office => {
+      (data.offices || []).forEach(office => {
         (office.officialIndices || []).forEach(i => {
-          const o = officials[i];
+          const o = (data.officials || [])[i];
           if (!o) return;
-          reps.push({
-            name:  o.name,
-            role:  office.name,
-            email: (o.emails || [])[0] || '',
-            phone: (o.phones || [])[0] || '',
-            url:   (o.urls   || [])[0] || '',
-          });
+          reps.push({ name: o.name, role: office.name,
+            email: (o.emails || [])[0] || '', phone: (o.phones || [])[0] || '',
+            url: (o.urls || [])[0] || '' });
         });
       });
       showReps(reps.slice(0, 6), policy);
-    } catch (e) {
+    } catch {
       results.innerHTML = '<div class="rep-status">Could not load representative data. Check the address and try again.</div>';
     }
     return;
   }
 
-  // Generic fallback for GB, CA, AU
-  results.innerHTML = `<div class="rep-status">Representative lookup for ${policy.country} coming soon. For now, find your rep via your national parliament website.</div>`;
+  if (policy.country === 'GB') {
+    try {
+      const r    = await fetch(`/api/uk-reps?postcode=${encodeURIComponent(location)}`);
+      const data = await r.json();
+      if (data.error) { results.innerHTML = `<div class="rep-status">${data.error}</div>`; return; }
+      showReps(data.reps || [], policy);
+    } catch {
+      results.innerHTML = '<div class="rep-status">Could not load MP data. Try again later.</div>';
+    }
+    return;
+  }
+
+  // Fallback
+  const links = { CA: 'https://www.ourcommons.ca/members/en', AU: 'https://www.aph.gov.au/Senators_and_Members' };
+  const link  = links[policy.country] ? ` <a href="${links[policy.country]}" target="_blank" rel="noopener">Find yours here &rarr;</a>` : '';
+  results.innerHTML = `<div class="rep-status">National MP lookup for ${policy.country} coming soon.${link}</div>`;
 }
 
 function initContactRep() {
@@ -1398,6 +1421,15 @@ async function init() {
     if (!btn) return;
     activeStatus = btn.dataset.status;
     document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  });
+
+  document.getElementById('level-pills').addEventListener('click', e => {
+    const btn = e.target.closest('[data-level]');
+    if (!btn) return;
+    activeLevel = btn.dataset.level;
+    document.querySelectorAll('#level-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     renderGrid();
   });

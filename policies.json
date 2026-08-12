@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-12T17:57:12.081649Z",
+  "last_updated": "2026-08-12T18:03:32.916386Z",
   "policies": [
     {
       "source": "federal_register",
@@ -21,7 +21,8 @@
         "due process",
         "government administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -44,7 +45,8 @@
         "customs",
         "heritage protection"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -66,7 +68,8 @@
         "maine",
         "public event"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -89,7 +92,8 @@
         "marine regulation",
         "recreation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -112,7 +116,8 @@
         "administrative law",
         "traffic safety"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -135,7 +140,8 @@
         "agriculture",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -158,7 +164,8 @@
         "law enforcement",
         "dea"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -181,7 +188,8 @@
         "helicopter",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -203,7 +211,8 @@
         "hawaii",
         "transportation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -225,7 +234,8 @@
         "regulation",
         "safety standards"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -248,7 +258,8 @@
         "safety",
         "transportation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -271,7 +282,8 @@
         "environment",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -294,7 +306,8 @@
         "estonia",
         "funding"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "uk_gov",
@@ -316,7 +329,8 @@
         "education",
         "social policy"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -339,7 +353,8 @@
         "job creation",
         "green finance"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -362,7 +377,8 @@
         "regulation",
         "uk government"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -385,7 +401,8 @@
         "ukaea",
         "appointments"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -408,7 +425,8 @@
         "landlords",
         "economy"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -431,7 +449,8 @@
         "innovation",
         "medicine"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -454,7 +473,8 @@
         "economy",
         "cma"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -477,7 +497,8 @@
         "government oversight",
         "public safety"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -500,7 +521,8 @@
         "manufacturing",
         "uk and australia"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -523,7 +545,8 @@
         "local government",
         "transparency"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -545,7 +568,8 @@
         "administrative notice",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -568,7 +592,8 @@
         "border control",
         "executive action"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -590,7 +615,8 @@
         "executive order",
         "national security"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -613,7 +639,8 @@
         "purple heart",
         "commemoration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -636,7 +663,8 @@
         "manufacturing",
         "semiconductors"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -659,7 +687,8 @@
         "national security",
         "government reform"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -682,7 +711,8 @@
         "civil rights",
         "sba"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -705,7 +735,8 @@
         "minnesota",
         "banking"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -728,7 +759,8 @@
         "marine corps",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -751,7 +783,8 @@
         "recovery",
         "infrastructure"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "federal_register",
@@ -774,7 +807,8 @@
         "recreation",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -797,7 +831,8 @@
         "recreation",
         "coast guard"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -819,7 +854,8 @@
         "maritime safety",
         "bureaucracy"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -842,7 +878,8 @@
         "noaa",
         "economy"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -865,7 +902,8 @@
         "arizona",
         "emissions"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -888,7 +926,8 @@
         "transportation",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -911,7 +950,8 @@
         "environment",
         "permitting"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -933,7 +973,8 @@
         "homeland security",
         "government efficiency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -956,7 +997,8 @@
         "safety",
         "infrastructure"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -979,7 +1021,8 @@
         "fraud prevention",
         "marriage brokers"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1002,7 +1045,8 @@
         "transportation",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1025,7 +1069,8 @@
         "social policy",
         "government review"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1048,7 +1093,8 @@
         "infrastructure",
         "electricity"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1070,7 +1116,8 @@
         "electricity",
         "cost of living"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1093,7 +1140,8 @@
         "local government",
         "urban planning"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1116,7 +1164,8 @@
         "law enforcement",
         "pollution"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1139,7 +1188,8 @@
         "economy",
         "transparency"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1161,7 +1211,8 @@
         "government",
         "administration"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1183,7 +1234,8 @@
         "administration",
         "government strategy"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1206,7 +1258,8 @@
         "advisors",
         "management"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1228,7 +1281,8 @@
         "governance",
         "nonprofit"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1251,7 +1305,8 @@
         "ethics",
         "regulation"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1274,7 +1329,8 @@
         "correctional services",
         "public safety"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -1297,7 +1353,8 @@
         "recovery",
         "funding"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "ec_press",
@@ -1320,7 +1377,8 @@
         "green transition",
         "manufacturing"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "federal_register",
@@ -1343,7 +1401,8 @@
         "law enforcement",
         "security"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1366,7 +1425,8 @@
         "irs",
         "payments"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1389,7 +1449,8 @@
         "fireworks",
         "michigan"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1412,7 +1473,8 @@
         "public safety",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1434,7 +1496,8 @@
         "administrative law",
         "department of homeland security"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1457,7 +1520,8 @@
         "benefits",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1480,7 +1544,8 @@
         "administrative law",
         "social security"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1503,7 +1568,8 @@
         "transportation",
         "airspace"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "federal_register",
@@ -1526,7 +1592,8 @@
         "fees",
         "employment"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1549,7 +1616,8 @@
         "administration",
         "trade"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1572,7 +1640,8 @@
         "administration",
         "compliance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1595,7 +1664,8 @@
         "medicare",
         "health insurance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1618,7 +1688,8 @@
         "northern ireland",
         "civic engagement"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1641,7 +1712,8 @@
         "environment",
         "england"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1664,7 +1736,8 @@
         "public sector",
         "efficiency"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1687,7 +1760,8 @@
         "public safety",
         "local government"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1710,7 +1784,8 @@
         "medical devices",
         "mhra"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1733,7 +1808,8 @@
         "community safety",
         "climate resilience"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "uk_gov",
@@ -1756,7 +1832,8 @@
         "marine conservation",
         "government response"
       ],
-      "status": "unknown"
+      "status": "unknown",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -1779,7 +1856,8 @@
         "funding",
         "recovery"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "au_legislation",
@@ -1802,7 +1880,8 @@
         "national security",
         "mining"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1824,7 +1903,8 @@
         "australian mint",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1847,7 +1927,8 @@
         "vaccines",
         "legislation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -1870,7 +1951,8 @@
         "telecommunications",
         "infrastructure"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "ec_press",
@@ -1893,7 +1975,8 @@
         "history",
         "european union"
       ],
-      "status": "proposed"
+      "status": "proposed",
+      "level": "eu"
     },
     {
       "source": "ec_press",
@@ -1916,7 +1999,8 @@
         "european commission",
         "netherlands"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "au_legislation",
@@ -1939,7 +2023,8 @@
         "regulation",
         "market competition"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1962,7 +2047,8 @@
         "treasury",
         "compliance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -1985,7 +2071,8 @@
         "governance",
         "medicine"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2007,7 +2094,8 @@
         "health insurance",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2030,7 +2118,8 @@
         "regulation",
         "australia"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2053,7 +2142,8 @@
         "conservation",
         "international law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2075,7 +2165,8 @@
         "insurance",
         "public_finance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -2098,7 +2189,8 @@
         "russian assets",
         "foreign aid"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "au_legislation",
@@ -2121,7 +2213,8 @@
         "employment",
         "government"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2144,7 +2237,8 @@
         "safety",
         "licensing"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "ec_press",
@@ -2167,7 +2261,8 @@
         "european union",
         "finance"
       ],
-      "status": "proposed"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "au_legislation",
@@ -2190,7 +2285,8 @@
         "privacy",
         "oversight"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2213,7 +2309,8 @@
         "administration",
         "workforce"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2236,7 +2333,8 @@
         "wildlife",
         "legislation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2259,7 +2357,8 @@
         "public-finance",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2282,7 +2381,8 @@
         "clean energy",
         "transportation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2305,7 +2405,8 @@
         "safety",
         "compliance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "eurlex",
@@ -2328,7 +2429,8 @@
         "foreign policy",
         "security"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2351,7 +2453,8 @@
         "trade",
         "eu law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "au_legislation",
@@ -2373,7 +2476,8 @@
         "personnel",
         "conditions of service"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2396,7 +2500,8 @@
         "subsidies",
         "medication"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2419,7 +2524,8 @@
         "medicine",
         "policy"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2442,7 +2548,8 @@
         "compliance",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2464,7 +2571,8 @@
         "regulation",
         "healthcare"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2487,7 +2595,8 @@
         "public health",
         "welfare"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2509,7 +2618,8 @@
         "regulation",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2532,7 +2642,8 @@
         "health policy",
         "national health"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "au_legislation",
@@ -2555,7 +2666,8 @@
         "health policy",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -2578,7 +2690,8 @@
         "administration",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "eurlex",
@@ -2601,7 +2714,8 @@
         "consumer protection",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2623,7 +2737,8 @@
         "consumer protection",
         "eu regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2646,7 +2761,8 @@
         "hemp",
         "eu regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2669,7 +2785,8 @@
         "eu law",
         "telecommunications"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2692,7 +2809,8 @@
         "eu law",
         "geopolitics"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2715,7 +2833,8 @@
         "foreign policy",
         "trade restrictions"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2738,7 +2857,8 @@
         "trade",
         "geopolitics"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2761,7 +2881,8 @@
         "transport",
         "environment"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2784,7 +2905,8 @@
         "trade",
         "foreign policy"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "canada_gazette",
@@ -2806,7 +2928,8 @@
         "regulations",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "eurlex",
@@ -2829,7 +2952,8 @@
         "food security",
         "european union"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2852,7 +2976,8 @@
         "sudan",
         "eu"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2875,7 +3000,8 @@
         "trade",
         "sustainability"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2898,7 +3024,8 @@
         "financial crime",
         "public finance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2921,7 +3048,8 @@
         "simplification",
         "compliance"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2944,7 +3072,8 @@
         "waste management",
         "sustainability"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2967,7 +3096,8 @@
         "environmental justice",
         "eu regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -2990,7 +3120,8 @@
         "eu policy",
         "market regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "canada_gazette",
@@ -3013,7 +3144,8 @@
         "canada",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "eurlex",
@@ -3036,7 +3168,8 @@
         "quotas",
         "baltic sea"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3059,7 +3192,8 @@
         "transportation",
         "vehicle standards"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3082,7 +3216,8 @@
         "transportation",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3105,7 +3240,8 @@
         "eu-us",
         "imports"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3128,7 +3264,8 @@
         "industry",
         "eu"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3151,7 +3288,8 @@
         "industry",
         "eu"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3174,7 +3312,8 @@
         "european union",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3197,7 +3336,8 @@
         "estonia",
         "plastics"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3220,7 +3360,8 @@
         "wildlife trade",
         "conservation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "canada_gazette",
@@ -3243,7 +3384,8 @@
         "transparency",
         "law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3265,7 +3407,8 @@
         "transparency",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "eurlex",
@@ -3288,7 +3431,8 @@
         "eu regulation",
         "trade"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3311,7 +3455,8 @@
         "manufacturing",
         "import tariffs"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3334,7 +3479,8 @@
         "social welfare",
         "human rights"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3357,7 +3503,8 @@
         "human rights",
         "sustainable development"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3380,7 +3527,8 @@
         "food security",
         "innovation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3403,7 +3551,8 @@
         "regulation",
         "critical infrastructure"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3426,7 +3575,8 @@
         "consumer protection",
         "eu regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3449,7 +3599,8 @@
         "transport",
         "regulation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3472,7 +3623,8 @@
         "foreign policy",
         "eu"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "eurlex",
@@ -3495,7 +3647,8 @@
         "public health",
         "consumer protection"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "eu"
     },
     {
       "source": "canada_gazette",
@@ -3518,7 +3671,8 @@
         "canada",
         "publication"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3541,7 +3695,8 @@
         "administration",
         "federal legislation"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3563,7 +3718,8 @@
         "administrative notice",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3586,7 +3742,8 @@
         "transparency",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3609,7 +3766,8 @@
         "transparency",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3632,7 +3790,8 @@
         "administration",
         "public notice"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3655,7 +3814,8 @@
         "canada",
         "publishing"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3678,7 +3838,8 @@
         "regulations",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3701,7 +3862,8 @@
         "transparency",
         "procedural"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3724,7 +3886,8 @@
         "transparency",
         "federal administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3747,7 +3910,8 @@
         "transparency",
         "canada"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3769,7 +3933,8 @@
         "federal administration",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3792,7 +3957,8 @@
         "transparency",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3815,7 +3981,8 @@
         "administration",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3838,7 +4005,8 @@
         "regulations",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3861,7 +4029,8 @@
         "administration",
         "canada"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3883,7 +4052,8 @@
         "administrative",
         "federal regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3906,7 +4076,8 @@
         "administration",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3929,7 +4100,8 @@
         "law",
         "administrative notice"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3952,7 +4124,8 @@
         "administration",
         "law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3975,7 +4148,8 @@
         "transparency",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -3998,7 +4172,8 @@
         "transparency",
         "administrative law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4020,7 +4195,8 @@
         "canada gazette",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4043,7 +4219,8 @@
         "canada",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4066,7 +4243,8 @@
         "administration",
         "canada"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4089,7 +4267,8 @@
         "administration",
         "public notice"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4111,7 +4290,8 @@
         "regulatory process",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4134,7 +4314,8 @@
         "regulations",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4157,7 +4338,8 @@
         "administration",
         "publication"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4180,7 +4362,8 @@
         "administration",
         "law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4202,7 +4385,8 @@
         "regulations",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4225,7 +4409,8 @@
         "administration",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4248,7 +4433,8 @@
         "transparency",
         "canada"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4270,7 +4456,8 @@
         "transparency",
         "canada gazette"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4293,7 +4480,8 @@
         "transparency",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4316,7 +4504,8 @@
         "administration",
         "law"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4338,7 +4527,8 @@
         "public notice",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4361,7 +4551,8 @@
         "transparency",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4384,7 +4575,8 @@
         "administration",
         "canada"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4406,7 +4598,8 @@
         "administrative notice",
         "regulations"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4429,7 +4622,8 @@
         "public notice",
         "administration"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4452,7 +4646,8 @@
         "administration",
         "transparency"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4475,7 +4670,8 @@
         "transparency",
         "administrative"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4498,7 +4694,8 @@
         "canada",
         "publications"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4521,7 +4718,8 @@
         "transparency",
         "canada"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4544,7 +4742,8 @@
         "publications",
         "regulatory"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     },
     {
       "source": "canada_gazette",
@@ -4567,7 +4766,8 @@
         "administration",
         "federal policy"
       ],
-      "status": "enacted"
+      "status": "enacted",
+      "level": "national"
     }
   ]
 }

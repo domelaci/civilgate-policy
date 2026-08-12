@@ -78,6 +78,23 @@ def init_db(conn: sqlite3.Connection) -> None:
         log.info("Migrated: added status column")
     except Exception:
         pass  # already exists
+    # Migration: add level column to existing databases
+    try:
+        conn.execute("ALTER TABLE policies ADD COLUMN level TEXT DEFAULT 'national'")
+        conn.commit()
+        log.info("Migrated: added level column")
+    except Exception:
+        pass  # already exists
+    # Backfill level for existing records
+    conn.executescript("""
+    UPDATE policies SET level='eu'
+      WHERE level IS NULL OR level='national'
+        AND source IN ('eurlex','ec_press');
+    UPDATE policies SET level='national'
+      WHERE (level IS NULL OR level NOT IN ('eu','national'))
+        AND source IN ('federal_register','uk_gov','canada_gazette','au_legislation','uk_parliament');
+    """)
+    conn.commit()
     # Backfill status for existing records where deterministic
     conn.executescript("""
     UPDATE policies SET status='enacted'
@@ -85,8 +102,12 @@ def init_db(conn: sqlite3.Connection) -> None:
     UPDATE policies SET status='enacted'
       WHERE status='unknown' AND source='canada_gazette'
         AND (external_id LIKE '%/p2/%' OR external_id NOT LIKE '%/p1/%');
-    UPDATE policies SET status='proposed'
-      WHERE status='unknown' AND source='ec_press';
+    UPDATE policies SET status='enacted'
+      WHERE source='ec_press'
+        AND NOT (LOWER(raw_text) LIKE '%proposal%'
+              OR LOWER(raw_text) LIKE '%consultation%'
+              OR LOWER(raw_text) LIKE '%draft%'
+              OR LOWER(raw_text) LIKE '% open for comment%');
     UPDATE policies SET status='enacted'
       WHERE status='unknown' AND source='federal_register'
         AND (raw_text LIKE '%Type: RULE%' OR raw_text LIKE '%Type: PRESDOCU%'
@@ -147,11 +168,11 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
-               VALUES (?,?,?,?,?,?,?,?,?)""",
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
             ("federal_register", "US", ext_id,
              doc.get("title"), doc.get("html_url"),
-             doc.get("publication_date"), date.today().isoformat(), raw, status),
+             doc.get("publication_date"), date.today().isoformat(), raw, status, "national"),
         )
         added += 1
         if added >= max_new:
@@ -225,9 +246,9 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
-               VALUES (?,?,?,?,?,?,?,?,?)""",
-            ("eurlex", "EU", ext_id, title, url, pub_date, date.today().isoformat(), raw, status),
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("eurlex", "EU", ext_id, title, url, pub_date, date.today().isoformat(), raw, status, "eu"),
         )
         added += 1
         if added >= max_new:
@@ -290,9 +311,9 @@ def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
-               VALUES (?,?,?,?,?,?,?,?,?)""",
-            ("uk_gov", "GB", ext_id, title, url, pub, date.today().isoformat(), raw, status),
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("uk_gov", "GB", ext_id, title, url, pub, date.today().isoformat(), raw, status, "national"),
         )
         added += 1
         if added >= max_new:
@@ -343,10 +364,10 @@ def fetch_canada_gazette(conn: sqlite3.Connection, max_new: int = 10) -> int:
 
             conn.execute(
                 """INSERT OR IGNORE INTO policies
-                   (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
-                   VALUES (?,?,?,?,?,?,?,?,?)""",
+                   (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+                   VALUES (?,?,?,?,?,?,?,?,?,?)""",
                 ("canada_gazette", "CA", ext_id, title, link, pub_date,
-                 date.today().isoformat(), f"Title: {title}\nSummary: {desc}", status),
+                 date.today().isoformat(), f"Title: {title}\nSummary: {desc}", status, "national"),
             )
             added += 1
             if added >= max_new:
@@ -396,10 +417,10 @@ def fetch_australia_legislation(conn: sqlite3.Connection, max_new: int = 10) -> 
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
-               VALUES (?,?,?,?,?,?,?,?,?)""",
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
             ("au_legislation", "AU", ext_id, title, url, pub_date,
-             date.today().isoformat(), raw, "enacted"),
+             date.today().isoformat(), raw, "enacted", "national"),
         )
         added += 1
         if added >= max_new:
@@ -446,13 +467,16 @@ def fetch_ec_press(conn: sqlite3.Connection, max_new: int = 10) -> int:
             pub_date = date.today().isoformat()
 
         raw = f"Title: {title}\nSummary: {desc}"
+        proposal_words = ("proposal", "consultation", "draft", "open for comment")
+        haystack = (title + " " + desc).lower()
+        ec_status = "proposed" if any(w in haystack for w in proposal_words) else "enacted"
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
-               VALUES (?,?,?,?,?,?,?,?,?)""",
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
             ("ec_press", "EU", ext_id, title, link, pub_date,
-             date.today().isoformat(), raw, "proposed"),
+             date.today().isoformat(), raw, ec_status, "eu"),
         )
         added += 1
         if added >= max_new:
@@ -460,6 +484,68 @@ def fetch_ec_press(conn: sqlite3.Connection, max_new: int = 10) -> int:
 
     conn.commit()
     log.info("EC Press Corner: %d new documents", added)
+    return added
+
+
+# ── UK Parliament Bills fetcher ────────────────────────────────────────────
+
+def fetch_uk_parliament(conn: sqlite3.Connection, max_new: int = 15) -> int:
+    try:
+        r = requests.get(
+            "https://bills-api.parliament.uk/api/v1/Bills",
+            params={"take": 50, "skip": 0},
+            timeout=30,
+            headers={
+                "User-Agent": "CivilGate/1.0 (+https://civilgate.org)",
+                "Accept": "application/json",
+            },
+        )
+        r.raise_for_status()
+        items = r.json().get("items", [])
+    except Exception as e:
+        log.error("UK Parliament Bills fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for bill in items:
+        bill_id = bill.get("billId")
+        if not bill_id:
+            continue
+        ext_id = f"ukparl:{bill_id}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title       = (bill.get("shortTitle") or "").strip()
+        long_title  = (bill.get("longTitle") or "").strip()
+        last_update = (bill.get("lastUpdate") or "")[:10]
+        stage       = bill.get("currentStage") or {}
+        stage_desc  = (stage.get("description") or "").strip()
+        house       = (bill.get("currentHouse") or "").strip()
+        bill_type   = (bill.get("billType", {}).get("name") or "").strip()
+
+        status = "enacted" if "royal assent" in stage_desc.lower() else "proposed"
+        url    = f"https://bills.parliament.uk/bills/{bill_id}"
+        raw    = "\n".join(filter(None, [
+            f"Title: {title}",
+            f"Full title: {long_title}",
+            f"Type: {bill_type}",
+            f"Stage: {stage_desc}",
+            f"House: {house}",
+        ]))
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("uk_parliament", "GB", ext_id, title, url, last_update,
+             date.today().isoformat(), raw, status, "national"),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("UK Parliament: %d new bills", added)
     return added
 
 
@@ -556,7 +642,7 @@ def export_json(conn: sqlite3.Connection) -> None:
         "source", "country", "external_id", "title", "url", "published_date",
         "summary", "social_score", "social_reason",
         "environmental_score", "environmental_reason",
-        "economic_score", "economic_reason", "tags", "status",
+        "economic_score", "economic_reason", "tags", "status", "level",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
@@ -622,6 +708,7 @@ def main() -> None:
     fetch_ec_press(conn)
     fetch_eurlex(conn)
     fetch_uk_gov(conn)
+    fetch_uk_parliament(conn)
     fetch_canada_gazette(conn)
     fetch_australia_legislation(conn)
     score_pending(conn)
