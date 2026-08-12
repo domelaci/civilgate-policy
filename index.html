@@ -951,9 +951,84 @@ const CA_CODES = new Set([124]);
 const AU_CODES = new Set([36,554]);
 const PLANNED  = new Set([682,784,634,414,48,512,368,364,376,400,422,760,887,818,156,76,32,152,170,862,604,218,68,600,858,328,740]);
 
+const REGION_CODES = { EU: EU_CODES, US: US_CODES, GB: GB_CODES, CA: CA_CODES, AU: AU_CODES };
+
+const EU_COUNTRY_NAMES = {
+  40:'Austria', 56:'Belgium', 100:'Bulgaria', 191:'Croatia', 196:'Cyprus',
+  203:'Czechia', 208:'Denmark', 233:'Estonia', 246:'Finland', 250:'France',
+  276:'Germany', 300:'Greece', 348:'Hungary', 372:'Ireland', 380:'Italy',
+  428:'Latvia', 440:'Lithuania', 442:'Luxembourg', 470:'Malta', 528:'Netherlands',
+  616:'Poland', 620:'Portugal', 642:'Romania', 703:'Slovakia', 705:'Slovenia',
+  724:'Spain', 752:'Sweden',
+};
+const REGION_NAMES = { EU:'European Union', US:'United States', GB:'United Kingdom', CA:'Canada', AU:'Australia' };
+
+let _mapState = null;
+let _selectedEuCountry = null;
+
+function countryBaseFill(id) {
+  if (_selectedEuCountry === id) return '#34d9a5';
+  if (EU_CODES.has(id)) return '#1D9E75';
+  if (US_CODES.has(id)) return '#EF9F27';
+  if (GB_CODES.has(id)) return '#378ADD';
+  if (CA_CODES.has(id)) return '#e05252';
+  if (AU_CODES.has(id)) return '#7F77DD';
+  if (PLANNED.has(id))  return '#1e3050';
+  return '#1f2937';
+}
+
+function syncMapFills() {
+  if (_mapState) _mapState.g.selectAll('path').attr('fill', d => countryBaseFill(+d.id));
+}
+
+function updateMapHeader(text) {
+  const h = document.querySelector('.map-header');
+  if (h) h.textContent = text;
+}
+
+function zoomMapToRegion(regionKey) {
+  if (!_mapState) return;
+  const { svg, path, countries, zoom, W, H } = _mapState;
+
+  if (!regionKey || regionKey === 'ALL') {
+    svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+    updateMapHeader('select region');
+    return;
+  }
+
+  const codes = REGION_CODES[regionKey];
+  if (!codes) return;
+
+  const features = countries.filter(d => codes.has(+d.id));
+  if (!features.length) return;
+  const [[x0, y0], [x1, y1]] = path.bounds({ type:'FeatureCollection', features });
+  const pad = 40;
+  const scale = 0.85 * Math.min((W - pad*2) / Math.max(x1-x0, 1), (H - pad*2) / Math.max(y1-y0, 1));
+  svg.transition().duration(750).call(
+    zoom.transform,
+    d3.zoomIdentity.translate(W/2 - scale*(x0+x1)/2, H/2 - scale*(y0+y1)/2).scale(scale)
+  );
+  updateMapHeader(`${REGION_NAMES[regionKey] || regionKey} — click a country · click background to reset`);
+}
+
+function zoomMapToCountry(id) {
+  if (!_mapState) return;
+  const { svg, path, countries, zoom, W, H } = _mapState;
+  const feature = countries.find(d => +d.id === id);
+  if (!feature) return;
+  const [[x0, y0], [x1, y1]] = path.bounds(feature);
+  const pad = 60;
+  const raw = 0.7 * Math.min((W - pad*2) / Math.max(x1-x0, 1), (H - pad*2) / Math.max(y1-y0, 1));
+  const scale = Math.min(raw, 14);
+  svg.transition().duration(600).call(
+    zoom.transform,
+    d3.zoomIdentity.translate(W/2 - scale*(x0+x1)/2, H/2 - scale*(y0+y1)/2).scale(scale)
+  );
+}
+
 async function renderMap(world) {
-  const svg = d3.select('#world-map');
   const el  = document.getElementById('world-map');
+  const svg = d3.select('#world-map');
 
   await new Promise(r => requestAnimationFrame(r));
   const rect = el.getBoundingClientRect();
@@ -962,10 +1037,17 @@ async function renderMap(world) {
 
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  const projection = d3.geoNaturalEarth1().fitSize([W, H], {type: 'Sphere'});
+  const projection = d3.geoNaturalEarth1().fitSize([W, H], {type:'Sphere'});
   const path = d3.geoPath().projection(projection);
-
   const countries = topojson.feature(world, world.objects.countries).features;
+
+  const zoom = d3.zoom()
+    .scaleExtent([1, 20])
+    .on('zoom', ({ transform }) => g.attr('transform', transform));
+
+  svg.call(zoom).on('dblclick.zoom', null);
+
+  const g = svg.append('g');
 
   const tooltip = d3.select('body').append('div')
     .style('position', 'fixed')
@@ -983,39 +1065,89 @@ async function renderMap(world) {
     .style('transition', 'opacity .12s')
     .style('z-index', '100');
 
-  svg.selectAll('path')
+  g.selectAll('path')
     .data(countries)
     .join('path')
     .attr('d', path)
-    .attr('fill', d => {
-      const id = +d.id;
-      if (EU_CODES.has(id)) return '#1D9E75';
-      if (US_CODES.has(id)) return '#EF9F27';
-      if (GB_CODES.has(id)) return '#378ADD';
-      if (CA_CODES.has(id)) return '#e05252';
-      if (AU_CODES.has(id)) return '#7F77DD';
-      if (PLANNED.has(id))  return '#1e3050';
-      return '#1f2937';
-    })
+    .attr('fill', d => countryBaseFill(+d.id))
     .attr('stroke', '#0a0e18')
     .attr('stroke-width', .3)
+    .style('cursor', d => {
+      const id = +d.id;
+      return (EU_CODES.has(id)||US_CODES.has(id)||GB_CODES.has(id)||CA_CODES.has(id)||AU_CODES.has(id)||PLANNED.has(id)) ? 'pointer' : 'default';
+    })
     .on('mouseover', function(event, d) {
       const id = +d.id;
-      const active = EU_CODES.has(id) || US_CODES.has(id) || GB_CODES.has(id) || CA_CODES.has(id) || AU_CODES.has(id);
-      if (!active && PLANNED.has(id)) {
+      const isActive = EU_CODES.has(id)||US_CODES.has(id)||GB_CODES.has(id)||CA_CODES.has(id)||AU_CODES.has(id);
+      if (isActive && _selectedEuCountry !== id) {
+        d3.select(this).attr('fill', 'rgba(255,255,255,.15)');
+      } else if (!isActive && PLANNED.has(id)) {
         d3.select(this).attr('fill', '#2d3748');
-        tooltip.style('opacity', '1').text('coming soon');
+        tooltip.style('opacity','1').text('coming soon');
+        return;
       }
+      const name = EU_COUNTRY_NAMES[id] || REGION_NAMES[
+        US_CODES.has(id)?'US': GB_CODES.has(id)?'GB': CA_CODES.has(id)?'CA': AU_CODES.has(id)?'AU': null
+      ] || '';
+      if (name) tooltip.style('opacity','1').text(name);
     })
     .on('mousemove', event => {
-      tooltip.style('left', (event.clientX + 12) + 'px').style('top', (event.clientY - 28) + 'px');
+      tooltip.style('left', (event.clientX+12)+'px').style('top', (event.clientY-28)+'px');
     })
     .on('mouseout', function(event, d) {
       const id = +d.id;
-      const active = EU_CODES.has(id) || US_CODES.has(id) || GB_CODES.has(id) || CA_CODES.has(id) || AU_CODES.has(id);
-      if (PLANNED.has(id) && !active) d3.select(this).attr('fill', '#1e3050');
-      tooltip.style('opacity', '0');
+      d3.select(this).attr('fill', countryBaseFill(id));
+      tooltip.style('opacity','0');
+    })
+    .on('click', function(event, d) {
+      event.stopPropagation();
+      const id = +d.id;
+      const regionKey = EU_CODES.has(id)?'EU': US_CODES.has(id)?'US': GB_CODES.has(id)?'GB': CA_CODES.has(id)?'CA': AU_CODES.has(id)?'AU': null;
+      if (!regionKey) return;
+
+      // Already zoomed into EU → individual country selection
+      if (activeFilter === 'EU' && regionKey === 'EU') {
+        const wasSelected = _selectedEuCountry === id;
+        _selectedEuCountry = wasSelected ? null : id;
+        syncMapFills();
+        if (wasSelected) {
+          zoomMapToRegion('EU');
+          updateMapHeader('European Union — click a country · click background to reset');
+        } else {
+          zoomMapToCountry(id);
+          const name = EU_COUNTRY_NAMES[id] || 'EU member';
+          updateMapHeader(`${name} — member-state data coming soon · click to deselect`);
+        }
+        return;
+      }
+
+      // First click on a region: zoom in + sync filter pill
+      _selectedEuCountry = null;
+      syncMapFills();
+      zoomMapToRegion(regionKey);
+      // Sync the filter pill
+      activeFilter = regionKey;
+      activeTag = '';
+      document.querySelectorAll('#filter-pills .pill').forEach(p =>
+        p.classList.toggle('active', p.dataset.filter === regionKey)
+      );
+      renderGrid();
     });
+
+  // Click on SVG background to zoom out
+  svg.on('click', () => {
+    _selectedEuCountry = null;
+    syncMapFills();
+    activeFilter = 'ALL';
+    activeTag = '';
+    document.querySelectorAll('#filter-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.filter === 'ALL')
+    );
+    zoomMapToRegion(null);
+    renderGrid();
+  });
+
+  _mapState = { svg, g, path, countries, zoom, W, H };
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1584,8 +1716,11 @@ async function init() {
     if (!btn) return;
     activeFilter = btn.dataset.filter;
     if (activeFilter === 'ALL') activeTag = '';
+    _selectedEuCountry = null;
     document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
+    zoomMapToRegion(activeFilter === 'ALL' ? null : activeFilter);
+    syncMapFills();
     renderGrid();
   });
 
