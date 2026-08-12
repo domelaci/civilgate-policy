@@ -32,6 +32,8 @@ SITE_URL         = os.environ.get("SITE_URL", "https://civilgate.org")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
+SCORER_VERSION = "v1"
+
 
 # ── Database ───────────────────────────────────────────────────────────────
 
@@ -57,7 +59,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         tags                 TEXT,
         scored_at            TIMESTAMP,
         score_failed         INTEGER DEFAULT 0,
-        status               TEXT DEFAULT 'unknown'
+        status               TEXT DEFAULT 'unknown',
+        scorer_version       TEXT
     );
     CREATE TABLE IF NOT EXISTS users (
         id         TEXT PRIMARY KEY,
@@ -85,6 +88,13 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE policies ADD COLUMN level TEXT DEFAULT 'national'")
         conn.commit()
         log.info("Migrated: added level column")
+    except Exception:
+        pass  # already exists
+    # Migration: add scorer_version column
+    try:
+        conn.execute("ALTER TABLE policies ADD COLUMN scorer_version TEXT")
+        conn.commit()
+        log.info("Migrated: added scorer_version column")
     except Exception:
         pass  # already exists
     # Backfill level for existing records
@@ -683,7 +693,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
                    summary=?, social_score=?, social_reason=?,
                    environmental_score=?, environmental_reason=?,
                    economic_score=?, economic_reason=?,
-                   tags=?, scored_at=?
+                   tags=?, scored_at=?, scorer_version=?, score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
@@ -692,6 +702,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
                     result.get("economic_score"), result.get("economic_reason"),
                     json.dumps(result.get("tags", []), ensure_ascii=False),
                     datetime.utcnow().isoformat(),
+                    SCORER_VERSION,
                     row_id,
                 ),
             )

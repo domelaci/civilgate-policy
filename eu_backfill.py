@@ -33,6 +33,8 @@ CEREBRAS_API_KEY = os.environ.get("CEREBRAS_API_KEY", "")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
+SCORER_VERSION = "v1"
+
 EURLEX_SPARQL = """\
 SELECT DISTINCT ?work ?date ?title ?celex ?type WHERE {{
   VALUES ?type {{
@@ -251,7 +253,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
                    summary=?, social_score=?, social_reason=?,
                    environmental_score=?, environmental_reason=?,
                    economic_score=?, economic_reason=?,
-                   tags=?, scored_at=?
+                   tags=?, scored_at=?, scorer_version=?, score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
@@ -260,6 +262,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
                     result.get("economic_score"), result.get("economic_reason"),
                     json.dumps(result.get("tags", []), ensure_ascii=False),
                     datetime.utcnow().isoformat(),
+                    SCORER_VERSION,
                     row_id,
                 ),
             )
