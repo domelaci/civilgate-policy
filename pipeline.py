@@ -128,6 +128,155 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
     return added
 
 
+# ── UK GOV.UK fetcher ─────────────────────────────────────────────────────
+
+def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
+    try:
+        r = requests.get(
+            "https://www.gov.uk/api/search.json",
+            params={
+                "filter_content_store_document_type[]": ["policy_paper", "press_release"],
+                "count": 30,
+                "order": "-public_timestamp",
+                "fields[]": ["title", "description", "link", "public_timestamp"],
+            },
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        results = r.json().get("results", [])
+    except Exception as e:
+        log.error("GOV.UK fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for doc in results:
+        rel_link = doc.get("link", "")
+        ext_id = f"govuk:{rel_link}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title   = (doc.get("title") or "").strip()
+        desc    = (doc.get("description") or "").strip()
+        pub     = (doc.get("public_timestamp") or "")[:10]
+        url     = "https://www.gov.uk" + rel_link
+        raw     = f"Title: {title}\nSummary: {desc}"
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
+               VALUES (?,?,?,?,?,?,?,?)""",
+            ("uk_gov", "GB", ext_id, title, url, pub, date.today().isoformat(), raw),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("GOV.UK: %d new documents", added)
+    return added
+
+
+# ── Canada Gazette fetcher ─────────────────────────────────────────────────
+
+def fetch_canada_gazette(conn: sqlite3.Connection, max_new: int = 10) -> int:
+    try:
+        import xml.etree.ElementTree as ET
+        r = requests.get(
+            "https://www.gazette.gc.ca/rss/p2-eng.xml",
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        root = ET.fromstring(r.content)
+    except Exception as e:
+        log.error("Canada Gazette fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for item in root.iter("item"):
+        link  = (item.findtext("link") or "").strip()
+        title = (item.findtext("title") or "").strip()
+        desc  = (item.findtext("description") or "").strip()
+        pub   = (item.findtext("pubDate") or "").strip()
+
+        ext_id = f"ca_gazette:{link}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        try:
+            from email.utils import parsedate_to_datetime
+            pub_date = parsedate_to_datetime(pub).date().isoformat()
+        except Exception:
+            pub_date = date.today().isoformat()
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
+               VALUES (?,?,?,?,?,?,?,?)""",
+            ("canada_gazette", "CA", ext_id, title, link, pub_date, date.today().isoformat(),
+             f"Title: {title}\nSummary: {desc}"),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("Canada Gazette: %d new documents", added)
+    return added
+
+
+# ── Australia legislation fetcher ──────────────────────────────────────────
+
+def fetch_australia_legislation(conn: sqlite3.Connection, max_new: int = 10) -> int:
+    # Federal Register of Legislation OData API — Acts and Legislative Instruments
+    try:
+        r = requests.get(
+            "https://api.prod.legislation.gov.au/v1/Titles",
+            params={
+                "$top": 30,
+                "$orderby": "makingDate desc",
+                "$select": "id,name,makingDate,collection,publishComments",
+                "$filter": "collection eq 'Act' or collection eq 'LegislativeInstrument'",
+            },
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)", "Accept": "application/json"},
+        )
+        r.raise_for_status()
+        items = r.json().get("value", [])
+    except Exception as e:
+        log.error("Australia legislation fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for item in items:
+        leg_id = item.get("id", "")
+        ext_id = f"au_leg:{leg_id}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title    = (item.get("name") or "").strip()
+        pub_date = (item.get("makingDate") or "")[:10]
+        comments = (item.get("publishComments") or "").strip()
+        url      = f"https://www.legislation.gov.au/Details/{leg_id}"
+        raw      = f"Title: {title}\nType: {item.get('collection','')}\nNotes: {comments}"
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
+               VALUES (?,?,?,?,?,?,?,?)""",
+            ("au_legislation", "AU", ext_id, title, url, pub_date,
+             date.today().isoformat(), raw),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("Australia legislation: %d new documents", added)
+    return added
+
+
 # ── EC Press Corner fetcher ────────────────────────────────────────────────
 
 def fetch_ec_press(conn: sqlite3.Connection, max_new: int = 10) -> int:
@@ -327,6 +476,9 @@ def main() -> None:
 
     fetch_federal_register(conn)
     fetch_ec_press(conn)
+    fetch_uk_gov(conn)
+    fetch_canada_gazette(conn)
+    fetch_australia_legislation(conn)
     score_pending(conn)
     export_json(conn)
 

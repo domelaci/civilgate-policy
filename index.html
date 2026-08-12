@@ -256,6 +256,9 @@ main {
 }
 .source-badge.us  { background: rgba(239,159,39,.12); color: #EF9F27; }
 .source-badge.eu  { background: rgba(29,158,117,.12); color: #1D9E75; }
+.source-badge.gb  { background: rgba(55,138,221,.12); color: #378ADD; }
+.source-badge.ca  { background: rgba(224,82,82,.12);  color: #e05252; }
+.source-badge.au  { background: rgba(127,119,221,.12);color: #7F77DD; }
 
 .card-date {
   font-size: .75rem;
@@ -421,6 +424,9 @@ footer a:hover { color: var(--text); }
   <div class="map-legend">
     <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU — live</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA — live</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>UK — live</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e05252"></div>Canada — live</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7F77DD"></div>Australia — live</div>
     <div class="legend-item"><div class="legend-dot" style="background:#2a3d55"></div>Coming soon</div>
   </div>
 </div>
@@ -428,8 +434,11 @@ footer a:hover { color: var(--text); }
 <div class="controls">
   <div class="filter-pills" id="filter-pills">
     <button class="pill active" data-filter="ALL">All</button>
-    <button class="pill" data-filter="EU">🇪🇺 EU</button>
-    <button class="pill" data-filter="US">🇺🇸 USA</button>
+    <button class="pill" data-filter="EU">EU</button>
+    <button class="pill" data-filter="US">USA</button>
+    <button class="pill" data-filter="GB">UK</button>
+    <button class="pill" data-filter="CA">Canada</button>
+    <button class="pill" data-filter="AU">Australia</button>
   </div>
   <div class="search-wrap">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -460,7 +469,10 @@ footer a:hover { color: var(--text); }
 
 const EU_CODES = new Set([40,56,100,191,196,203,208,233,246,250,276,300,348,372,380,428,440,442,470,528,616,620,642,703,705,724,752]);
 const US_CODES = new Set([840]);
-const PLANNED  = new Set([826,682,784,634,414,48,512,368,364,376,400,422,760,887,818,156,36,554,76,32,152,170,862,604,218,68,600,858,328,740]);
+const GB_CODES = new Set([826]);
+const CA_CODES = new Set([124]);
+const AU_CODES = new Set([36,554]);
+const PLANNED  = new Set([682,784,634,414,48,512,368,364,376,400,422,760,887,818,156,76,32,152,170,862,604,218,68,600,858,328,740]);
 
 async function renderMap(world) {
   const svg = d3.select('#world-map');
@@ -501,6 +513,9 @@ async function renderMap(world) {
       const id = +d.id;
       if (EU_CODES.has(id)) return '#1D9E75';
       if (US_CODES.has(id)) return '#EF9F27';
+      if (GB_CODES.has(id)) return '#378ADD';
+      if (CA_CODES.has(id)) return '#e05252';
+      if (AU_CODES.has(id)) return '#7F77DD';
       if (PLANNED.has(id))  return '#1e3050';
       return '#111d30';
     })
@@ -508,7 +523,8 @@ async function renderMap(world) {
     .attr('stroke-width', .4)
     .on('mouseover', function(event, d) {
       const id = +d.id;
-      if (!EU_CODES.has(id) && !US_CODES.has(id) && PLANNED.has(id)) {
+      const active = EU_CODES.has(id) || US_CODES.has(id) || GB_CODES.has(id) || CA_CODES.has(id) || AU_CODES.has(id);
+      if (!active && PLANNED.has(id)) {
         d3.select(this).attr('fill', '#2a4060');
         tooltip.style('opacity', '1').text('Coming soon');
       }
@@ -518,7 +534,8 @@ async function renderMap(world) {
     })
     .on('mouseout', function(event, d) {
       const id = +d.id;
-      if (PLANNED.has(id) && !EU_CODES.has(id) && !US_CODES.has(id)) {
+      const active = EU_CODES.has(id) || US_CODES.has(id) || GB_CODES.has(id) || CA_CODES.has(id) || AU_CODES.has(id);
+      if (PLANNED.has(id) && !active) {
         d3.select(this).attr('fill', '#1e3050');
       }
       tooltip.style('opacity', '0');
@@ -576,7 +593,13 @@ function renderGrid() {
   grid.innerHTML = list.slice(0, 50).map(p => {
     const country = (p.country || 'US').toUpperCase();
     const tags = (p.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
-    const sourceName = { federal_register: 'Federal Register', ec_press: 'EC Press Corner' }[p.source] || p.source;
+    const sourceName = {
+      federal_register: 'Federal Register',
+      ec_press: 'EC Press Corner',
+      uk_gov: 'GOV.UK',
+      canada_gazette: 'Canada Gazette',
+      au_legislation: 'AU Legislation',
+    }[p.source] || p.source;
 
     return `<div class="policy-card">
       <div class="card-meta">
