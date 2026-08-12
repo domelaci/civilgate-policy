@@ -616,7 +616,7 @@ def call_cerebras(text: str) -> dict:
         "https://api.cerebras.ai/v1/chat/completions",
         headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
         json={
-            "model": "llama3.1-8b",
+            "model": "llama3.3-70b",
             "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
             "temperature": 0.3,
             "max_tokens": 1024,

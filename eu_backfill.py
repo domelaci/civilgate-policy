@@ -172,7 +172,7 @@ def call_cerebras(text: str) -> dict:
         "https://api.cerebras.ai/v1/chat/completions",
         headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
         json={
-            "model": "llama3.1-8b",
+            "model": "llama3.3-70b",
             "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
             "temperature": 0.3,
             "max_tokens": 1024,
@@ -246,6 +246,10 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
 
     scored = 0
     for row_id, raw_text in rows:
+        if not raw_text or len(raw_text.strip()) < 20:
+            conn.execute("UPDATE policies SET score_failed=1 WHERE id=?", (row_id,))
+            conn.commit()
+            continue
         try:
             result = call_llm(raw_text or "")
             conn.execute(
