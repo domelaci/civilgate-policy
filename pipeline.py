@@ -407,13 +407,20 @@ SCORE_PROMPT = """\
 You are a policy analyst. Given the following government policy document, \
 return a JSON object with exactly these keys:
 - "summary": 2-3 sentence plain English summary for someone with no political background
-- "social_score": integer 1-10 (magnitude of social impact — high = large impact, not good or bad)
-- "social_reason": one sentence explaining the social score
-- "environmental_score": integer 1-10
+- "social_score": integer from -10 to +10. Positive = net benefit to people (rights, welfare, equality, health, education). Negative = net harm. 0 = neutral or negligible. Score direction AND magnitude together.
+- "social_reason": one sentence explaining the social score, starting with the direction (e.g. "Expands access to..." or "Restricts...")
+- "environmental_score": integer from -10 to +10. Positive = environmental benefit (emissions cut, habitat protection). Negative = environmental harm (pollution, deforestation, fossil fuel expansion).
 - "environmental_reason": one sentence
-- "economic_score": integer 1-10
+- "economic_score": integer from -10 to +10. Positive = economic benefit (jobs, growth, fair trade). Negative = economic harm (costs, market distortion, inequality). Score from a public-interest perspective.
 - "economic_reason": one sentence
 - "tags": array of up to 5 lowercase topic keywords
+
+Examples of calibration:
+- US approves new offshore oil drilling rights → environmental_score: -8
+- EU bans single-use plastics → environmental_score: +7
+- Government cuts unemployment benefits → social_score: -6
+- Universal healthcare expansion → social_score: +9
+- Tariff that raises consumer prices but protects domestic jobs → economic_score: -3 (net negative for public)
 
 Return ONLY valid JSON. No markdown, no code fences.
 
