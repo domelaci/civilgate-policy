@@ -832,6 +832,20 @@ footer {
   padding: .75rem;
 }
 
+.mover-sort-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 1px 4px;
+  transition: color .12s;
+  font-family: var(--mono);
+  line-height: 1;
+}
+.mover-sort-btn:hover { color: var(--text); }
+.mover-sort-btn.active { color: var(--accent); }
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: 1fr; }
@@ -1387,10 +1401,14 @@ function renderMovers(policies) {
     const arrow   = up ? '▲' : '▼';
     const dColor  = up ? '#1D9E75' : '#f87171';
     const deltaStr = (up ? '+' : '') + m.delta.toFixed(1);
-    return `<div class="mover-card" data-tag="${m.tag}" data-scorekey="${m.scoreKey}">
+    return `<div class="mover-card" data-tag="${m.tag}" data-scorekey="${m.scoreKey}" style="cursor:pointer">
       <div class="mover-header">
         <div class="mover-tag" data-tag="${m.tag}">#${m.tag}</div>
-        ${m.region ? `<div class="mover-region">${m.region}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:.15rem">
+          ${m.region ? `<div class="mover-region" style="margin-right:.3rem">${m.region}</div>` : ''}
+          <button class="mover-sort-btn" data-dir="best" title="Best 20">▲</button>
+          <button class="mover-sort-btn" data-dir="worst" title="Worst 20">▼</button>
+        </div>
       </div>
       <div class="mover-metric" data-scorekey="${m.scoreKey}" style="color:${m.color}">${m.label}</div>
       <div class="mover-delta" style="color:${dColor}">${arrow} ${deltaStr} pts</div>
@@ -1413,6 +1431,7 @@ let activeScope  = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
 let activeScore  = '';
+let activeSortDir = null; // null = magnitude, 'best' = top 20 descending, 'worst' = bottom 20 ascending
 
 function timeAgo(isoStr) {
   if (!isoStr) return 'unknown';
@@ -1493,8 +1512,9 @@ function renderScoreChip() {
   const wrap = document.getElementById('score-chip-wrap');
   if (!activeScore) { wrap.innerHTML = ''; return; }
   const s = SCORES.find(s => s.key === activeScore);
-  wrap.innerHTML = `<button class="tag-clear" id="score-clear-btn" style="border-color:${s.color};color:${s.color}">${s.label} score &times;</button>`;
-  document.getElementById('score-clear-btn').addEventListener('click', () => { activeScore = ''; renderGrid(); });
+  const dirLabel = activeSortDir === 'best' ? ' · best 20' : activeSortDir === 'worst' ? ' · worst 20' : '';
+  wrap.innerHTML = `<button class="tag-clear" id="score-clear-btn" style="border-color:${s.color};color:${s.color}">${s.label} score${dirLabel} &times;</button>`;
+  document.getElementById('score-clear-btn').addEventListener('click', () => { activeScore = ''; activeSortDir = null; renderGrid(); });
 }
 
 function renderGrid() {
@@ -1504,7 +1524,7 @@ function renderGrid() {
   renderScoreChip();
 
   let list = allPolicies;
-  if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
+  if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter || p.scope === 'global');
   if (activeStatus !== 'ALL') list = list.filter(p => p.status === activeStatus);
   if (activeScope  !== 'ALL') list = list.filter(p => p.scope  === activeScope);
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
@@ -1517,7 +1537,13 @@ function renderGrid() {
     );
   }
   if (activeScore) {
-    list = [...list].sort((a, b) => Math.abs(b[activeScore] ?? 0) - Math.abs(a[activeScore] ?? 0));
+    if (activeSortDir === 'best') {
+      list = [...list].sort((a, b) => (b[activeScore] ?? 0) - (a[activeScore] ?? 0)).slice(0, 20);
+    } else if (activeSortDir === 'worst') {
+      list = [...list].sort((a, b) => (a[activeScore] ?? 0) - (b[activeScore] ?? 0)).slice(0, 20);
+    } else {
+      list = [...list].sort((a, b) => Math.abs(b[activeScore] ?? 0) - Math.abs(a[activeScore] ?? 0));
+    }
   }
 
   count.textContent = list.length ? list.length + ' policies' : '';
@@ -1531,6 +1557,14 @@ function renderGrid() {
     const tagActive   = c.dataset.tag      === activeTag   && activeTag   !== '';
     const scoreActive = c.dataset.scorekey === activeScore && activeScore !== '';
     c.classList.toggle('active', tagActive || scoreActive);
+  });
+  document.querySelectorAll('#movers-grid .mover-sort-btn').forEach(btn => {
+    const card = btn.closest('.mover-card');
+    btn.classList.toggle('active',
+      btn.dataset.dir === activeSortDir &&
+      card.dataset.scorekey === activeScore &&
+      card.dataset.tag === activeTag
+    );
   });
 
   if (!list.length) {
@@ -1777,7 +1811,7 @@ async function init() {
     const btn = e.target.closest('[data-filter]');
     if (!btn) return;
     activeFilter = btn.dataset.filter;
-    if (activeFilter === 'ALL') activeTag = '';
+    if (activeFilter === 'ALL') { activeTag = ''; activeSortDir = null; }
     _selectedEuCountry = null;
     document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -1817,10 +1851,29 @@ async function init() {
   });
 
   document.getElementById('movers-grid').addEventListener('click', e => {
-    const tagEl    = e.target.closest('.mover-tag[data-tag]');
-    const metricEl = e.target.closest('.mover-metric[data-scorekey]');
-    if (tagEl)    { setTag(tagEl.dataset.tag);          return; }
-    if (metricEl) { setScore(metricEl.dataset.scorekey); return; }
+    const sortBtn = e.target.closest('.mover-sort-btn');
+    if (sortBtn) {
+      e.stopPropagation();
+      const card   = sortBtn.closest('.mover-card');
+      const newTag   = card.dataset.tag;
+      const newScore = card.dataset.scorekey;
+      const newDir   = sortBtn.dataset.dir;
+      const alreadyActive = activeTag === newTag && activeScore === newScore && activeSortDir === newDir;
+      if (alreadyActive) { activeTag = ''; activeScore = ''; activeSortDir = null; }
+      else               { activeTag = newTag; activeScore = newScore; activeSortDir = newDir; }
+      renderGrid();
+      return;
+    }
+    const card = e.target.closest('.mover-card');
+    if (card) {
+      const newTag   = card.dataset.tag;
+      const newScore = card.dataset.scorekey;
+      const alreadyActive = activeTag === newTag && activeScore === newScore && activeSortDir === null;
+      if (alreadyActive) { activeTag = ''; activeScore = ''; activeSortDir = null; }
+      else               { activeTag = newTag; activeScore = newScore; activeSortDir = null; }
+      renderGrid();
+      return;
+    }
   });
 
   try {
