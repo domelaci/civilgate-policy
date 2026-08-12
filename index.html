@@ -515,7 +515,7 @@ footer {
 
 #trend-chart {
   width: 100%;
-  height: 180px;
+  height: 210px;
   display: block;
   background: var(--surface);
 }
@@ -526,6 +526,75 @@ footer {
   padding: .5rem 2rem;
   border-top: 1px solid var(--border);
   flex-wrap: wrap;
+}
+
+/* ── Biggest Movers ── */
+.movers-section {
+  border-bottom: 1px solid var(--border);
+}
+
+.movers-header {
+  padding: .6rem 2rem;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.movers-grid {
+  display: flex;
+  gap: 1rem;
+  padding: .875rem 2rem;
+  flex-wrap: wrap;
+}
+
+.mover-card {
+  flex: 1;
+  min-width: 160px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+
+.mover-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .5px;
+}
+
+.mover-metric {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-bottom: .15rem;
+}
+
+.mover-delta {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.mover-context {
+  font-size: 11px;
+  color: var(--sub);
+  margin-top: .15rem;
+}
+
+.mover-empty {
+  font-size: 12px;
+  color: var(--sub);
+  padding: .5rem 0;
 }
 
 /* ── Contact Rep Modal ── */
@@ -770,16 +839,22 @@ footer {
 
 <div class="trend-section">
   <div class="trend-header">
-    policy volume
-    <div class="trend-tabs">
-      <span class="trend-tab active" data-metric="volume">Volume</span>
-      <span class="trend-tab" data-metric="social">Avg Social</span>
-      <span class="trend-tab" data-metric="env">Avg Env</span>
-      <span class="trend-tab" data-metric="eco">Avg Econ</span>
+    avg impact score — 12 months
+    <div class="trend-tabs" id="region-tabs">
+      <span class="trend-tab active" data-region="EU">EU</span>
+      <span class="trend-tab" data-region="US">USA</span>
+      <span class="trend-tab" data-region="GB">UK</span>
+      <span class="trend-tab" data-region="CA">Canada</span>
+      <span class="trend-tab" data-region="AU">Australia</span>
     </div>
   </div>
   <svg id="trend-chart"></svg>
   <div class="trend-legend" id="trend-legend"></div>
+</div>
+
+<div class="movers-section">
+  <div class="movers-header">biggest movers &mdash; last 30 days</div>
+  <div class="movers-grid" id="movers-grid"><div class="mover-empty">Loading&hellip;</div></div>
 </div>
 
 <div class="controls">
@@ -955,119 +1030,184 @@ tickClock();
 // ── Trend Chart ───────────────────────────────────────────────────────────
 
 const REGION_COLORS = { EU: '#1D9E75', US: '#EF9F27', GB: '#378ADD', CA: '#e05252', AU: '#7F77DD' };
-let trendMetric = 'volume';
+const SCORES = [
+  { key: 'social_score',        label: 'Social',        color: '#1D9E75' },
+  { key: 'environmental_score', label: 'Environmental', color: '#5DCAA5' },
+  { key: 'economic_score',      label: 'Economic',      color: '#EF9F27' },
+];
+
+let trendRegion = 'EU';
 
 function renderTrend(policies) {
-  const svg   = d3.select('#trend-chart');
-  const el    = document.getElementById('trend-chart');
-  const W     = el.getBoundingClientRect().width || 960;
-  const H     = 180;
-  const pad   = { top: 16, right: 24, bottom: 28, left: 36 };
+  const svg = d3.select('#trend-chart');
+  const el  = document.getElementById('trend-chart');
+  const W   = el.getBoundingClientRect().width || 960;
+  const H   = 210;
+  const pad = { top: 20, right: 24, bottom: 28, left: 38 };
 
   svg.selectAll('*').remove();
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  // Build monthly buckets for the last 12 months
-  const now      = new Date();
-  const months   = [];
+  // Last 12 months
+  const now    = new Date();
+  const months = [];
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
   }
 
-  const regions  = Object.keys(REGION_COLORS);
-  const scoreKey = { volume: null, social: 'social_score', env: 'environmental_score', eco: 'economic_score' };
-  const key      = scoreKey[trendMetric];
+  const regionPolicies = policies.filter(p => p.country === trendRegion);
 
-  // Aggregate
-  const data = regions.map(region => ({
-    region,
+  const series = SCORES.map(({ key, label, color }) => ({
+    key, label, color,
     values: months.map(month => {
-      const items = policies.filter(p =>
-        p.country === region && (p.published_date || '').startsWith(month)
-      );
-      if (!items.length) return { month, v: 0 };
-      if (!key) return { month, v: items.length };
+      const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
       const valid = items.filter(p => p[key] !== null && p[key] !== undefined);
-      return { month, v: valid.length ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
+      return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : null };
     }),
-  })).filter(d => d.values.some(v => v.v !== 0));
+  }));
 
-  if (!data.length) return;
-
-  const allVals = data.flatMap(d => d.values.map(v => v.v));
-  const minV    = trendMetric === 'volume' ? 0 : Math.min(0, d3.min(allVals));
-  const maxV    = d3.max(allVals) || 1;
-
-  const xScale  = d3.scalePoint().domain(months).range([pad.left, W - pad.right]);
-  const yScale  = d3.scaleLinear().domain([minV, maxV]).nice().range([H - pad.bottom, pad.top]);
+  // Fixed diverging scale: -10 to +10
+  const xScale = d3.scalePoint().domain(months).range([pad.left, W - pad.right]);
+  const yScale = d3.scaleLinear().domain([-10, 10]).range([H - pad.bottom, pad.top]);
+  const y0     = yScale(0);
 
   const g = svg.append('g');
 
-  // Zero line for score metrics
-  if (trendMetric !== 'volume') {
-    g.append('line')
-      .attr('x1', pad.left).attr('x2', W - pad.right)
-      .attr('y1', yScale(0)).attr('y2', yScale(0))
-      .attr('stroke', '#374151').attr('stroke-width', 1).attr('stroke-dasharray', '3,3');
-  }
+  // Subtle positive/negative background bands
+  g.append('rect')
+    .attr('x', pad.left).attr('y', pad.top)
+    .attr('width', W - pad.left - pad.right).attr('height', y0 - pad.top)
+    .attr('fill', '#1D9E75').attr('opacity', .03);
+  g.append('rect')
+    .attr('x', pad.left).attr('y', y0)
+    .attr('width', W - pad.left - pad.right).attr('height', H - pad.bottom - y0)
+    .attr('fill', '#f87171').attr('opacity', .03);
 
-  // Y axis ticks
+  // Grid + Y axis
   g.append('g')
     .attr('transform', `translate(${pad.left},0)`)
-    .call(d3.axisLeft(yScale).ticks(4).tickSize(-W + pad.left + pad.right))
+    .call(d3.axisLeft(yScale).tickValues([-10,-5,0,5,10]).tickSize(-(W - pad.left - pad.right)))
     .call(ax => {
       ax.select('.domain').remove();
-      ax.selectAll('line').attr('stroke', '#1f2937');
-      ax.selectAll('text').attr('fill', '#4b5563').attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9);
+      ax.selectAll('line').attr('stroke', d => d === 0 ? '#374151' : '#1f2937')
+        .attr('stroke-width', d => d === 0 ? 1.5 : 1);
+      ax.selectAll('text').attr('fill', '#4b5563')
+        .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9);
     });
 
-  // X axis labels — show only every 3rd month
+  // X axis
   g.append('g')
     .attr('transform', `translate(0,${H - pad.bottom})`)
     .call(d3.axisBottom(xScale).tickValues(months.filter((_, i) => i % 3 === 0)).tickSize(0))
     .call(ax => {
       ax.select('.domain').remove();
-      ax.selectAll('text').attr('fill', '#4b5563').attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9).attr('dy', '1.2em');
+      ax.selectAll('text').attr('fill', '#4b5563')
+        .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9).attr('dy', '1.2em');
     });
 
-  // Lines
-  const line = d3.line().x(d => xScale(d.month)).y(d => yScale(d.v)).curve(d3.curveMonotoneX);
+  // Area + line per score metric
+  const lineGen = d3.line()
+    .defined(d => d.v !== null)
+    .x(d => xScale(d.month))
+    .y(d => yScale(d.v))
+    .curve(d3.curveMonotoneX);
 
-  data.forEach(series => {
-    g.append('path')
-      .datum(series.values)
-      .attr('fill', 'none')
-      .attr('stroke', REGION_COLORS[series.region])
-      .attr('stroke-width', 1.5)
-      .attr('opacity', .85)
-      .attr('d', line);
+  const areaGen = d3.area()
+    .defined(d => d.v !== null)
+    .x(d => xScale(d.month))
+    .y0(y0)
+    .y1(d => yScale(d.v))
+    .curve(d3.curveMonotoneX);
 
-    // Dots at data points
-    g.selectAll(null)
-      .data(series.values.filter(v => v.v !== 0))
-      .join('circle')
+  series.forEach(({ color, values }) => {
+    // Diverging area fill
+    g.append('path').datum(values)
+      .attr('fill', color).attr('opacity', .07).attr('d', areaGen);
+
+    // Line
+    g.append('path').datum(values)
+      .attr('fill', 'none').attr('stroke', color)
+      .attr('stroke-width', 1.5).attr('opacity', .9).attr('d', lineGen);
+
+    // Dots
+    g.selectAll(null).data(values.filter(v => v.v !== null)).join('circle')
       .attr('cx', d => xScale(d.month))
       .attr('cy', d => yScale(d.v))
-      .attr('r', 2.5)
-      .attr('fill', REGION_COLORS[series.region])
-      .attr('opacity', .9);
+      .attr('r', 2.5).attr('fill', color).attr('opacity', .9);
   });
 
   // Legend
-  const legend = document.getElementById('trend-legend');
-  legend.innerHTML = data.map(d =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${REGION_COLORS[d.region]}"></div>${d.region}</div>`
-  ).join('');
+  document.getElementById('trend-legend').innerHTML = SCORES.map(s =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label}</div>`
+  ).join('') + `<div class="legend-item" style="margin-left:auto;color:#4b5563;font-size:10px;font-family:var(--mono)">+10 benefit &nbsp; 0 neutral &nbsp; −10 harm</div>`;
+}
+
+// ── Biggest Movers ─────────────────────────────────────────────────────────
+
+function renderMovers(policies) {
+  const grid = document.getElementById('movers-grid');
+  const now  = Date.now();
+  const MS30 = 30 * 86400000;
+
+  const recent = policies.filter(p => now - new Date(p.published_date).getTime() < MS30 && p.social_score !== null);
+  const prev   = policies.filter(p => {
+    const age = now - new Date(p.published_date).getTime();
+    return age >= MS30 && age < 2 * MS30 && p.social_score !== null;
+  });
+
+  // Collect all tags that appear in recent period
+  const tagSet = new Set();
+  recent.forEach(p => (p.tags || []).forEach(t => tagSet.add(t.toLowerCase())));
+
+  const avg = (arr, key) => arr.length ? arr.reduce((s, p) => s + (p[key] ?? 0), 0) / arr.length : null;
+
+  const movers = [];
+  tagSet.forEach(tag => {
+    const rItems = recent.filter(p => (p.tags || []).some(t => t.toLowerCase() === tag));
+    const pItems = prev.filter(p => (p.tags || []).some(t => t.toLowerCase() === tag));
+    if (rItems.length < 2 || pItems.length < 2) return;
+
+    SCORES.forEach(({ key, label, color }) => {
+      const rAvg = avg(rItems, key);
+      const pAvg = avg(pItems, key);
+      if (rAvg === null || pAvg === null) return;
+      const delta = rAvg - pAvg;
+      if (Math.abs(delta) < 0.4) return;
+      movers.push({ tag, label, color, delta, rAvg });
+    });
+  });
+
+  movers.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  const top = movers.slice(0, 3);
+
+  if (!top.length) {
+    grid.innerHTML = '<div class="mover-empty">Not enough data yet — scores accumulate daily.</div>';
+    return;
+  }
+
+  grid.innerHTML = top.map(m => {
+    const up      = m.delta > 0;
+    const arrow   = up ? '▲' : '▼';
+    const dColor  = up ? '#1D9E75' : '#f87171';
+    const deltaStr = (up ? '+' : '') + m.delta.toFixed(1);
+    return `<div class="mover-card">
+      <div class="mover-tag">#${m.tag}</div>
+      <div class="mover-metric" style="color:${m.color}">${m.label}</div>
+      <div class="mover-delta" style="color:${dColor}">${arrow} ${deltaStr} pts</div>
+      <div class="mover-context">vs prev 30 days · now avg ${m.rAvg > 0 ? '+' : ''}${m.rAvg.toFixed(1)}</div>
+    </div>`;
+  }).join('');
 }
 
 function initTrend(policies) {
   renderTrend(policies);
-  document.querySelectorAll('.trend-tab').forEach(tab => {
+  renderMovers(policies);
+  document.querySelectorAll('#region-tabs .trend-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.trend-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#region-tabs .trend-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      trendMetric = tab.dataset.metric;
+      trendRegion = tab.dataset.region;
       renderTrend(policies);
     });
   });
