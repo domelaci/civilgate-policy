@@ -1001,7 +1001,7 @@ function countryBaseFill(id) {
 }
 
 function syncMapFills() {
-  if (_mapState) _mapState.g.selectAll('path').attr('fill', d => countryBaseFill(+d.id));
+  if (_mapState) _mapState.g.selectAll('path').style('fill', d => countryBaseFill(+d.id));
 }
 
 function updateMapHeader(text) {
@@ -1092,7 +1092,7 @@ async function renderMap(world) {
     .data(countries)
     .join('path')
     .attr('d', path)
-    .attr('fill', d => countryBaseFill(+d.id))
+    .style('fill', d => countryBaseFill(+d.id))
     .attr('stroke', '#0a0e18')
     .attr('stroke-width', .3)
     .style('cursor', d => {
@@ -1103,9 +1103,9 @@ async function renderMap(world) {
       const id = +d.id;
       const isActive = EU_CODES.has(id)||US_CODES.has(id)||GB_CODES.has(id)||CA_CODES.has(id)||AU_CODES.has(id);
       if (isActive && _selectedEuCountry !== id) {
-        d3.select(this).attr('fill', 'rgba(255,255,255,.15)');
+        d3.select(this).style('fill', 'rgba(255,255,255,.15)');
       } else if (!isActive && PLANNED.has(id)) {
-        d3.select(this).attr('fill', '#2d3748');
+        d3.select(this).style('fill', '#2d3748');
         tooltip.style('opacity','1').text('coming soon');
         return;
       }
@@ -1119,7 +1119,7 @@ async function renderMap(world) {
     })
     .on('mouseout', function(event, d) {
       const id = +d.id;
-      d3.select(this).attr('fill', countryBaseFill(id));
+      d3.select(this).style('fill', countryBaseFill(id));
       tooltip.style('opacity','0');
     })
     .on('click', function(event, d) {
