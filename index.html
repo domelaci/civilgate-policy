@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CivilGate — Government Policy Tracker</title>
+<meta name="description" content="Track EU and US government policy changes. Plain-language summaries, impact scores, and trend analysis — free and open to everyone.">
+<link rel="canonical" href="https://civilgate.org/">
+<meta property="og:title" content="CivilGate — Government Policy Tracker">
+<meta property="og:description" content="Track EU and US government policy changes. Plain-language summaries and impact scores — free and open to everyone.">
+<meta property="og:url" content="https://civilgate.org/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CivilGate — Government Policy Tracker">
+<meta name="twitter:description" content="Track EU and US government policy changes. Plain-language summaries and impact scores.">
+<meta name="google-site-verification" content="PASTE_GSC_CODE_HERE">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<style>
+:root {
+  --bg:       #060a14;
+  --surface:  #0c1422;
+  --surface2: #121e32;
+  --border:   #1c2d45;
+  --text:     #dde8f5;
+  --muted:    #4d6b8a;
+  --eu:       #1D9E75;
+  --us:       #EF9F27;
+  --social:   #3b82f6;
+  --env:      #22c55e;
+  --eco:      #f59e0b;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ── Header ── */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: linear-gradient(120deg, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+}
+
+.header-tag {
+  font-size: .75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.volunteer-link {
+  font-size: .82rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .35rem .75rem;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+}
+.volunteer-link:hover { color: var(--text); border-color: #2a4060; }
+
+/* ── World Map ── */
+.map-section {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.map-label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: .75rem;
+  font-weight: 500;
+}
+
+#world-map {
+  width: 100%;
+  height: 220px;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.map-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: .75rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Controls ── */
+.controls {
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-pills {
+  display: flex;
+  gap: .4rem;
+}
+
+.pill {
+  padding: .3rem .85rem;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.pill:hover { border-color: #2a4060; color: var(--text); }
+.pill.active { border-color: #3b82f6; background: rgba(59,130,246,.1); color: #93c5fd; }
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+#search {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .5rem .75rem .5rem 2.25rem;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: .85rem;
+  outline: none;
+  transition: border-color .2s;
+}
+#search::placeholder { color: var(--muted); }
+#search:focus { border-color: #2a4060; }
+
+.results-count {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* ── Policy Grid ── */
+main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* ── Policy Card ── */
+.policy-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  transition: border-color .2s, box-shadow .2s;
+  cursor: default;
+}
+.policy-card:hover {
+  border-color: #2a4060;
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.source-badge {
+  font-size: .68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.source-badge.us  { background: rgba(239,159,39,.12); color: #EF9F27; }
+.source-badge.eu  { background: rgba(29,158,117,.12); color: #1D9E75; }
+
+.card-date {
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+.card-type {
+  font-size: .68rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .15rem .5rem;
+}
+
+.card-title {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.card-title a:hover { color: #93c5fd; }
+
+.card-summary {
+  font-size: .83rem;
+  color: #8ca8c5;
+  line-height: 1.65;
+}
+
+/* ── Scores ── */
+.scores {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.score-chip {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .75rem;
+  font-weight: 500;
+  padding: .25rem .65rem;
+  border-radius: 6px;
+  cursor: help;
+  position: relative;
+}
+
+.score-chip .score-num {
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+.score-chip.social { background: rgba(59,130,246,.1); color: #60a5fa; }
+.score-chip.env    { background: rgba(34,197,94,.1);  color: #4ade80; }
+.score-chip.eco    { background: rgba(245,158,11,.1); color: #fbbf24; }
+
+/* Intensity modifier — dim at low scores */
+.score-chip[data-score="1"], .score-chip[data-score="2"], .score-chip[data-score="3"] { opacity: .5; }
+.score-chip[data-score="4"], .score-chip[data-score="5"] { opacity: .75; }
+
+/* Tooltip on hover */
+.score-chip::after {
+  content: attr(data-reason);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: #1a2840;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .5rem .75rem;
+  font-size: .75rem;
+  font-weight: 400;
+  color: var(--text);
+  white-space: normal;
+  width: 220px;
+  line-height: 1.5;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .15s, transform .15s;
+  z-index: 10;
+}
+.score-chip:hover::after { opacity: 1; transform: translateY(0); }
+
+/* ── Tags ── */
+.tags {
+  display: flex;
+  gap: .35rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: .68rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .15rem .5rem;
+  font-weight: 400;
+}
+
+.card-link {
+  font-size: .75rem;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  margin-top: auto;
+  transition: color .15s;
+}
+.card-link:hover { color: #60a5fa; }
+
+/* ── Empty / loading ── */
+.state-msg {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+footer a { color: var(--muted); }
+footer a:hover { color: var(--text); }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .policy-grid { grid-template-columns: 1fr; }
+  #world-map { height: 160px; }
+}
+
+@media (max-width: 600px) {
+  header { padding: 1rem; }
+  .header-tag { display: none; }
+  .map-section, .controls, main { padding-left: 1rem; padding-right: 1rem; }
+  #world-map { height: 130px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">CivilGate</div>
+    <div class="header-tag">Government Policy Tracker</div>
+  </div>
+  <div class="header-right">
+    <a href="https://volunteer.civilgate.org" class="volunteer-link">Volunteer matching →</a>
+  </div>
+</header>
+
+<div class="map-section">
+  <div class="map-label">Data coverage</div>
+  <svg id="world-map"></svg>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU — live</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA — live</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2a3d55"></div>Coming soon</div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="filter-pills" id="filter-pills">
+    <button class="pill active" data-filter="ALL">All</button>
+    <button class="pill" data-filter="EU">🇪🇺 EU</button>
+    <button class="pill" data-filter="US">🇺🇸 USA</button>
+  </div>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="search" id="search" placeholder="Search policies…" autocomplete="off">
+  </div>
+  <div class="results-count" id="results-count"></div>
+</div>
+
+<main>
+  <div class="policy-grid" id="policy-grid">
+    <div class="state-msg">Loading policies…</div>
+  </div>
+</main>
+
+<footer>
+  <p>
+    © <span id="year"></span> CivilGate &mdash;
+    Data: <a href="https://www.federalregister.gov" target="_blank" rel="noopener">US Federal Register</a>,
+    <a href="https://ec.europa.eu/commission/presscorner" target="_blank" rel="noopener">EC Press Corner</a> &mdash;
+    <a href="https://volunteer.civilgate.org">Volunteer matching</a>
+  </p>
+</footer>
+
+<script>
+// ── World Map ──────────────────────────────────────────────────────────────
+
+const EU_CODES = new Set([40,56,100,191,196,203,208,233,246,250,276,300,348,372,380,428,440,442,470,528,616,620,642,703,705,724,752]);
+const US_CODES = new Set([840]);
+const PLANNED  = new Set([826,682,784,634,414,48,512,368,364,376,400,422,760,887,818,156,36,554,76,32,152,170,862,604,218,68,600,858,328,740]);
+
+async function renderMap() {
+  const svg = d3.select('#world-map');
+  const el  = document.getElementById('world-map');
+  const W   = el.clientWidth || 900;
+  const H   = el.clientHeight || 220;
+
+  svg.attr('viewBox', `0 0 ${W} ${H}`).attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const projection = d3.geoNaturalEarth1().scale(W / 6.3).translate([W / 2, H / 2]);
+  const path = d3.geoPath().projection(projection);
+
+  let world;
+  try {
+    world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  } catch {
+    return; // fail silently
+  }
+
+  const countries = topojson.feature(world, world.objects.countries).features;
+
+  const tooltip = d3.select('body').append('div')
+    .style('position', 'fixed')
+    .style('background', '#1a2840')
+    .style('border', '1px solid #1c2d45')
+    .style('border-radius', '6px')
+    .style('padding', '.35rem .65rem')
+    .style('font-size', '.75rem')
+    .style('color', '#dde8f5')
+    .style('pointer-events', 'none')
+    .style('opacity', '0')
+    .style('transition', 'opacity .15s')
+    .style('z-index', '100');
+
+  svg.selectAll('path')
+    .data(countries)
+    .join('path')
+    .attr('d', path)
+    .attr('fill', d => {
+      const id = +d.id;
+      if (EU_CODES.has(id)) return '#1D9E75';
+      if (US_CODES.has(id)) return '#EF9F27';
+      if (PLANNED.has(id))  return '#1e3050';
+      return '#111d30';
+    })
+    .attr('stroke', '#0c1422')
+    .attr('stroke-width', .4)
+    .on('mouseover', function(event, d) {
+      const id = +d.id;
+      if (!EU_CODES.has(id) && !US_CODES.has(id) && PLANNED.has(id)) {
+        d3.select(this).attr('fill', '#2a4060');
+        tooltip.style('opacity', '1').text('Coming soon');
+      }
+    })
+    .on('mousemove', event => {
+      tooltip.style('left', (event.clientX + 12) + 'px').style('top', (event.clientY - 28) + 'px');
+    })
+    .on('mouseout', function(event, d) {
+      const id = +d.id;
+      if (PLANNED.has(id) && !EU_CODES.has(id) && !US_CODES.has(id)) {
+        d3.select(this).attr('fill', '#1e3050');
+      }
+      tooltip.style('opacity', '0');
+    });
+}
+
+renderMap();
+
+// ── Policy Feed ────────────────────────────────────────────────────────────
+
+let allPolicies  = [];
+let activeFilter = 'ALL';
+let searchQuery  = '';
+
+function fmt(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function scoreChip(type, score, reason) {
+  const labels = { social: '👥 Social', env: '🌿 Env', eco: '💰 Economy' };
+  const esc = String(reason || '').replace(/"/g, '&quot;');
+  return `<span class="score-chip ${type}" data-score="${score}" data-reason="${esc}">
+    ${labels[type]} <span class="score-num">${score}</span>
+  </span>`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('policy-grid');
+  const count = document.getElementById('results-count');
+
+  let list = allPolicies;
+  if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(p =>
+      (p.title || '').toLowerCase().includes(q) ||
+      (p.summary || '').toLowerCase().includes(q) ||
+      (p.tags || []).some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  count.textContent = list.length ? `${list.length} policies` : '';
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="state-msg">${allPolicies.length ? 'No results. Try a different filter or search term.' : 'No policies loaded yet. Run the pipeline to fetch data.'}</div>`;
+    return;
+  }
+
+  grid.innerHTML = list.slice(0, 50).map(p => {
+    const country = (p.country || 'US').toUpperCase();
+    const tags = (p.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+    const sourceName = { federal_register: 'Federal Register', ec_press: 'EC Press Corner' }[p.source] || p.source;
+
+    return `<div class="policy-card">
+      <div class="card-meta">
+        <span class="source-badge ${country.toLowerCase()}">${country}</span>
+        <span class="card-date">${fmt(p.published_date)}</span>
+        <span class="card-type">${sourceName}</span>
+      </div>
+      <div class="card-title">${p.title || 'Untitled'}</div>
+      <div class="card-summary">${p.summary || ''}</div>
+      <div class="scores">
+        ${scoreChip('social', p.social_score, p.social_reason)}
+        ${scoreChip('env',    p.environmental_score, p.environmental_reason)}
+        ${scoreChip('eco',    p.economic_score, p.economic_reason)}
+      </div>
+      ${tags ? `<div class="tags">${tags}</div>` : ''}
+      ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">Read source ↗</a>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function init() {
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Filter pills
+  document.getElementById('filter-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  });
+
+  // Search
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    renderGrid();
+  });
+
+  // Load data
+  try {
+    const res = await fetch(`policies.json?v=${Date.now()}`);
+    allPolicies = await res.json();
+  } catch {
+    allPolicies = [];
+  }
+  renderGrid();
+}
+
+init();
+</script>
+</body>
+</html>
