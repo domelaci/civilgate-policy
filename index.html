@@ -585,7 +585,11 @@ footer {
   font-size: 10px;
   color: var(--muted);
   letter-spacing: .5px;
+  cursor: pointer;
+  transition: color .15s;
 }
+.mover-tag:hover { color: var(--text); }
+.mover-tag.active { color: var(--accent); }
 
 .mover-region {
   font-family: var(--mono);
@@ -602,7 +606,12 @@ footer {
   letter-spacing: 1px;
   font-weight: 600;
   margin-bottom: .1rem;
+  cursor: pointer;
+  transition: opacity .15s;
+  display: inline-block;
 }
+.mover-metric:hover { opacity: .7; }
+.mover-metric.active { box-shadow: 0 2px 0 currentColor; }
 
 .mover-delta {
   font-family: var(--mono);
@@ -623,12 +632,8 @@ footer {
   padding: .5rem 0;
 }
 
-.mover-card.clickable {
-  cursor: pointer;
-  transition: border-color .15s;
-}
-.mover-card.clickable:hover { border-color: var(--border2); }
-.mover-card.clickable.active { border-color: var(--accent); }
+.mover-card { transition: border-color .15s; }
+.mover-card.active { border-color: var(--accent); }
 
 /* ── Contact Rep Modal ── */
 .modal-overlay {
@@ -883,6 +888,7 @@ footer {
   </div>
   <div class="filter-sep"></div>
   <div id="tag-chip-wrap"></div>
+  <div id="score-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -1364,7 +1370,7 @@ function renderMovers(policies) {
       if (rAvg === null || pAvg === null) return;
       const delta = rAvg - pAvg;
       if (Math.abs(delta) < 0.4) return;
-      movers.push({ tag, label, color, delta, rAvg, region: dominantRegion });
+      movers.push({ tag, scoreKey: key, label, color, delta, rAvg, region: dominantRegion });
     });
   });
 
@@ -1381,12 +1387,12 @@ function renderMovers(policies) {
     const arrow   = up ? '▲' : '▼';
     const dColor  = up ? '#1D9E75' : '#f87171';
     const deltaStr = (up ? '+' : '') + m.delta.toFixed(1);
-    return `<div class="mover-card clickable" data-tag="${m.tag}">
+    return `<div class="mover-card" data-tag="${m.tag}" data-scorekey="${m.scoreKey}">
       <div class="mover-header">
-        <div class="mover-tag">#${m.tag}</div>
+        <div class="mover-tag" data-tag="${m.tag}">#${m.tag}</div>
         ${m.region ? `<div class="mover-region">${m.region}</div>` : ''}
       </div>
-      <div class="mover-metric" style="color:${m.color}">${m.label}</div>
+      <div class="mover-metric" data-scorekey="${m.scoreKey}" style="color:${m.color}">${m.label}</div>
       <div class="mover-delta" style="color:${dColor}">${arrow} ${deltaStr} pts</div>
       <div class="mover-context">vs prev 30 days · now avg ${m.rAvg > 0 ? '+' : ''}${m.rAvg.toFixed(1)}</div>
     </div>`;
@@ -1406,6 +1412,7 @@ let activeStatus = 'ALL';
 let activeScope  = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
+let activeScore  = '';
 
 function timeAgo(isoStr) {
   if (!isoStr) return 'unknown';
@@ -1470,6 +1477,11 @@ function setTag(tag) {
   renderGrid();
 }
 
+function setScore(scoreKey) {
+  activeScore = (activeScore === scoreKey) ? '' : scoreKey;
+  renderGrid();
+}
+
 function renderTagChip() {
   const wrap = document.getElementById('tag-chip-wrap');
   if (!activeTag) { wrap.innerHTML = ''; return; }
@@ -1477,10 +1489,19 @@ function renderTagChip() {
   document.getElementById('tag-clear-btn').addEventListener('click', () => { activeTag = ''; renderGrid(); });
 }
 
+function renderScoreChip() {
+  const wrap = document.getElementById('score-chip-wrap');
+  if (!activeScore) { wrap.innerHTML = ''; return; }
+  const s = SCORES.find(s => s.key === activeScore);
+  wrap.innerHTML = `<button class="tag-clear" id="score-clear-btn" style="border-color:${s.color};color:${s.color}">${s.label} score &times;</button>`;
+  document.getElementById('score-clear-btn').addEventListener('click', () => { activeScore = ''; renderGrid(); });
+}
+
 function renderGrid() {
   const grid  = document.getElementById('policy-grid');
   const count = document.getElementById('results-count');
   renderTagChip();
+  renderScoreChip();
 
   let list = allPolicies;
   if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
@@ -1495,11 +1516,22 @@ function renderGrid() {
       (p.tags || []).some(t => t.toLowerCase().includes(q))
     );
   }
+  if (activeScore) {
+    list = [...list].sort((a, b) => Math.abs(b[activeScore] ?? 0) - Math.abs(a[activeScore] ?? 0));
+  }
 
   count.textContent = list.length ? list.length + ' policies' : '';
-  document.querySelectorAll('#movers-grid .mover-card[data-tag]').forEach(c =>
-    c.classList.toggle('active', c.dataset.tag === activeTag)
+  document.querySelectorAll('#movers-grid .mover-tag[data-tag]').forEach(el =>
+    el.classList.toggle('active', el.dataset.tag === activeTag)
   );
+  document.querySelectorAll('#movers-grid .mover-metric[data-scorekey]').forEach(el =>
+    el.classList.toggle('active', el.dataset.scorekey === activeScore)
+  );
+  document.querySelectorAll('#movers-grid .mover-card').forEach(c => {
+    const tagActive   = c.dataset.tag      === activeTag   && activeTag   !== '';
+    const scoreActive = c.dataset.scorekey === activeScore && activeScore !== '';
+    c.classList.toggle('active', tagActive || scoreActive);
+  });
 
   if (!list.length) {
     grid.innerHTML = `<div class="state-msg">${allPolicies.length ? 'no results' : 'no policies loaded'}</div>`;
@@ -1785,9 +1817,10 @@ async function init() {
   });
 
   document.getElementById('movers-grid').addEventListener('click', e => {
-    const card = e.target.closest('.mover-card[data-tag]');
-    if (!card) return;
-    setTag(card.dataset.tag);
+    const tagEl    = e.target.closest('.mover-tag[data-tag]');
+    const metricEl = e.target.closest('.mover-metric[data-scorekey]');
+    if (tagEl)    { setTag(tagEl.dataset.tag);          return; }
+    if (metricEl) { setScore(metricEl.dataset.scorekey); return; }
   });
 
   try {
