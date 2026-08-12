@@ -837,8 +837,8 @@ footer {
   border: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: 11px;
-  padding: 1px 4px;
+  font-size: 16px;
+  padding: 2px 5px;
   transition: color .12s;
   font-family: var(--mono);
   line-height: 1;
@@ -1388,8 +1388,14 @@ function renderMovers(policies) {
     });
   });
 
-  movers.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
-  const top = movers.slice(0, 3);
+  // Keep only the single biggest mover per score category
+  const topByScore = {};
+  movers.forEach(m => {
+    if (!topByScore[m.scoreKey] || Math.abs(m.delta) > Math.abs(topByScore[m.scoreKey].delta)) {
+      topByScore[m.scoreKey] = m;
+    }
+  });
+  const top = Object.values(topByScore).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
 
   if (!top.length) {
     grid.innerHTML = '<div class="mover-empty">Not enough data yet — scores accumulate daily.</div>';
