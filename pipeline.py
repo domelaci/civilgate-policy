@@ -445,7 +445,7 @@ def call_gemini(text: str) -> dict:
     return json.loads(raw)
 
 
-def score_pending(conn: sqlite3.Connection, limit: int = 15) -> int:
+def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
     rows = conn.execute(
         """SELECT id, raw_text FROM policies
            WHERE summary IS NULL AND score_failed = 0
