@@ -128,6 +128,77 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
     return added
 
 
+# ── EUR-Lex CELLAR fetcher ─────────────────────────────────────────────────
+
+EURLEX_SPARQL = """\
+SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
+  VALUES ?type {{
+    <http://publications.europa.eu/ontology/cdm#regulation>
+    <http://publications.europa.eu/ontology/cdm#directive>
+    <http://publications.europa.eu/ontology/cdm#decision>
+  }}
+  ?work a ?type ;
+        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date ;
+        <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex .
+  OPTIONAL {{
+    ?expr <http://publications.europa.eu/ontology/cdm#expression_belongs_to_work> ?work ;
+          <http://publications.europa.eu/ontology/cdm#expression_uses_language>
+            <http://publications.europa.eu/resource/authority/language/ENG> ;
+          <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
+  }}
+  FILTER(?date >= "{since}"^^xsd:date)
+}}
+ORDER BY DESC(?date) LIMIT {limit}
+"""
+
+
+def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
+    from datetime import timedelta
+    since = (date.today() - timedelta(days=60)).isoformat()
+    query = EURLEX_SPARQL.format(since=since, limit=max_new * 3)
+
+    try:
+        r = requests.get(
+            "https://publications.europa.eu/webapi/rdf/sparql",
+            params={"query": query, "format": "application/sparql-results+json"},
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        bindings = r.json()["results"]["bindings"]
+    except Exception as e:
+        log.error("EUR-Lex CELLAR fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for b in bindings:
+        celex = (b.get("celex", {}).get("value") or "").strip()
+        if not celex:
+            continue
+        ext_id = f"eurlex:{celex}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title    = (b.get("title", {}).get("value") or celex).strip()
+        pub_date = (b.get("date", {}).get("value") or "")[:10]
+        url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
+        raw      = f"Title: {title}\nCELEX: {celex}"
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
+               VALUES (?,?,?,?,?,?,?,?)""",
+            ("eurlex", "EU", ext_id, title, url, pub_date, date.today().isoformat(), raw),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("EUR-Lex: %d new documents", added)
+    return added
+
+
 # ── UK GOV.UK fetcher ─────────────────────────────────────────────────────
 
 def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
@@ -476,6 +547,7 @@ def main() -> None:
 
     fetch_federal_register(conn)
     fetch_ec_press(conn)
+    fetch_eurlex(conn)
     fetch_uk_gov(conn)
     fetch_canada_gazette(conn)
     fetch_australia_legislation(conn)
