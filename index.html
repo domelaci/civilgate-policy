@@ -335,6 +335,8 @@ main {
 .source-badge.ca  { background: rgba(224,82,82,.15); color: #e05252; border: 1px solid rgba(224,82,82,.3); }
 /* Australia */
 .source-badge.au  { background: rgba(127,119,221,.15); color: #7F77DD; border: 1px solid rgba(127,119,221,.3); }
+/* Romania — EU member state, teal family */
+.source-badge.ro  { background: #9FE1CB; color: #085041; }
 
 /* Status badge */
 .status-badge {
@@ -1470,6 +1472,7 @@ function badgeClass(country, source) {
   if (country === 'GB') return 'gb';
   if (country === 'CA') return 'ca';
   if (country === 'AU') return 'au';
+  if (country === 'RO') return 'ro';
   return 'us';
 }
 
@@ -1481,7 +1484,8 @@ function badgeLabel(source) {
     uk_gov:           'GOV.UK',
     uk_parliament:    'UK PARL.',
     canada_gazette:   'CA GAZETTE',
-    au_legislation:   'AU LEG.',
+    au_legislation:          'AU LEG.',
+    ro_monitorul_oficial:    'MONITORUL OF.',
   }[source] || source.toUpperCase();
 }
 

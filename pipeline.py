@@ -819,6 +819,13 @@ def main() -> None:
     fetch_uk_parliament(conn)
     fetch_canada_gazette(conn)
     fetch_australia_legislation(conn)
+
+    try:
+        from monitorul_oficial import fetch_monitorul_oficial
+        fetch_monitorul_oficial(conn)
+    except Exception as e:
+        log.error("Monitorul Oficial fetch failed: %s", e)
+
     score_pending(conn)
     export_json(conn)
 
