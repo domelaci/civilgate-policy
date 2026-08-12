@@ -731,7 +731,7 @@ def export_json(conn: sqlite3.Connection) -> None:
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
             WHERE summary IS NOT NULL
-            ORDER BY published_date DESC LIMIT 200""",
+            ORDER BY published_date DESC LIMIT 500""",
     ).fetchall()
 
     out = []
