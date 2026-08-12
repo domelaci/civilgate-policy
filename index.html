@@ -191,7 +191,14 @@ header {
 .filter-pills {
   display: flex;
   gap: .4rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.filter-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border2);
+  flex-shrink: 0;
 }
 
 .pill {
@@ -866,12 +873,14 @@ footer {
     <button class="pill" data-filter="CA">Canada</button>
     <button class="pill" data-filter="AU">Australia</button>
   </div>
-  <div class="filter-pills" id="status-pills" style="margin-top:.375rem">
+  <div class="filter-sep"></div>
+  <div class="filter-pills" id="status-pills">
     <button class="pill active" data-status="ALL">All status</button>
     <button class="pill" data-status="enacted">&#9679; Law</button>
     <button class="pill" data-status="proposed">&#9680; Proposed</button>
   </div>
-  <div class="filter-pills" id="level-pills" style="margin-top:.375rem">
+  <div class="filter-sep"></div>
+  <div class="filter-pills" id="level-pills">
     <button class="pill active" data-level="ALL">All levels</button>
     <button class="pill" data-level="eu">EU law</button>
     <button class="pill" data-level="national">National law</button>
