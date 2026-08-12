@@ -5,10 +5,10 @@
 | Domain | Purpose |
 |---|---|
 | `civilgate.org` | Main product — the policy watcher (international, English-first) |
-| `volunteer.civilgate.org` | Subdomain — volunteer matching platform (to be migrated from civilkapu.hu) |
-| `civilkapu.hu` | Hungarian-language civic platform — will eventually point to civilgate.hu or redirect |
+| `volunteer.civilgate.org` | Subdomain — volunteer matching platform (migrated from civilkapu.hu) |
+| `civilkapu.hu` | Hungarian-language civic platform — will eventually redirect |
 
-**civilgate.org is currently live with volunteer matching content. This needs to be replaced with the policy watcher. The volunteer matching moves to volunteer.civilgate.org.**
+**civilgate.org is currently live with the policy watcher. The volunteer matching lives at volunteer.civilgate.org.**
 
 ## Product Narrative
 
@@ -19,13 +19,131 @@ CivilGate is a civic platform with two expressions of the same mission:
 
 These two products feed each other. A user reads that their government cut funding for environmental NGOs → they click through to volunteer with an environmental organisation. Policy awareness driving civic action. This narrative should be present in the UI — the policy cards should link to relevant volunteer opportunities where possible.
 
-## What You Are Building (Phase 1)
+---
+
+## What We're Building
 
 A public website at civilgate.org that tracks government policy changes across the EU and USA, summarises them in plain language, scores them on social/environmental/economic impact, and surfaces trends over time.
 
 Think of it as a Bloomberg Terminal for democracy — free, public, and readable by anyone regardless of political background.
 
-Primary audience: anyone who wants to understand what governments are doing — young people, journalists, NGOs, researchers, small businesses, teachers. Design for the least politically engaged user and you automatically include everyone else.
+Target audience: young people who don't follow politics but want to understand what their governments are doing. Design for the least politically engaged user and you automatically include everyone else — journalists, NGOs, researchers, small businesses, teachers.
+
+Two core functions:
+1. **Daily feed** — new policies summarised and scored as they come out
+2. **Trend analysis** — longitudinal stats showing where governments are moving and how fast (e.g. regulatory volume by topic over time, cross-Atlantic comparisons)
+
+---
+
+## Design Language
+
+The visual reference is holadelej.hu — a Hungarian real-time electricity grid dashboard. Study it before building the frontend. The CivilGate UI should feel like a live data instrument, not a news website.
+
+### Core aesthetic
+- **Dark background throughout.** Page bg: `#0a0e18`. Card bg: `#111827`. Never use white or light backgrounds except for text.
+- **Data is the hero.** Scores and numbers are large, bold, and immediately readable. No decorative elements. No stock photos. No hero images.
+- **Colour carries meaning, not decoration.** Every colour on the page encodes information. Nothing is coloured for style alone.
+- **Monospace for data labels.** Use a monospace font (`font-family: 'JetBrains Mono', 'Fira Code', monospace`) for all labels, tags, source badges, dates, and score labels. Use a clean sans-serif (`Inter`, `system-ui`) for body text and summaries.
+- **Live feel.** The page should feel like it's connected to something real. Include a "updated X minutes ago" indicator in the header that refreshes. Use subtle animated dots for live status.
+
+### Colour palette
+
+| Role | Hex | Usage |
+|---|---|---|
+| Page background | `#0a0e18` | Full page bg |
+| Card background | `#111827` | Policy cards, map container |
+| Card border | `#1f2937` | Subtle card edges |
+| Social score | `#1D9E75` | Social impact number and label |
+| Environmental score | `#5DCAA5` | Environmental impact number and label |
+| Economic score | `#EF9F27` | Economic impact number and label |
+| EU region | `#1D9E75` | Map country fill, EU badge bg |
+| USA region | `#EF9F27` | Map country fill, USA badge bg |
+| UK region | `#378ADD` | Map country fill, UK badge bg |
+| Accent / interactive | `#7F77DD` | Hover states, selected filters, links |
+| Text primary | `#e5e7eb` | Body text, titles |
+| Text secondary | `#9ca3af` | Subtitles, reasons, metadata |
+| Text muted | `#4b5563` | Labels, timestamps, tags |
+
+### Typography scale
+
+```css
+/* Page title */
+font-size: 20px; font-weight: 500; letter-spacing: 2px; font-family: monospace; text-transform: uppercase;
+
+/* Card title */
+font-size: 14px; font-weight: 500; color: #e5e7eb; line-height: 1.4;
+
+/* Score number */
+font-size: 28px; font-weight: 500; line-height: 1; color: [score colour];
+
+/* Score label */
+font-size: 10px; font-family: monospace; text-transform: uppercase; color: #4b5563; letter-spacing: 1px;
+
+/* Score reason */
+font-size: 11px; color: #9ca3af; line-height: 1.4; margin-top: 3px;
+
+/* Summary text */
+font-size: 13px; color: #9ca3af; line-height: 1.6;
+
+/* Source badge */
+font-size: 10px; font-family: monospace; padding: 2px 8px; border-radius: 4px;
+
+/* Timestamp */
+font-size: 11px; font-family: monospace; color: #4b5563;
+```
+
+### Policy card structure
+
+Each card contains exactly:
+1. Top row: source badge (coloured by region) + date (right-aligned, muted monospace)
+2. Title (14px, primary text, max 2 lines)
+3. Summary (13px, secondary text, 2–3 sentences, plain English)
+4. Score row (3 columns, divider above): SOCIAL · ENV · ECON — each with large number, label above, reason below
+5. Optional: tag chips at the bottom (monospace, dark bg, muted text)
+
+Card border: `1px solid #1f2937`. Hover: `border-color: #374151`. Border-radius: `12px`. Padding: `1rem 1.25rem`.
+
+### Source badge colours
+
+| Source | Text colour | Background |
+|---|---|---|
+| EUR-LEX · EU | `#085041` | `#9FE1CB` |
+| EC PRESS · EU | `#085041` | `#9FE1CB` |
+| EP · EU | `#085041` | `#9FE1CB` |
+| FED. REGISTER · USA | `#633806` | `#FAC775` |
+| CONGRESS · USA | `#633806` | `#FAC775` |
+| UN DIGITAL LIBRARY | `#0C447C` | `#B5D4F4` |
+
+### World map
+
+- Dark muted base for unlit countries: `#1f2937`
+- Country borders: `#0a0e18` (same as page bg), `stroke-width: 0.3`
+- Lit countries use region colours from palette above
+- Unlit countries with planned coverage: show tooltip "coming soon" on hover, briefly highlight in `#2d3748`
+- Map container background: `#111827`, top bar with monospace label "SELECT REGION"
+- Filter pills: dark bg, monospace font, coloured border + text when active
+
+### Header
+
+```
+CIVILGATE          live government data — eu · usa          ● updated 4 min ago    15:42:01
+```
+
+- Site name: uppercase monospace, large
+- Subtitle: small monospace, muted
+- Live indicator: pulsing dot + "updated X min ago", right-aligned
+- Clock: real-time, monospace, far right (optional but adds to live feel)
+- Navigation: minimal — just text links, no borders or boxes
+
+### What NOT to do
+- No white backgrounds anywhere
+- No gradients
+- No images or illustrations
+- No rounded pill buttons with coloured fills — use bordered pills only
+- No card shadows — borders only
+- No emoji in the UI
+- No "Read more" links — summaries must be self-contained
+- No pagination — infinite scroll or "load more" button
 
 ---
 
@@ -64,7 +182,7 @@ Primary audience: anyone who wants to understand what governments are doing — 
 
 ---
 
-## Data Sources
+## Data Sources (all free)
 
 ### Priority 1 — Build these first
 
@@ -90,7 +208,7 @@ Primary audience: anyone who wants to understand what governments are doing — 
 
 **EUR-Lex**
 - SPARQL endpoint + RSS + ELI API
-- Every EU regulation, directive, decision — full text, all 24 languages
+- Every EU regulation, directive, decision — full text, all 24 languages, back to the 1950s
 - RSS alerts available per document type
 - Docs: `https://eur-lex.europa.eu/content/help/my-eurlex/my-rss-feeds.html`
 
@@ -108,15 +226,14 @@ Primary audience: anyone who wants to understand what governments are doing — 
 - Free with API key
 - Full US regulatory rulemaking including public comments
 
+**LegiScan**
+- US federal + all 50 state legislatures, structured and consistent
+- Has free tier
+
 **UN Digital Library**
 - UNGA resolutions back to 1946
 - Voting records by country
 - Docs: `https://digitallibrary.un.org`
-
-**LegiScan**
-- US federal + all 50 state legislatures
-- Consistent structured API
-- Has free tier
 
 **Member state parliaments** (add incrementally)
 - Spain: `https://www.boe.es/datosabiertos/`
@@ -127,7 +244,7 @@ Primary audience: anyone who wants to understand what governments are doing — 
 
 ## Scoring System
 
-Each policy gets three scores from 1–10:
+Each policy gets three scores (1–10):
 
 | Score | What it measures |
 |---|---|
@@ -143,25 +260,27 @@ Rules:
 
 ---
 
-## LLM Strategy
+## LLM Strategy (free)
 
-### Primary — Free Online APIs (use these first)
+### Online (preferred — no local compute needed)
 
-| Provider | Model | Free Limits | Notes |
+| Provider | Model | Free limits | Notes |
 |---|---|---|---|
-| Google AI Studio | Gemini 2.0 Flash | 60 RPM, 1M token context, no credit card | Use as primary |
-| Groq | Llama 3.3 70B | 100K tokens/day, no credit card | Use as backup |
+| Google AI Studio | Gemini 2.0 Flash | 60 RPM, 1M token context, no credit card | Primary choice |
+| Groq | Llama 3.3 70B | 100K tokens/day, no credit card | Fast, good backup |
 | Cerebras | — | 1M tokens/day, no credit card | Best daily volume |
+| OpenRouter | 30+ models | 50 req/day free | Useful for variety |
 
-**Strategy:** rotate across Gemini → Groq → Cerebras to multiply free capacity. Sufficient for 50–200 policy items/day at zero cost.
+**Strategy:** rotate across Gemini → Groq → Cerebras to multiply free capacity. More than sufficient for 50–200 policy items/day at zero cost.
 
-### Fallback — Local (Ubuntu server)
-- CPU: Intel i5-4210U, RAM: 11GB, no discrete GPU
-- Install: `curl -fsSL https://ollama.com/install.sh | sh`
-- Best models for this hardware: `qwen2.5:3b` or `phi3.5`
+### Local (fallback)
+Server specs: Intel i5-4210U, 11GB RAM, no discrete GPU, Ubuntu 24.04, 118GB free disk.
+
+- Install Ollama: `curl -fsSL https://ollama.com/install.sh | sh`
+- Best models for this hardware: `qwen2.5:3b` or `phi3.5` (fits in RAM, reasonable speed)
+- Inference will be slow (~2–3 tok/s) but fine for overnight batch processing
 - Run: `ollama run qwen2.5:3b`
-- API available at `localhost:11434`
-- Inference is slow (~2–3 tok/s) but fine for overnight batch jobs
+- Local API available at `localhost:11434`
 
 ### Prompt Structure (use for every policy item)
 
@@ -190,8 +309,8 @@ Document:
 | Scheduler | Cron | Free |
 | Database | SQLite to start, migrate to Supabase free tier when needed | Free |
 | LLM calls | Gemini API (primary), Groq (backup) | Free |
-| Website frontend | Next.js or plain HTML/CSS | Free |
-| Hosting | Vercel free tier | Free |
+| Website frontend | Plain HTML/CSS/JS | Free |
+| Hosting | Cloudflare Pages | Free |
 | User accounts (build now, use later) | Supabase Auth | Free tier |
 
 **Total monthly cost at prototype stage: ~$0**
@@ -220,7 +339,8 @@ CREATE TABLE policies (
   economic_score INTEGER,
   economic_reason TEXT,
   tags TEXT,                -- JSON array stored as string
-  scored_at TIMESTAMP
+  scored_at TIMESTAMP,
+  score_failed INTEGER DEFAULT 0
 );
 
 -- Users table (build now, activate later for paid tier)
@@ -252,7 +372,7 @@ The map is a live indicator of data coverage. Countries light up as data sources
 |---|---|---|
 | Active | Coloured (see palette below) | Data source live, policies being ingested |
 | Hover (inactive) | Purple highlight + "coming soon" tooltip | Region planned but not yet built |
-| Default | Gray | No coverage planned yet |
+| Default | Dark gray | No coverage planned yet |
 
 ### Region colour palette (add in this order)
 | Region | Colour | ISO codes to highlight |
@@ -273,26 +393,24 @@ One pill per active region plus ALL and UN. Pills are hidden until their region 
 
 ## Build Order
 
-### Step 1 — Data pipeline (prove the data works)
-1. Write a Python script that fetches from the Federal Register API
-2. Parse and store raw results in SQLite
-3. Pass one item through Gemini API, get back summary + scores
-4. Store the result
-5. Confirm end-to-end flow works before touching the frontend
+### Step 1 — Data pipeline ✅ DONE
+- Federal Register API fetched and stored in SQLite ✅
+- EC Press Corner RSS fetched and stored ✅
+- Gemini scoring: summary + 3 scores + reasons + tags ✅
+- policies.json exported and served on civilgate.org ✅
+- Cron runs daily at 07:00 ✅
 
-### Step 2 — Add EU sources
-1. EC Press Corner RSS
-2. EUR-Lex RSS
-3. European Parliament API
+### Step 2 — Add more EU sources
+1. EUR-Lex RSS
+2. European Parliament API
+3. Council of the EU RSS
 4. Each one follows the same fetch → parse → score → store pattern
-5. Once EU sources are live, light up EU countries on the map and add EU filter pill
+5. Once confirmed flowing, EU countries are already lit on the map
 
-### Step 3 — Minimal frontend
-1. A single page listing the latest 20 policies
-2. Each shows: title, source, date, summary, three scores with reasons, tags
-3. World map at the top — USA and EU lit up, everything else gray with "coming soon" on hover
-4. Filter pills: ALL · EU · USA only to start
-5. No accounts yet
+### Step 3 — Backfill historical data
+1. Federal Register back to 2020 (5 years of trend data)
+2. Run as a one-time bulk job overnight
+3. This unlocks the trend layer immediately
 
 ### Step 4 — Trend layer
 1. Add charts showing policy volume over time by topic
@@ -318,6 +436,98 @@ For each new region: add data source → confirm data flowing → light up map �
 
 ---
 
+## Phase 2 Feature — Contact Your Representative
+
+When a user reads a policy that affects them, they should be able to immediately see who to contact and how. This connects the "understand" and "act" parts of CivilGate.
+
+### UX Flow
+
+1. Each policy card has a **"Contact your rep"** button at the bottom
+2. On first click, a modal asks: "Where are you based?" — text input for address or zip/postcode
+3. Location is stored in localStorage so they only enter it once
+4. The modal shows their relevant representatives with name, role, phone, and email
+5. Below the rep list: a **pre-drafted message** they can copy, referencing the specific policy by name
+6. Optional: "Send via email" button that opens their mail client with the message pre-filled
+
+### Data Sources
+
+**USA — Google Civic Information API**
+- Free, requires a Google API key (no billing needed for low volume)
+- Docs: `https://developers.google.com/civic-information`
+- Input: any US address or zip code
+- Returns: House representative, two Senators, state legislators, and local officials with office addresses, phone numbers, and emails
+- This is the most complete and reliable source — build US support first
+
+**EU — European Parliament MEP Search**
+- API: `https://data.europarl.europa.eu/api/v1/meps`
+- Filter by country to get MEPs for any EU member state
+- Returns: name, country, political group, contact email, official page URL
+- For national MPs (Bundestag, Assemblée nationale, etc.) — add per country incrementally, starting with the largest (DE, FR, ES)
+
+### Database Addition
+
+```sql
+-- Cache representative lookups to avoid re-hitting APIs
+CREATE TABLE rep_cache (
+  id INTEGER PRIMARY KEY,
+  location_key TEXT UNIQUE,   -- normalised zip/postcode or address hash
+  country TEXT,               -- 'US', 'DE', 'FR', etc.
+  reps_json TEXT,             -- full API response cached as JSON
+  cached_at TIMESTAMP
+);
+```
+
+Cache rep data for 7 days — it changes rarely and API calls should be minimised.
+
+### Pre-Drafted Message Template
+
+```
+Subject: [Policy title] — request for your position
+
+Dear [Representative name],
+
+I am writing as a constituent from [location] regarding [policy title],
+published on [date] by [source].
+
+[One-sentence plain-language summary of the policy]
+
+I would like to know your position on this issue and what steps, if any,
+you plan to take in response.
+
+Thank you for your time.
+
+[User can add their name here]
+```
+
+The message should be editable before copying — it's a starting point, not a form letter.
+
+### Implementation Notes
+
+- Build US support first (Google Civic API is the easiest and most complete)
+- EU MEP layer second
+- National MPs third — add one country at a time based on traffic/demand
+- Do not store user addresses on the server — keep in localStorage only
+- The "Contact your rep" button should only appear on cards where the policy's country matches the user's stored location (a US policy doesn't show EU reps and vice versa)
+- Show this feature behind a subtle "Act" label in the card footer to distinguish it from the "Read source" link
+
+### Build Order (within Phase 2)
+
+1. Add Google Civic Information API key to pipeline config
+2. Build a `/api/reps?address=...` endpoint (or client-side fetch) that calls the Civic API and returns formatted rep data
+3. Add the "Contact your rep" button and modal to policy cards — US policies only
+4. Add rep cache table to database
+5. Add EU MEP lookup for EU policies
+6. Add pre-drafted message with copy button
+7. Add "mailto:" link as optional convenience
+
+---
+
+## Key Differentiator
+
+Most civic tech shows *what* is happening. This product shows *direction and velocity* — where governments are moving and how fast. The trend layer (e.g. "EU AI regulation up 3x since 2022", "US climate rulemaking collapsed after 2025") is the thing journalists, NGOs, and researchers would cite and share.
+
+---
+
 ## What Not to Build Yet
 - Mobile app
 - Browser extension
@@ -327,10 +537,11 @@ For each new region: add data source → confirm data flowing → light up map �
 
 ---
 
-## Definition of Done for Step 1
+## Definition of Done for Step 1 ✅
 
-- Federal Register API is being polled every 24 hours via cron
-- New items are stored in SQLite with raw text
-- Each item has been sent to Gemini and received summary + 3 scores + reasons + tags
-- Results are stored and queryable
-- One simple HTML page shows the last 20 items with their scores
+- Federal Register API polled every 24 hours via cron ✅
+- EC Press Corner RSS polled every 24 hours via cron ✅
+- New items stored in SQLite with raw text ✅
+- Each item sent to Gemini → summary + 3 scores + reasons + tags ✅
+- Results stored and queryable ✅
+- HTML page shows latest policies with scores at civilgate.org ✅

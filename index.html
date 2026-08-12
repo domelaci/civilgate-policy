@@ -112,7 +112,7 @@ header {
 
 #world-map {
   width: 100%;
-  height: 220px;
+  height: 420px;
   display: block;
   border-radius: 8px;
   overflow: hidden;
@@ -392,14 +392,14 @@ footer a:hover { color: var(--text); }
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: 1fr; }
-  #world-map { height: 160px; }
+  #world-map { height: 280px; }
 }
 
 @media (max-width: 600px) {
   header { padding: 1rem; }
   .header-tag { display: none; }
   .map-section, .controls, main { padding-left: 1rem; padding-right: 1rem; }
-  #world-map { height: 130px; }
+  #world-map { height: 200px; }
 }
 </style>
 </head>
@@ -462,27 +462,21 @@ const EU_CODES = new Set([40,56,100,191,196,203,208,233,246,250,276,300,348,372,
 const US_CODES = new Set([840]);
 const PLANNED  = new Set([826,682,784,634,414,48,512,368,364,376,400,422,760,887,818,156,36,554,76,32,152,170,862,604,218,68,600,858,328,740]);
 
-async function renderMap() {
+async function renderMap(world) {
   const svg = d3.select('#world-map');
   const el  = document.getElementById('world-map');
 
   // Wait one frame so the element has a rendered size before reading it
   await new Promise(r => requestAnimationFrame(r));
-  const W = el.getBoundingClientRect().width  || 960;
-  const H = el.getBoundingClientRect().height || 220;
+  const rect = el.getBoundingClientRect();
+  const W = rect.width  || 960;
+  const H = rect.height || 420;
 
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
   // fitSize auto-calculates scale + translate to fit the world into [W, H]
   const projection = d3.geoNaturalEarth1().fitSize([W, H], {type: 'Sphere'});
   const path = d3.geoPath().projection(projection);
-
-  let world;
-  try {
-    world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-  } catch {
-    return; // fail silently
-  }
 
   const countries = topojson.feature(world, world.objects.countries).features;
 
@@ -531,7 +525,11 @@ async function renderMap() {
     });
 }
 
-renderMap();
+document.addEventListener('DOMContentLoaded', () => {
+  d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(world => renderMap(world))
+    .catch(() => {}); // fail silently if CDN unavailable
+});
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
 
