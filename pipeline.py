@@ -22,10 +22,12 @@ DB_FILE  = BASE_DIR / "policies.db"
 OUT_FILE = BASE_DIR / "policies.json"
 
 load_dotenv(BASE_DIR / ".env")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GITHUB_TOKEN   = os.environ.get("GITHUB_TOKEN", "")
-GITHUB_REPO    = os.environ.get("GITHUB_REPO", "")
-SITE_URL       = os.environ.get("SITE_URL", "https://civilgate.org")
+GEMINI_API_KEY   = os.environ.get("GEMINI_API_KEY", "")
+GROQ_API_KEY     = os.environ.get("GROQ_API_KEY", "")
+CEREBRAS_API_KEY = os.environ.get("CEREBRAS_API_KEY", "")
+GITHUB_TOKEN     = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_REPO      = os.environ.get("GITHUB_REPO", "")
+SITE_URL         = os.environ.get("SITE_URL", "https://civilgate.org")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -576,6 +578,12 @@ Document:
 {text}"""
 
 
+def _parse_llm_response(raw: str) -> dict:
+    raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
+    raw = re.sub(r"\s*```$", "", raw)
+    return json.loads(raw)
+
+
 def call_gemini(text: str) -> dict:
     url = (
         "https://generativelanguage.googleapis.com/v1beta"
@@ -586,11 +594,76 @@ def call_gemini(text: str) -> dict:
         "generationConfig": {"temperature": 0.3, "maxOutputTokens": 1024},
     }
     r = requests.post(url, json=payload, timeout=60)
+    if r.status_code == 429:
+        raise RuntimeError("RATE_LIMIT")
     r.raise_for_status()
-    raw = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-    raw = re.sub(r"^```(?:json)?\s*", "", raw)
-    raw = re.sub(r"\s*```$", "", raw)
-    return json.loads(raw)
+    raw = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+    return _parse_llm_response(raw)
+
+
+def call_cerebras(text: str) -> dict:
+    r = requests.post(
+        "https://api.cerebras.ai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
+        json={
+            "model": "llama3.1-8b",
+            "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
+            "temperature": 0.3,
+            "max_tokens": 1024,
+        },
+        timeout=60,
+    )
+    if r.status_code == 429:
+        raise RuntimeError("RATE_LIMIT")
+    r.raise_for_status()
+    return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
+
+
+def call_groq(text: str) -> dict:
+    r = requests.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
+        json={
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
+            "temperature": 0.3,
+            "max_tokens": 1024,
+        },
+        timeout=60,
+    )
+    if r.status_code == 429:
+        raise RuntimeError("RATE_LIMIT")
+    r.raise_for_status()
+    return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
+
+
+def call_llm(text: str) -> dict:
+    """Try Gemini → Cerebras → Groq; raise if all exhausted."""
+    providers = []
+    if GEMINI_API_KEY:
+        providers.append(("Gemini", call_gemini))
+    if CEREBRAS_API_KEY:
+        providers.append(("Cerebras", call_cerebras))
+    if GROQ_API_KEY:
+        providers.append(("Groq", call_groq))
+
+    last_err = None
+    for name, fn in providers:
+        try:
+            result = fn(text)
+            return result
+        except RuntimeError as e:
+            if "RATE_LIMIT" in str(e):
+                log.warning("%s rate limited, trying next provider…", name)
+                last_err = e
+                continue
+            raise
+        except Exception as e:
+            log.warning("%s failed (%s), trying next provider…", name, e)
+            last_err = e
+            continue
+
+    raise RuntimeError(f"All LLM providers exhausted. Last error: {last_err}")
 
 
 def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
@@ -604,7 +677,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
     scored = 0
     for row_id, raw_text in rows:
         try:
-            result = call_gemini(raw_text or "")
+            result = call_llm(raw_text or "")
             conn.execute(
                 """UPDATE policies SET
                    summary=?, social_score=?, social_reason=?,
