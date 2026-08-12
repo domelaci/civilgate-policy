@@ -358,7 +358,30 @@ main {
   border-radius: 4px;
   padding: .15rem .5rem;
   font-weight: 400;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  user-select: none;
 }
+.tag:hover { color: var(--text); border-color: #2a4060; }
+.tag.active { border-color: #3b82f6; background: rgba(59,130,246,.08); color: #93c5fd; }
+
+.tag-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .85rem;
+  border-radius: 99px;
+  border: 1px solid #3b82f6;
+  background: rgba(59,130,246,.1);
+  color: #93c5fd;
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.tag-clear:hover { opacity: .75; }
 
 .card-link {
   font-size: .75rem;
@@ -440,6 +463,7 @@ footer a:hover { color: var(--text); }
     <button class="pill" data-filter="CA">Canada</button>
     <button class="pill" data-filter="AU">Australia</button>
   </div>
+  <div id="tag-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -553,6 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let allPolicies  = [];
 let activeFilter = 'ALL';
 let searchQuery  = '';
+let activeTag    = '';
 
 function fmt(dateStr) {
   if (!dateStr) return '';
@@ -568,12 +593,26 @@ function scoreChip(type, score, reason) {
   </span>`;
 }
 
+function setTag(tag) {
+  activeTag = (activeTag === tag) ? '' : tag;
+  renderGrid();
+}
+
+function renderTagChip() {
+  const wrap = document.getElementById('tag-chip-wrap');
+  if (!activeTag) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `<button class="tag-clear" id="tag-clear-btn">#${activeTag} &times;</button>`;
+  document.getElementById('tag-clear-btn').addEventListener('click', () => { activeTag = ''; renderGrid(); });
+}
+
 function renderGrid() {
   const grid = document.getElementById('policy-grid');
   const count = document.getElementById('results-count');
+  renderTagChip();
 
   let list = allPolicies;
   if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
+  if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     list = list.filter(p =>
@@ -592,7 +631,7 @@ function renderGrid() {
 
   grid.innerHTML = list.slice(0, 50).map(p => {
     const country = (p.country || 'US').toUpperCase();
-    const tags = (p.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+    const tags = (p.tags || []).map(t => `<span class="tag${t.toLowerCase() === activeTag ? ' active' : ''}" data-tag="${t.toLowerCase()}">${t}</span>`).join('');
     const sourceName = {
       federal_register: 'Federal Register',
       ec_press: 'EC Press Corner',
@@ -628,9 +667,17 @@ async function init() {
     const btn = e.target.closest('.pill');
     if (!btn) return;
     activeFilter = btn.dataset.filter;
+    if (activeFilter === 'ALL') activeTag = '';
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     renderGrid();
+  });
+
+  // Tag clicks (delegated — grid is re-rendered dynamically)
+  document.getElementById('policy-grid').addEventListener('click', e => {
+    const tag = e.target.closest('.tag');
+    if (!tag) return;
+    setTag(tag.dataset.tag);
   });
 
   // Search
