@@ -1178,7 +1178,7 @@ function renderGrid() {
 
 // ── Contact Your Rep ──────────────────────────────────────────────────────
 
-const GOOGLE_CIVIC_KEY = ''; // add your Google Civic Information API key here
+// US rep lookup is proxied through /api/reps (Cloudflare Pages Function)
 
 let currentPolicy = null;
 
@@ -1297,15 +1297,10 @@ async function findReps(location, policy) {
     return;
   }
 
-  // US lookup via Google Civic Information API
+  // US lookup proxied through Cloudflare Pages Function (/api/reps)
   if (policy.country === 'US') {
-    if (!GOOGLE_CIVIC_KEY) {
-      results.innerHTML = '<div class="rep-status">Google Civic API key not configured. Add GOOGLE_CIVIC_KEY to index.html.</div>';
-      return;
-    }
     try {
-      const url = `https://civicinfo.googleapis.com/civicinfo/v2/representatives?address=${encodeURIComponent(location)}&key=${GOOGLE_CIVIC_KEY}`;
-      const r = await fetch(url);
+      const r = await fetch(`/api/reps?address=${encodeURIComponent(location)}`);
       const data = await r.json();
       if (data.error) { results.innerHTML = `<div class="rep-status">${data.error.message}</div>`; return; }
 
