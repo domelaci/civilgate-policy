@@ -17,7 +17,9 @@ export async function onRequestGet(context) {
   const url = `https://civicinfo.googleapis.com/civicinfo/v2/representatives?address=${encodeURIComponent(address)}&key=${GOOGLE_CIVIC_KEY}`;
 
   try {
-    const r    = await fetch(url);
+    const r    = await fetch(url, {
+      headers: { 'Referer': 'https://civilgate.org/' },
+    });
     const data = await r.json();
     return new Response(JSON.stringify(data), {
       status: r.status,
