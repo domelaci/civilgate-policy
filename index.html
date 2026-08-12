@@ -839,7 +839,7 @@ footer {
 
 <div class="trend-section">
   <div class="trend-header">
-    avg impact score — 12 months
+    <span id="trend-title">avg impact score</span>
     <div class="trend-tabs" id="region-tabs">
       <span class="trend-tab active" data-region="EU">EU</span>
       <span class="trend-tab" data-region="US">USA</span>
@@ -1048,15 +1048,38 @@ function renderTrend(policies) {
   svg.selectAll('*').remove();
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  // Last 12 months
-  const now    = new Date();
-  const months = [];
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+  const regionPolicies = policies.filter(p => p.country === trendRegion);
+
+  // Dynamic x-axis: span only the months where data actually exists
+  const now = new Date();
+  let months;
+  const validMonths = regionPolicies
+    .filter(p => p.published_date && p.published_date.length >= 7)
+    .map(p => p.published_date.slice(0, 7));
+  if (validMonths.length) {
+    const minMonth = validMonths.reduce((a, b) => a < b ? a : b);
+    const [sy, sm] = minMonth.split('-').map(Number);
+    months = [];
+    let d = new Date(sy, sm - 1, 1);
+    while (d <= now) {
+      months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+      d = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    }
+  }
+  if (!months || !months.length) {
+    months = [];
+    for (let i = 2; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+    }
   }
 
-  const regionPolicies = policies.filter(p => p.country === trendRegion);
+  // Update header label
+  const titleEl = document.getElementById('trend-title');
+  if (titleEl) {
+    const n = months.length;
+    titleEl.textContent = `avg impact score — ${n} month${n !== 1 ? 's' : ''}`;
+  }
 
   const series = SCORES.map(({ key, label, color }) => ({
     key, label, color,
@@ -1096,10 +1119,11 @@ function renderTrend(policies) {
         .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9);
     });
 
-  // X axis
+  // X axis — tick every N months based on range length
+  const tickEvery = months.length <= 6 ? 1 : months.length <= 18 ? 3 : months.length <= 36 ? 6 : 12;
   g.append('g')
     .attr('transform', `translate(0,${H - pad.bottom})`)
-    .call(d3.axisBottom(xScale).tickValues(months.filter((_, i) => i % 3 === 0)).tickSize(0))
+    .call(d3.axisBottom(xScale).tickValues(months.filter((_, i) => i % tickEvery === 0)).tickSize(0))
     .call(ax => {
       ax.select('.domain').remove();
       ax.selectAll('text').attr('fill', '#4b5563')
