@@ -32,7 +32,7 @@ SITE_URL         = os.environ.get("SITE_URL", "https://civilgate.org")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-SCORER_VERSION = "v1"
+SCORER_VERSION = "v2"
 
 
 # ── Database ───────────────────────────────────────────────────────────────
@@ -97,7 +97,9 @@ def init_db(conn: sqlite3.Connection) -> None:
         log.info("Migrated: added scorer_version column")
     except Exception:
         pass
-    for _col in ("scope TEXT", "scope_reason TEXT"):
+    for _col in ("scope TEXT", "scope_reason TEXT",
+                 "human_rights_score INTEGER", "human_rights_reason TEXT",
+                 "governance_score INTEGER", "governance_reason TEXT"):
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {_col}")
             conn.commit()
@@ -571,27 +573,40 @@ def fetch_uk_parliament(conn: sqlite3.Connection, max_new: int = 15) -> int:
 
 SCORE_PROMPT = """\
 You are a policy analyst. Given the following government policy document, \
-return a JSON object with exactly these keys:
-- "summary": 2-3 sentence plain English summary for someone with no political background
-- "social_score": integer from -10 to +10. Positive = net benefit to people (rights, welfare, equality, health, education). Negative = net harm. 0 = neutral or negligible. Score direction AND magnitude together.
-- "social_reason": one sentence explaining the social score, starting with the direction (e.g. "Expands access to..." or "Restricts...")
-- "environmental_score": integer from -10 to +10. Positive = environmental benefit (emissions cut, habitat protection). Negative = environmental harm (pollution, deforestation, fossil fuel expansion).
-- "environmental_reason": one sentence
-- "economic_score": integer from -10 to +10. Positive = economic benefit (jobs, growth, fair trade). Negative = economic harm (costs, market distortion, inequality). Score from a public-interest perspective.
-- "economic_reason": one sentence
-- "tags": array of up to 5 lowercase topic keywords
-- "scope": one of "global", "regional", "national", "local". global = affects multiple countries or international relations (trade deals, climate agreements, sanctions, tariffs). regional = affects a multi-country bloc (EU single market rules, NATO, G7, Schengen). national = affects one country only — an EU fund payment or enforcement decision directed at a single member state is national, not regional. local = affects a specific region, city, or locality within one country.
-- "scope_reason": one sentence explaining the scope classification
+return a JSON object with exactly these fields:
 
-Examples of calibration:
-- US approves new offshore oil drilling rights → environmental_score: -8
-- EU bans single-use plastics → environmental_score: +7
-- Government cuts unemployment benefits → social_score: -6
-- Universal healthcare expansion → social_score: +9
-- Tariff that raises consumer prices but protects domestic jobs → economic_score: -3 (net negative for public)
-- EU NextGenerationEU payment to Poland → scope: national (effect is within Poland only)
-- EU-US trade agreement → scope: global
-- New EU single market regulation → scope: regional
+Primary scores (always required):
+- "summary": 2-3 sentence plain English summary for someone with no political background
+- "social_score": integer -10 to +10 (negative = harm to people, positive = benefit; 0 = negligible)
+- "social_reason": one sentence, starting with the direction ("Expands access to..." or "Restricts...")
+- "environmental_score": integer -10 to +10 (negative = environmental harm, positive = benefit)
+- "environmental_reason": one sentence
+- "economic_score": integer -10 to +10 (negative = economic harm, positive = benefit; public-interest perspective)
+- "economic_reason": one sentence
+
+Secondary scores (required — use 0 if not applicable):
+- "human_rights_score": integer -10 to +10 (effect on civil liberties, freedoms, minority rights, due process, press freedom)
+- "human_rights_reason": one sentence (use "No significant human rights impact" if score is 0)
+- "governance_score": integer -10 to +10 (effect on rule of law, transparency, anti-corruption, democratic institutions, institutional independence)
+- "governance_reason": one sentence (use "No significant governance impact" if score is 0)
+
+Classification:
+- "tags": array of up to 5 lowercase topic keywords
+- "status": one of "enacted", "proposed", "open_for_comment", "decision"
+- "scope": one of "global", "regional", "national", "local"
+- "scope_reason": one sentence
+
+Calibration examples:
+- Oil drilling expansion → environmental_score: -8, economic_score: +4
+- Healthcare expansion → social_score: +9, economic_score: -3
+- Surveillance law without oversight → human_rights_score: -7, governance_score: -5
+- Anti-corruption agency established → governance_score: +8
+- Press freedom restriction → human_rights_score: -8
+- EC Press Corner funding disbursement (no vote pending) → status: "decision"
+- Proposed regulation open for public comment → status: "open_for_comment"
+- EU NextGenerationEU payment to Poland → scope: "national"
+- EU-US trade agreement → scope: "global"
+- New EU single market regulation → scope: "regional"
 
 Return ONLY valid JSON. No markdown, no code fences.
 
@@ -708,24 +723,34 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
     for row_id, raw_text in rows:
         try:
             result = call_llm(raw_text or "")
+            _VALID_STATUSES = {"enacted", "proposed", "open_for_comment", "decision"}
+            llm_status = result.get("status")
+            update_status = llm_status if llm_status in _VALID_STATUSES else None
             conn.execute(
                 """UPDATE policies SET
                    summary=?, social_score=?, social_reason=?,
                    environmental_score=?, environmental_reason=?,
                    economic_score=?, economic_reason=?,
+                   human_rights_score=?, human_rights_reason=?,
+                   governance_score=?, governance_reason=?,
                    tags=?, scored_at=?, scorer_version=?,
-                   scope=?, scope_reason=?, score_failed=0
+                   scope=?, scope_reason=?,
+                   status=COALESCE(?, status),
+                   score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
                     result.get("social_score"), result.get("social_reason"),
                     result.get("environmental_score"), result.get("environmental_reason"),
                     result.get("economic_score"), result.get("economic_reason"),
+                    result.get("human_rights_score"), result.get("human_rights_reason"),
+                    result.get("governance_score"), result.get("governance_reason"),
                     json.dumps(result.get("tags", []), ensure_ascii=False),
                     datetime.utcnow().isoformat(),
                     SCORER_VERSION,
                     result.get("scope"),
                     result.get("scope_reason"),
+                    update_status,
                     row_id,
                 ),
             )
@@ -749,8 +774,10 @@ def export_json(conn: sqlite3.Connection) -> None:
         "source", "country", "external_id", "title", "url", "published_date",
         "summary", "social_score", "social_reason",
         "environmental_score", "environmental_reason",
-        "economic_score", "economic_reason", "tags", "status", "level",
-        "scope", "scope_reason",
+        "economic_score", "economic_reason",
+        "human_rights_score", "human_rights_reason",
+        "governance_score", "governance_reason",
+        "tags", "status", "level", "scope", "scope_reason",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies

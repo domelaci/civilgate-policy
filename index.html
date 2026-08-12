@@ -338,6 +338,30 @@ main {
 /* Romania — EU member state, teal family */
 .source-badge.ro  { background: #9FE1CB; color: #085041; }
 
+/* ── Secondary score row ── */
+.secondary-scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+  padding-top: .5rem;
+  margin-top: .4rem;
+  gap: 0;
+}
+
+.score-col.hr   .score-num { color: #A78BFA; }
+.score-col.gov  .score-num { color: #60A5FA; }
+
+.score-col.secondary {
+  padding: 0 .75rem;
+  border-right: 1px solid var(--border);
+}
+.score-col.secondary:last-child { border-right: none; }
+.score-col.secondary .score-num { font-size: 20px; }
+.score-col.secondary .score-label { font-size: 9px; }
+
+/* open_for_comment status badge */
+.status-badge.open_for_comment { background: rgba(96,165,250,.12); color: #60A5FA; border: 1px solid rgba(96,165,250,.3); }
+
 /* Status badge */
 .status-badge {
   font-family: var(--mono);
@@ -893,6 +917,7 @@ footer {
     <button class="pill" data-status="enacted">&#9679; Law</button>
     <button class="pill" data-status="decision">&#9670; Decision</button>
     <button class="pill" data-status="proposed">&#9680; Proposed</button>
+    <button class="pill" data-status="open_for_comment">&#9711; Comment</button>
   </div>
   <div class="filter-sep"></div>
   <div class="filter-pills" id="scope-pills">
@@ -1490,9 +1515,10 @@ function badgeLabel(source) {
 }
 
 function statusBadge(status) {
-  if (status === 'enacted')  return '<span class="status-badge enacted">&#9679; LAW</span>';
-  if (status === 'proposed') return '<span class="status-badge proposed">&#9680; PROPOSED</span>';
-  if (status === 'decision') return '<span class="status-badge decision">&#9670; DECISION</span>';
+  if (status === 'enacted')          return '<span class="status-badge enacted">&#9679; LAW</span>';
+  if (status === 'proposed')         return '<span class="status-badge proposed">&#9680; PROPOSED</span>';
+  if (status === 'decision')         return '<span class="status-badge decision">&#9670; DECISION</span>';
+  if (status === 'open_for_comment') return '<span class="status-badge open_for_comment">&#9711; COMMENT</span>';
   return '';
 }
 
@@ -1613,6 +1639,21 @@ function renderGrid() {
           <span class="score-reason">${p.economic_reason || ''}</span>
         </div>
       </div>
+      ${(Math.abs(p.human_rights_score||0) >= 3 || Math.abs(p.governance_score||0) >= 3) ? `
+      <div class="secondary-scores">
+        ${Math.abs(p.human_rights_score||0) >= 3 ? `
+        <div class="score-col secondary hr ${scoreDir(p.human_rights_score)}">
+          <span class="score-label">Human Rights</span>
+          <span class="score-num">${scoreDisplay(p.human_rights_score)}</span>
+          <span class="score-reason">${p.human_rights_reason || ''}</span>
+        </div>` : ''}
+        ${Math.abs(p.governance_score||0) >= 3 ? `
+        <div class="score-col secondary gov ${scoreDir(p.governance_score)}">
+          <span class="score-label">Governance</span>
+          <span class="score-num">${scoreDisplay(p.governance_score)}</span>
+          <span class="score-reason">${p.governance_reason || ''}</span>
+        </div>` : ''}
+      </div>` : ''}
       ${tags ? `<div class="tags">${tags}</div>` : ''}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:.25rem">
         ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">source &rarr;</a>` : '<span></span>'}
