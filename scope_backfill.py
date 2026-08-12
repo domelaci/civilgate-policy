@@ -92,8 +92,9 @@ def call_groq(text: str) -> dict:
 def classify(title: str, summary: str) -> dict:
     text = PROMPT.format(title=title, summary=summary)
     providers = []
-    if GEMINI_API_KEY: providers.append(("Gemini", call_gemini))
-    if GROQ_API_KEY:   providers.append(("Groq",   call_groq))
+    if GEMINI_API_KEY:   providers.append(("Gemini",   call_gemini))
+    if CEREBRAS_API_KEY: providers.append(("Cerebras", call_cerebras))
+    if GROQ_API_KEY:     providers.append(("Groq",     call_groq))
     last = None
     for name, fn in providers:
         try:
