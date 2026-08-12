@@ -148,7 +148,7 @@ header {
 
 #world-map {
   width: 100%;
-  height: 380px;
+  height: 300px;
   display: block;
   background: var(--surface);
 }
@@ -822,14 +822,14 @@ footer {
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: 1fr; }
-  #world-map { height: 250px; }
+  #world-map { height: 200px; }
   .header-clock { display: none; }
   .header-sub { display: none; }
 }
 
 @media (max-width: 600px) {
   header, .map-header, .map-legend, .controls, main, footer { padding-left: 1rem; padding-right: 1rem; }
-  #world-map { height: 180px; }
+  #world-map { height: 150px; }
   .score-reason { display: none; }
 }
 </style>
@@ -848,32 +848,6 @@ footer {
     <a href="https://volunteer.civilgate.org" class="volunteer-link">volunteer &rarr;</a>
   </div>
 </header>
-
-<div class="map-section">
-  <div class="map-header">select region</div>
-  <svg id="world-map"></svg>
-  <div class="map-legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--ca)"></div>Canada</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
-  </div>
-</div>
-
-<div class="trend-section">
-  <div class="trend-header">
-    <span id="trend-title">avg impact score</span>
-  </div>
-  <svg id="trend-chart"></svg>
-  <div class="trend-legend" id="trend-legend"></div>
-</div>
-
-<div class="movers-section">
-  <div class="movers-header">biggest movers &mdash; last 30 days</div>
-  <div class="movers-grid" id="movers-grid"><div class="mover-empty">Loading&hellip;</div></div>
-</div>
 
 <div class="controls">
   <div class="filter-pills" id="filter-pills">
@@ -908,6 +882,32 @@ footer {
     <input type="search" id="search" placeholder="search policies, tags&hellip;" autocomplete="off">
   </div>
   <div class="results-count" id="results-count"></div>
+</div>
+
+<div class="map-section">
+  <div class="map-header">select region</div>
+  <svg id="world-map"></svg>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--ca)"></div>Canada</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
+  </div>
+</div>
+
+<div class="trend-section">
+  <div class="trend-header">
+    <span id="trend-title">avg impact score</span>
+  </div>
+  <svg id="trend-chart"></svg>
+  <div class="trend-legend" id="trend-legend"></div>
+</div>
+
+<div class="movers-section">
+  <div class="movers-header">biggest movers &mdash; last 30 days</div>
+  <div class="movers-grid" id="movers-grid"><div class="mover-empty">Loading&hellip;</div></div>
 </div>
 
 <main>
