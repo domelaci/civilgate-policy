@@ -321,6 +321,19 @@ main {
 /* Australia */
 .source-badge.au  { background: rgba(127,119,221,.15); color: #7F77DD; border: 1px solid rgba(127,119,221,.3); }
 
+/* Status badge */
+.status-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.status-badge.enacted  { background: rgba(29,158,117,.12); color: #1D9E75; border: 1px solid rgba(29,158,117,.3); }
+.status-badge.proposed { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.3); }
+
 .card-date {
   font-family: var(--mono);
   font-size: 11px;
@@ -778,6 +791,11 @@ footer {
     <button class="pill" data-filter="CA">Canada</button>
     <button class="pill" data-filter="AU">Australia</button>
   </div>
+  <div class="filter-pills" id="status-pills" style="margin-top:.375rem">
+    <button class="pill active" data-status="ALL">All status</button>
+    <button class="pill" data-status="enacted">&#9679; Law</button>
+    <button class="pill" data-status="proposed">&#9680; Proposed</button>
+  </div>
   <div id="tag-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1054,6 +1072,7 @@ function initTrend(policies) {
 
 let allPolicies  = [];
 let activeFilter = 'ALL';
+let activeStatus = 'ALL';
 let searchQuery  = '';
 let activeTag    = '';
 
@@ -1102,6 +1121,12 @@ function badgeLabel(source) {
   }[source] || source.toUpperCase();
 }
 
+function statusBadge(status) {
+  if (status === 'enacted')  return '<span class="status-badge enacted">&#9679; LAW</span>';
+  if (status === 'proposed') return '<span class="status-badge proposed">&#9680; PROPOSED</span>';
+  return '';
+}
+
 function setTag(tag) {
   activeTag = (activeTag === tag) ? '' : tag;
   renderGrid();
@@ -1121,6 +1146,7 @@ function renderGrid() {
 
   let list = allPolicies;
   if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter);
+  if (activeStatus !== 'ALL') list = list.filter(p => p.status === activeStatus);
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -1146,6 +1172,7 @@ function renderGrid() {
     return `<div class="policy-card">
       <div class="card-top">
         <span class="source-badge ${badgeClass(p.country, p.source)}">${badgeLabel(p.source)}</span>
+        ${statusBadge(p.status)}
         <span class="card-date">${fmt(p.published_date)}</span>
       </div>
       <div class="card-title">${p.title || 'Untitled'}</div>
@@ -1357,11 +1384,20 @@ async function init() {
   initContactRep();
 
   document.getElementById('filter-pills').addEventListener('click', e => {
-    const btn = e.target.closest('.pill');
+    const btn = e.target.closest('[data-filter]');
     if (!btn) return;
     activeFilter = btn.dataset.filter;
     if (activeFilter === 'ALL') activeTag = '';
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  });
+
+  document.getElementById('status-pills').addEventListener('click', e => {
+    const btn = e.target.closest('[data-status]');
+    if (!btn) return;
+    activeStatus = btn.dataset.status;
+    document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     renderGrid();
   });

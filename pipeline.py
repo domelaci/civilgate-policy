@@ -54,7 +54,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         economic_reason      TEXT,
         tags                 TEXT,
         scored_at            TIMESTAMP,
-        score_failed         INTEGER DEFAULT 0
+        score_failed         INTEGER DEFAULT 0,
+        status               TEXT DEFAULT 'unknown'
     );
     CREATE TABLE IF NOT EXISTS users (
         id         TEXT PRIMARY KEY,
@@ -70,10 +71,41 @@ def init_db(conn: sqlite3.Connection) -> None:
         active     BOOLEAN DEFAULT TRUE
     );
     """)
+    # Migration: add status column to existing databases
+    try:
+        conn.execute("ALTER TABLE policies ADD COLUMN status TEXT DEFAULT 'unknown'")
+        conn.commit()
+        log.info("Migrated: added status column")
+    except Exception:
+        pass  # already exists
+    # Backfill status for existing records where deterministic
+    conn.executescript("""
+    UPDATE policies SET status='enacted'
+      WHERE status='unknown' AND source IN ('eurlex','au_legislation');
+    UPDATE policies SET status='enacted'
+      WHERE status='unknown' AND source='canada_gazette'
+        AND (external_id LIKE '%/p2/%' OR external_id NOT LIKE '%/p1/%');
+    UPDATE policies SET status='proposed'
+      WHERE status='unknown' AND source='ec_press';
+    UPDATE policies SET status='enacted'
+      WHERE status='unknown' AND source='federal_register'
+        AND (raw_text LIKE '%Type: RULE%' OR raw_text LIKE '%Type: PRESDOCU%'
+             OR raw_text LIKE '%Type: Presidential Document%'
+             OR raw_text LIKE '%Type: Executive Order%');
+    UPDATE policies SET status='proposed'
+      WHERE status='unknown' AND source='federal_register'
+        AND (raw_text LIKE '%Type: PROPOSED_RULE%' OR raw_text LIKE '%Type: Proposed Rule%');
+    UPDATE policies SET status='proposed'
+      WHERE status='unknown' AND source='uk_gov'
+        AND raw_text LIKE '%policy_paper%';
+    """)
     conn.commit()
 
 
 # ── Federal Register fetcher ───────────────────────────────────────────────
+
+_FR_STATUS = {"RULE": "enacted", "PRESDOCU": "enacted", "PROPOSED_RULE": "proposed"}
+
 
 def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
     params = {
@@ -83,7 +115,7 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
             "document_number", "title", "abstract",
             "html_url", "publication_date", "type", "agencies", "action",
         ],
-        "conditions[type][]": ["RULE", "PRESDOCU"],
+        "conditions[type][]": ["RULE", "PRESDOCU", "PROPOSED_RULE"],
     }
     try:
         r = requests.get(
@@ -102,22 +134,24 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
         if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
             continue
 
+        doc_type = doc.get("type", "")
         agencies = ", ".join(a.get("name", "") for a in doc.get("agencies", []))
         raw = "\n".join(filter(None, [
             f"Title: {doc.get('title', '')}",
-            f"Type: {doc.get('type', '')}",
+            f"Type: {doc_type}",
             f"Agencies: {agencies}",
             f"Action: {doc.get('action', '')}",
             f"Summary: {doc.get('abstract', '')}",
         ]))
+        status = _FR_STATUS.get(doc_type, "unknown")
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
-               VALUES (?,?,?,?,?,?,?,?)""",
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
             ("federal_register", "US", ext_id,
              doc.get("title"), doc.get("html_url"),
-             doc.get("publication_date"), date.today().isoformat(), raw),
+             doc.get("publication_date"), date.today().isoformat(), raw, status),
         )
         added += 1
         if added >= max_new:
@@ -131,11 +165,14 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
 # ── EUR-Lex CELLAR fetcher ─────────────────────────────────────────────────
 
 EURLEX_SPARQL = """\
-SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
+SELECT DISTINCT ?work ?date ?title ?celex ?type WHERE {{
   VALUES ?type {{
     <http://publications.europa.eu/ontology/cdm#regulation>
     <http://publications.europa.eu/ontology/cdm#directive>
     <http://publications.europa.eu/ontology/cdm#decision>
+    <http://publications.europa.eu/ontology/cdm#proposal_for_regulation>
+    <http://publications.europa.eu/ontology/cdm#proposal_for_directive>
+    <http://publications.europa.eu/ontology/cdm#proposal_for_decision>
   }}
   ?work a ?type ;
         <http://publications.europa.eu/ontology/cdm#work_date_document> ?date ;
@@ -179,6 +216,8 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
         if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
             continue
 
+        type_uri = (b.get("type", {}).get("value") or "")
+        status   = "proposed" if "proposal_for" in type_uri else "enacted"
         title    = (b.get("title", {}).get("value") or celex).strip()
         pub_date = (b.get("date", {}).get("value") or "")[:10]
         url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
@@ -186,9 +225,9 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
-               VALUES (?,?,?,?,?,?,?,?)""",
-            ("eurlex", "EU", ext_id, title, url, pub_date, date.today().isoformat(), raw),
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            ("eurlex", "EU", ext_id, title, url, pub_date, date.today().isoformat(), raw, status),
         )
         added += 1
         if added >= max_new:
@@ -201,15 +240,29 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
 
 # ── UK GOV.UK fetcher ─────────────────────────────────────────────────────
 
+_GOVUK_STATUS = {
+    "legislation":    "enacted",
+    "statutory_instrument": "enacted",
+    "act":            "enacted",
+    "policy_paper":   "proposed",
+    "consultation":   "proposed",
+    "press_release":  "unknown",
+}
+
+
 def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
     try:
         r = requests.get(
             "https://www.gov.uk/api/search.json",
             params={
-                "filter_content_store_document_type[]": ["policy_paper", "press_release"],
-                "count": 30,
+                "filter_content_store_document_type[]": [
+                    "legislation", "statutory_instrument", "act",
+                    "policy_paper", "consultation", "press_release",
+                ],
+                "count": 40,
                 "order": "-public_timestamp",
-                "fields[]": ["title", "description", "link", "public_timestamp"],
+                "fields[]": ["title", "description", "link", "public_timestamp",
+                             "content_store_document_type"],
             },
             timeout=30,
             headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
@@ -227,17 +280,19 @@ def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
         if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
             continue
 
-        title   = (doc.get("title") or "").strip()
-        desc    = (doc.get("description") or "").strip()
-        pub     = (doc.get("public_timestamp") or "")[:10]
-        url     = "https://www.gov.uk" + rel_link
-        raw     = f"Title: {title}\nSummary: {desc}"
+        doc_type = (doc.get("content_store_document_type") or "").strip()
+        title    = (doc.get("title") or "").strip()
+        desc     = (doc.get("description") or "").strip()
+        pub      = (doc.get("public_timestamp") or "")[:10]
+        url      = "https://www.gov.uk" + rel_link
+        raw      = f"Title: {title}\nType: {doc_type}\nSummary: {desc}"
+        status   = _GOVUK_STATUS.get(doc_type, "unknown")
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
-               VALUES (?,?,?,?,?,?,?,?)""",
-            ("uk_gov", "GB", ext_id, title, url, pub, date.today().isoformat(), raw),
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            ("uk_gov", "GB", ext_id, title, url, pub, date.today().isoformat(), raw, status),
         )
         added += 1
         if added >= max_new:
@@ -251,50 +306,57 @@ def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
 # ── Canada Gazette fetcher ─────────────────────────────────────────────────
 
 def fetch_canada_gazette(conn: sqlite3.Connection, max_new: int = 10) -> int:
-    try:
-        import xml.etree.ElementTree as ET
-        r = requests.get(
-            "https://www.gazette.gc.ca/rss/p2-eng.xml",
-            timeout=30,
-            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
-        )
-        r.raise_for_status()
-        root = ET.fromstring(r.content)
-    except Exception as e:
-        log.error("Canada Gazette fetch failed: %s", e)
-        return 0
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime as _parse_date
 
-    added = 0
-    for item in root.iter("item"):
-        link  = (item.findtext("link") or "").strip()
-        title = (item.findtext("title") or "").strip()
-        desc  = (item.findtext("description") or "").strip()
-        pub   = (item.findtext("pubDate") or "").strip()
+    feeds = [
+        ("https://www.gazette.gc.ca/rss/p2-eng.xml", "enacted"),   # Part II = final regulations
+        ("https://www.gazette.gc.ca/rss/p1-eng.xml", "proposed"),  # Part I  = proposed regulations
+    ]
+    total_added = 0
 
-        ext_id = f"ca_gazette:{link}"
-        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+    for feed_url, status in feeds:
+        try:
+            r = requests.get(feed_url, timeout=30,
+                             headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"})
+            r.raise_for_status()
+            root = ET.fromstring(r.content)
+        except Exception as e:
+            log.error("Canada Gazette fetch failed (%s): %s", feed_url, e)
             continue
 
-        try:
-            from email.utils import parsedate_to_datetime
-            pub_date = parsedate_to_datetime(pub).date().isoformat()
-        except Exception:
-            pub_date = date.today().isoformat()
+        added = 0
+        for item in root.iter("item"):
+            link  = (item.findtext("link") or "").strip()
+            title = (item.findtext("title") or "").strip()
+            desc  = (item.findtext("description") or "").strip()
+            pub   = (item.findtext("pubDate") or "").strip()
 
-        conn.execute(
-            """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
-               VALUES (?,?,?,?,?,?,?,?)""",
-            ("canada_gazette", "CA", ext_id, title, link, pub_date, date.today().isoformat(),
-             f"Title: {title}\nSummary: {desc}"),
-        )
-        added += 1
-        if added >= max_new:
-            break
+            ext_id = f"ca_gazette:{link}"
+            if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+                continue
 
-    conn.commit()
-    log.info("Canada Gazette: %d new documents", added)
-    return added
+            try:
+                pub_date = _parse_date(pub).date().isoformat()
+            except Exception:
+                pub_date = date.today().isoformat()
+
+            conn.execute(
+                """INSERT OR IGNORE INTO policies
+                   (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
+                   VALUES (?,?,?,?,?,?,?,?,?)""",
+                ("canada_gazette", "CA", ext_id, title, link, pub_date,
+                 date.today().isoformat(), f"Title: {title}\nSummary: {desc}", status),
+            )
+            added += 1
+            if added >= max_new:
+                break
+
+        conn.commit()
+        log.info("Canada Gazette (%s): %d new documents", status, added)
+        total_added += added
+
+    return total_added
 
 
 # ── Australia legislation fetcher ──────────────────────────────────────────
@@ -334,10 +396,10 @@ def fetch_australia_legislation(conn: sqlite3.Connection, max_new: int = 10) -> 
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
-               VALUES (?,?,?,?,?,?,?,?)""",
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
             ("au_legislation", "AU", ext_id, title, url, pub_date,
-             date.today().isoformat(), raw),
+             date.today().isoformat(), raw, "enacted"),
         )
         added += 1
         if added >= max_new:
@@ -387,10 +449,10 @@ def fetch_ec_press(conn: sqlite3.Connection, max_new: int = 10) -> int:
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
-               (source, country, external_id, title, url, published_date, fetched_date, raw_text)
-               VALUES (?,?,?,?,?,?,?,?)""",
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
             ("ec_press", "EU", ext_id, title, link, pub_date,
-             date.today().isoformat(), raw),
+             date.today().isoformat(), raw, "proposed"),
         )
         added += 1
         if added >= max_new:
@@ -494,7 +556,7 @@ def export_json(conn: sqlite3.Connection) -> None:
         "source", "country", "external_id", "title", "url", "published_date",
         "summary", "social_score", "social_reason",
         "environmental_score", "environmental_reason",
-        "economic_score", "economic_reason", "tags",
+        "economic_score", "economic_reason", "tags", "status",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
