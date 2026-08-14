@@ -9,6 +9,7 @@ Usage:
   python3 eu_backfill.py --score-limit 200    # score up to 200 items instead of 100
 """
 import argparse
+import base64
 import json
 import logging
 import os
@@ -30,11 +31,41 @@ GEMINI_API_KEY   = os.environ.get("GEMINI_API_KEY", "")
 GROQ_API_KEY     = os.environ.get("GROQ_API_KEY", "")
 MISTRAL_API_KEY  = os.environ.get("MISTRAL_API_KEY", "")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
+GITHUB_TOKEN     = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_REPO      = os.environ.get("GITHUB_REPO", "")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
 SCORER_VERSION = "v3"
+
+
+def push_to_github() -> None:
+    if not GITHUB_TOKEN or not GITHUB_REPO:
+        return
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    path = "policies.json"
+    api_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    sha = None
+    r = requests.get(api_url, headers=headers, timeout=15)
+    if r.status_code == 200:
+        sha = r.json()["sha"]
+    payload = {
+        "message": f"chore: scoring update {date.today().isoformat()}",
+        "content": base64.b64encode(OUT_FILE.read_bytes()).decode(),
+        "branch": "main",
+    }
+    if sha:
+        payload["sha"] = sha
+    r = requests.put(api_url, headers=headers, json=payload, timeout=30)
+    if r.status_code in (200, 201):
+        log.info("GitHub push OK: policies.json")
+    else:
+        log.error("GitHub push FAILED: %s %s", r.status_code, r.text[:200])
 
 EURLEX_SPARQL = """\
 SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
@@ -403,7 +434,7 @@ def export_json(conn: sqlite3.Connection) -> None:
         "economic_score", "economic_reason",
         "human_rights_score", "human_rights_reason",
         "governance_score", "governance_reason",
-        "tags", "status", "level", "scope", "scope_reason",
+        "tags", "status", "level", "scope", "scope_reason", "is_live",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
@@ -444,7 +475,7 @@ if __name__ == "__main__":
         ("scope", "TEXT"), ("scope_reason", "TEXT"),
         ("human_rights_score", "INTEGER"), ("human_rights_reason", "TEXT"),
         ("governance_score", "INTEGER"), ("governance_reason", "TEXT"),
-        ("scored_by", "TEXT"),
+        ("scored_by", "TEXT"), ("is_live", "INTEGER DEFAULT 0"),
     ]:
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {col} {definition}")
@@ -463,6 +494,7 @@ if __name__ == "__main__":
         score_pending(conn, limit=args.score_limit)
         log.info("Exporting policies.json…")
         export_json(conn)
+        push_to_github()
 
     conn.close()
     log.info("Done.")

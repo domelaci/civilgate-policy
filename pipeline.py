@@ -11,7 +11,7 @@ import os
 import re
 import sqlite3
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import requests
@@ -102,7 +102,7 @@ def init_db(conn: sqlite3.Connection) -> None:
     for _col in ("scope TEXT", "scope_reason TEXT",
                  "human_rights_score INTEGER", "human_rights_reason TEXT",
                  "governance_score INTEGER", "governance_reason TEXT",
-                 "scored_by TEXT"):
+                 "scored_by TEXT", "is_live INTEGER DEFAULT 0"):
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {_col}")
             conn.commit()
@@ -230,24 +230,19 @@ SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
 }} ORDER BY DESC(?date) LIMIT {limit}
 """
 
-# Commission legislative proposals formally in the Council/Parliament process
+# Commission legislative proposals — CELEX sector 5 + "PC" doc type
+# (CDM proposal_for_* types are not populated in the SPARQL endpoint)
 EURLEX_SPARQL_PROPOSED = """\
 SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
-  VALUES ?type {{
-    <http://publications.europa.eu/ontology/cdm#proposal_for_regulation>
-    <http://publications.europa.eu/ontology/cdm#proposal_for_directive>
-    <http://publications.europa.eu/ontology/cdm#proposal_for_decision>
-  }}
-  ?work a ?type ;
-        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date ;
-        <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex .
+  ?work <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex ;
+        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date .
   OPTIONAL {{
     ?expr <http://publications.europa.eu/ontology/cdm#expression_belongs_to_work> ?work ;
           <http://publications.europa.eu/ontology/cdm#expression_uses_language>
             <http://publications.europa.eu/resource/authority/language/ENG> ;
           <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
   }}
-  FILTER(?date >= "{since}"^^xsd:date)
+  FILTER(REGEX(STR(?celex), "^5202[0-9]PC") && ?date >= "{since}"^^xsd:date)
 }} ORDER BY DESC(?date) LIMIT {limit}
 """
 
@@ -295,7 +290,6 @@ def _eurlex_run_query(query: str, status: str, conn: sqlite3.Connection, max_new
 
 
 def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
-    from datetime import timedelta
     since = (date.today() - timedelta(days=60)).isoformat()
 
     enacted  = _eurlex_run_query(EURLEX_SPARQL_ENACTED.format(since=since, limit=max_new * 3),
@@ -663,6 +657,174 @@ def fetch_uk_parliament(conn: sqlite3.Connection, max_new: int = 15) -> int:
     return added
 
 
+# ── Live legislation fetchers ──────────────────────────────────────────────
+
+def fetch_live_congress(conn: sqlite3.Connection, max_new: int = 50) -> int:
+    """Congress 119 bills currently in transit — passed one chamber, not yet signed."""
+    passed_kw = [
+        "Passed House", "Passed Senate",
+        "Received in the Senate", "Received in the House",
+        "Placed on Senate Legislative Calendar",
+        "Message on Senate action sent to the House",
+        "Message on House action sent to",
+    ]
+    enacted_kw = ["Signed by President", "Became Public Law", "Signed into law", "Enacted"]
+
+    try:
+        r = requests.get(
+            "https://api.congress.gov/v3/bill/119",
+            params={"sort": "updateDate+desc", "limit": 100, "api_key": CONGRESS_API_KEY},
+            timeout=20,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        bills = r.json().get("bills", [])
+    except Exception as e:
+        log.error("Congress live fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for bill in bills:
+        action_text = (bill.get("latestAction", {}).get("text") or "").strip()
+        if not any(k in action_text for k in passed_kw):
+            continue
+        if any(k in action_text for k in enacted_kw):
+            continue
+
+        bill_type = (bill.get("type") or "").upper()
+        number    = bill.get("number", 0)
+        ext_id    = f"congress_live:119:{bill_type}:{number}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title       = (bill.get("title") or f"Congress 119 {bill_type} {number}").strip()
+        action_date = (bill.get("latestAction", {}).get("actionDate") or "")
+        url         = f"https://www.congress.gov/bill/119th-congress/{bill_type.lower()}-bill/{number}"
+        raw         = (f"Title: {title}\nCongress: 119\nType: {bill_type}\n"
+                       f"Number: {number}\nLatest action: {action_text}")
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date,
+                raw_text, status, level, is_live)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            ("congress_live", "US", ext_id, title, url, action_date,
+             date.today().isoformat(), raw, "proposed", "national", 1),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("Congress live: %d new bills in transit", added)
+    return added
+
+
+def fetch_live_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
+    """Commission legislative proposals (CELEX 5YYYYPC) from the last 30 days."""
+    since = (date.today() - timedelta(days=30)).isoformat()
+    query = EURLEX_SPARQL_PROPOSED.format(since=since, limit=max_new * 3)
+
+    try:
+        r = requests.get(
+            "https://publications.europa.eu/webapi/rdf/sparql",
+            params={"query": query, "format": "application/sparql-results+json"},
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        bindings = r.json()["results"]["bindings"]
+    except Exception as e:
+        log.error("EUR-Lex live fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for b in bindings:
+        celex = (b.get("celex", {}).get("value") or "").strip()
+        if not celex:
+            continue
+        ext_id = f"eurlex_live:{celex}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title    = (b.get("title", {}).get("value") or celex).strip()
+        pub_date = (b.get("date", {}).get("value") or "")[:10]
+        url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
+        raw      = f"Title: {title}\nCELEX: {celex}\nStatus: proposed"
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date,
+                raw_text, status, level, is_live)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            ("eurlex_live", "EU", ext_id, title, url, pub_date,
+             date.today().isoformat(), raw, "proposed", "eu", 1),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("EUR-Lex live: %d new proposals", added)
+    return added
+
+
+def fetch_live_uk_bills(conn: sqlite3.Connection, max_new: int = 20) -> int:
+    """UK bills currently being considered in the Commons."""
+    try:
+        r = requests.get(
+            "https://bills-api.parliament.uk/api/v1/Bills",
+            params={"CurrentStage": "CommonsConsidered", "isAct": "false", "take": 20},
+            timeout=20,
+            headers={
+                "User-Agent": "CivilGate/1.0 (+https://civilgate.org)",
+                "Accept": "application/json",
+            },
+        )
+        r.raise_for_status()
+        items = r.json().get("items", [])
+    except Exception as e:
+        log.error("UK Parliament live fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for bill in items:
+        bill_id = bill.get("billId")
+        if not bill_id:
+            continue
+        ext_id = f"parliament_live:{bill_id}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title       = (bill.get("shortTitle") or "").strip()
+        long_title  = (bill.get("longTitle") or "").strip()
+        last_update = (bill.get("lastUpdate") or "")[:10]
+        stage       = bill.get("currentStage") or {}
+        stage_desc  = (stage.get("description") or "").strip()
+        url         = f"https://bills.parliament.uk/bills/{bill_id}"
+        raw         = "\n".join(filter(None, [
+            f"Title: {title}",
+            f"Full title: {long_title}",
+            f"Stage: {stage_desc}",
+        ]))
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date,
+                raw_text, status, level, is_live)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            ("parliament_live", "GB", ext_id, title, url, last_update,
+             date.today().isoformat(), raw, "proposed", "national", 1),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("UK Parliament live: %d new bills", added)
+    return added
+
+
 # ── Gemini scorer ──────────────────────────────────────────────────────────
 
 SCORE_PROMPT = """\
@@ -950,7 +1112,7 @@ def export_json(conn: sqlite3.Connection) -> None:
         "economic_score", "economic_reason",
         "human_rights_score", "human_rights_reason",
         "governance_score", "governance_reason",
-        "tags", "status", "level", "scope", "scope_reason",
+        "tags", "status", "level", "scope", "scope_reason", "is_live",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
@@ -1024,6 +1186,9 @@ def main() -> None:
     fetch_uk_parliament(conn)
     fetch_canada_gazette(conn)
     fetch_australia_legislation(conn)
+    fetch_live_congress(conn)
+    fetch_live_eurlex(conn)
+    fetch_live_uk_bills(conn)
 
     try:
         from monitorul_oficial import fetch_monitorul_oficial
