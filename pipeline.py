@@ -765,12 +765,10 @@ def call_mistral(text: str) -> dict:
 
 
 def call_llm(text: str) -> dict:
-    """Try Gemini → Cerebras → Groq → Mistral; raise if all exhausted."""
+    """Try Gemini → Groq → DeepSeek → Mistral; raise if all exhausted."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
-    if CEREBRAS_API_KEY:
-        providers.append(("Cerebras", call_cerebras))
     if GROQ_API_KEY:
         providers.append(("Groq", call_groq))
     if DEEPSEEK_API_KEY:
