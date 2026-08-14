@@ -26,6 +26,7 @@ GEMINI_API_KEY   = os.environ.get("GEMINI_API_KEY", "")
 GROQ_API_KEY     = os.environ.get("GROQ_API_KEY", "")
 MISTRAL_API_KEY  = os.environ.get("MISTRAL_API_KEY", "")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
+CONGRESS_API_KEY = os.environ.get("CONGRESS_API_KEY", "")
 GITHUB_TOKEN     = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO      = os.environ.get("GITHUB_REPO", "")
 SITE_URL         = os.environ.get("SITE_URL", "https://civilgate.org")
@@ -207,12 +208,32 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
 
 # ── EUR-Lex CELLAR fetcher ─────────────────────────────────────────────────
 
-EURLEX_SPARQL = """\
-SELECT DISTINCT ?work ?date ?title ?celex ?type WHERE {{
+# L-series OJ only (laws in force: regulations, directives, decisions)
+EURLEX_SPARQL_ENACTED = """\
+SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
   VALUES ?type {{
     <http://publications.europa.eu/ontology/cdm#regulation>
     <http://publications.europa.eu/ontology/cdm#directive>
     <http://publications.europa.eu/ontology/cdm#decision>
+  }}
+  ?work a ?type ;
+        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date ;
+        <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex ;
+        <http://publications.europa.eu/ontology/cdm#resource_legal_published_in_official-journal_sector> ?oj_sector .
+  OPTIONAL {{
+    ?expr <http://publications.europa.eu/ontology/cdm#expression_belongs_to_work> ?work ;
+          <http://publications.europa.eu/ontology/cdm#expression_uses_language>
+            <http://publications.europa.eu/resource/authority/language/ENG> ;
+          <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
+  }}
+  FILTER(?date >= "{since}"^^xsd:date && CONTAINS(STR(?oj_sector), "/L/"))
+}} ORDER BY DESC(?date) LIMIT {limit}
+"""
+
+# Commission legislative proposals formally in the Council/Parliament process
+EURLEX_SPARQL_PROPOSED = """\
+SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
+  VALUES ?type {{
     <http://publications.europa.eu/ontology/cdm#proposal_for_regulation>
     <http://publications.europa.eu/ontology/cdm#proposal_for_directive>
     <http://publications.europa.eu/ontology/cdm#proposal_for_decision>
@@ -227,16 +248,11 @@ SELECT DISTINCT ?work ?date ?title ?celex ?type WHERE {{
           <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
   }}
   FILTER(?date >= "{since}"^^xsd:date)
-}}
-ORDER BY DESC(?date) LIMIT {limit}
+}} ORDER BY DESC(?date) LIMIT {limit}
 """
 
 
-def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
-    from datetime import timedelta
-    since = (date.today() - timedelta(days=60)).isoformat()
-    query = EURLEX_SPARQL.format(since=since, limit=max_new * 3)
-
+def _eurlex_run_query(query: str, status: str, conn: sqlite3.Connection, max_new: int) -> int:
     try:
         r = requests.get(
             "https://publications.europa.eu/webapi/rdf/sparql",
@@ -247,7 +263,7 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
         r.raise_for_status()
         bindings = r.json()["results"]["bindings"]
     except Exception as e:
-        log.error("EUR-Lex CELLAR fetch failed: %s", e)
+        log.error("EUR-Lex SPARQL fetch failed (%s): %s", status, e)
         return 0
 
     added = 0
@@ -259,12 +275,10 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
         if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
             continue
 
-        type_uri = (b.get("type", {}).get("value") or "")
-        status   = "proposed" if "proposal_for" in type_uri else "enacted"
         title    = (b.get("title", {}).get("value") or celex).strip()
         pub_date = (b.get("date", {}).get("value") or "")[:10]
         url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
-        raw      = f"Title: {title}\nCELEX: {celex}"
+        raw      = f"Title: {title}\nCELEX: {celex}\nStatus: {status}"
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
@@ -277,8 +291,20 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
             break
 
     conn.commit()
-    log.info("EUR-Lex: %d new documents", added)
     return added
+
+
+def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
+    from datetime import timedelta
+    since = (date.today() - timedelta(days=60)).isoformat()
+
+    enacted  = _eurlex_run_query(EURLEX_SPARQL_ENACTED.format(since=since, limit=max_new * 3),
+                                 "enacted", conn, max_new)
+    proposed = _eurlex_run_query(EURLEX_SPARQL_PROPOSED.format(since=since, limit=max_new * 3),
+                                 "proposed", conn, max_new)
+
+    log.info("EUR-Lex: %d enacted + %d proposed new documents", enacted, proposed)
+    return enacted + proposed
 
 
 # ── UK GOV.UK fetcher ─────────────────────────────────────────────────────
@@ -454,6 +480,72 @@ def fetch_australia_legislation(conn: sqlite3.Connection, max_new: int = 10) -> 
 
 
 # ── EC Press Corner fetcher ────────────────────────────────────────────────
+
+def fetch_congress(conn: sqlite3.Connection, max_new: int = 50) -> int:
+    if not CONGRESS_API_KEY:
+        log.warning("No CONGRESS_API_KEY — skipping Congress.gov fetch")
+        return 0
+
+    enacted_kw  = ["Signed by President", "Became Public Law"]
+    proposed_kw = ["Passed House", "Passed Senate"]
+
+    try:
+        r = requests.get(
+            "https://api.congress.gov/v3/bill",
+            params={"sort": "updateDate desc", "limit": 250, "api_key": CONGRESS_API_KEY},
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        bills = r.json().get("bills", [])
+    except Exception as e:
+        log.error("Congress.gov fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for bill in bills:
+        action_text = (bill.get("latestAction", {}).get("text") or "")
+
+        if any(k in action_text for k in enacted_kw):
+            status = "enacted"
+        elif any(k in action_text for k in proposed_kw):
+            status = "proposed"
+        else:
+            continue
+
+        congress  = bill.get("congress", "")
+        bill_type = bill.get("type", "")
+        bill_num  = bill.get("number", "")
+        ext_id    = f"congress:{congress}:{bill_type}:{bill_num}"
+
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title      = (bill.get("title") or "").strip()
+        url        = (bill.get("url") or "").strip()
+        update_date = (bill.get("updateDate") or "")[:10]
+        raw = "\n".join(filter(None, [
+            f"Title: {title}",
+            f"Type: {bill_type} {bill_num}",
+            f"Congress: {congress}th",
+            f"Latest Action: {action_text}",
+        ]))
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("congress", "US", ext_id, title, url, update_date,
+             date.today().isoformat(), raw, status, "national"),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("Congress.gov: %d new bills", added)
+    return added
+
 
 def fetch_ec_press(conn: sqlite3.Connection, max_new: int = 10) -> int:
     try:
@@ -912,8 +1004,7 @@ def main() -> None:
     )
     conn.commit()
 
-    fetch_federal_register(conn)
-    fetch_ec_press(conn)
+    fetch_congress(conn)
     fetch_eurlex(conn)
     fetch_uk_gov(conn)
     fetch_uk_parliament(conn)
