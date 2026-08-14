@@ -693,21 +693,23 @@ def call_gemini(text: str) -> dict:
 
 
 def call_cerebras(text: str) -> dict:
-    r = requests.post(
-        "https://api.cerebras.ai/v1/chat/completions",
-        headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
-        json={
-            "model": "gpt-oss-120b",
-            "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
-            "temperature": 0.3,
-            "max_tokens": 1024,
-        },
-        timeout=60,
-    )
-    if r.status_code == 429:
-        raise RuntimeError("RATE_LIMIT")
-    r.raise_for_status()
-    return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
+    for model in ["gpt-oss-120b", "gemma-4-31b", "zai-glm-4.7"]:
+        r = requests.post(
+            "https://api.cerebras.ai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
+                "temperature": 0.3,
+                "max_tokens": 1024,
+            },
+            timeout=60,
+        )
+        if r.status_code == 429:
+            continue
+        r.raise_for_status()
+        return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
+    raise RuntimeError("RATE_LIMIT")
 
 
 def call_groq(text: str) -> dict:
@@ -765,10 +767,12 @@ def call_mistral(text: str) -> dict:
 
 
 def call_llm(text: str) -> dict:
-    """Try Gemini → Groq → DeepSeek → Mistral; raise if all exhausted."""
+    """Try Gemini → Cerebras → Groq → DeepSeek → Mistral; raise if all exhausted."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
+    if CEREBRAS_API_KEY:
+        providers.append(("Cerebras", call_cerebras))
     if GROQ_API_KEY:
         providers.append(("Groq", call_groq))
     if DEEPSEEK_API_KEY:
