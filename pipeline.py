@@ -673,7 +673,7 @@ def fetch_live_congress(conn: sqlite3.Connection, max_new: int = 50) -> int:
     try:
         r = requests.get(
             "https://api.congress.gov/v3/bill/119",
-            params={"sort": "updateDate+desc", "limit": 100, "api_key": CONGRESS_API_KEY},
+            params={"sort": "updateDate+desc", "limit": 250, "api_key": CONGRESS_API_KEY},
             timeout=20,
             headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
         )
@@ -747,10 +747,20 @@ def fetch_live_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
         if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
             continue
 
-        title    = (b.get("title", {}).get("value") or celex).strip()
+        title    = (b.get("title", {}).get("value") or "").strip()
         pub_date = (b.get("date", {}).get("value") or "")[:10]
-        url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
-        raw      = f"Title: {title}\nCELEX: {celex}\nStatus: proposed"
+
+        # Skip routine admin acts — implementing decisions and annex amendments
+        t_up = title.upper()
+        if "IMPLEMENTING" in t_up or "AMENDING ANNEX" in t_up or "AMENDING THE ANNEX" in t_up:
+            continue
+        # Require a substantive document type
+        if title and not any(k in t_up for k in ("REGULATION", "DIRECTIVE", "DECISION", "FRAMEWORK")):
+            continue
+
+        title = title or celex
+        url   = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
+        raw   = f"Title: {title}\nCELEX: {celex}\nStatus: proposed"
 
         conn.execute(
             """INSERT OR IGNORE INTO policies
