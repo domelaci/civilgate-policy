@@ -67,6 +67,14 @@ def get_stats():
         GROUP BY scored_by ORDER BY n DESC
     """).fetchall()
 
+    daily = conn.execute("""
+        SELECT DATE(scored_at) AS day, COUNT(*) AS n
+        FROM policies
+        WHERE summary IS NOT NULL AND scored_at IS NOT NULL
+          AND scored_at >= datetime('now', '-30 days')
+        GROUP BY day ORDER BY day
+    """).fetchall()
+
     # per-minute rate: items scored in the last 5 minutes
     rate = conn.execute("""
         SELECT COUNT(*) FROM policies
@@ -97,6 +105,7 @@ def get_stats():
         "by_source": [dict(r) for r in by_source],
         "by_version": [dict(r) for r in by_version],
         "by_provider": [dict(r) for r in by_provider],
+        "daily": [dict(r) for r in daily],
         "recent": [dict(r) for r in recent],
         "social_dist": buckets,
         "rate_5min": rate,
@@ -215,6 +224,9 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
   <span id="updated"></span>
 </div>
 
+<h2>Scored per day (last 30 days)</h2>
+<div id="daily-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:24px"></div>
+
 <h2>By source</h2>
 <table id="sources-table">
   <thead><tr><th>Source</th><th>Country</th><th>Total</th><th>Scored</th><th>Remaining</th><th>%</th></tr></thead>
@@ -284,6 +296,23 @@ async function refresh(){
   document.querySelector('#ver-table tbody').innerHTML = stats.by_version.map(r =>
     `<tr><td class="bright">${r.ver}</td><td>${r.n.toLocaleString()}</td></tr>`
   ).join('');
+
+  // Daily throughput chart
+  if (stats.daily && stats.daily.length) {
+    const maxDay = Math.max(...stats.daily.map(r => r.n));
+    const today = new Date().toISOString().slice(0,10);
+    document.getElementById('daily-chart').innerHTML = stats.daily.map(r => {
+      const h = Math.max(4, Math.round(76 * r.n / maxDay));
+      const isToday = r.day === today;
+      return `<div title="${r.day}: ${r.n.toLocaleString()} scored" style="flex:1;min-width:4px;height:${h}px;
+        background:${isToday?'#7F77DD':'#1D9E75'};border-radius:2px 2px 0 0;cursor:default;
+        position:relative" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'"></div>`;
+    }).join('') + `<style>#daily-chart div:hover::after{content:attr(title);position:absolute;
+      bottom:110%;left:50%;transform:translateX(-50%);background:#1f2937;color:#e5e7eb;
+      font-size:10px;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:9}</style>`;
+  } else {
+    document.getElementById('daily-chart').textContent = 'No data yet';
+  }
 
   const providerColors = {gemini:'bar-gemini',groq:'bar-groq',deepseek:'bar-deepseek',mistral:'bar-mistral',unknown:'bar-unknown'};
   const maxProv = Math.max(...stats.by_provider.map(r=>r.n), 1);
