@@ -25,6 +25,7 @@ load_dotenv(BASE_DIR / ".env")
 GEMINI_API_KEY   = os.environ.get("GEMINI_API_KEY", "")
 GROQ_API_KEY     = os.environ.get("GROQ_API_KEY", "")
 CEREBRAS_API_KEY = os.environ.get("CEREBRAS_API_KEY", "")
+MISTRAL_API_KEY  = os.environ.get("MISTRAL_API_KEY", "")
 GITHUB_TOKEN     = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO      = os.environ.get("GITHUB_REPO", "")
 SITE_URL         = os.environ.get("SITE_URL", "https://civilgate.org")
@@ -682,8 +683,26 @@ def call_groq(text: str) -> dict:
     return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
 
 
+def call_mistral(text: str) -> dict:
+    r = requests.post(
+        "https://api.mistral.ai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"},
+        json={
+            "model": "open-mistral-nemo",
+            "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
+            "temperature": 0.3,
+            "max_tokens": 1024,
+        },
+        timeout=60,
+    )
+    if r.status_code == 429:
+        raise RuntimeError("RATE_LIMIT")
+    r.raise_for_status()
+    return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
+
+
 def call_llm(text: str) -> dict:
-    """Try Gemini → Cerebras → Groq; raise if all exhausted."""
+    """Try Gemini → Cerebras → Groq → Mistral; raise if all exhausted."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
@@ -691,6 +710,8 @@ def call_llm(text: str) -> dict:
         providers.append(("Cerebras", call_cerebras))
     if GROQ_API_KEY:
         providers.append(("Groq", call_groq))
+    if MISTRAL_API_KEY:
+        providers.append(("Mistral", call_mistral))
 
     last_err = None
     for name, fn in providers:
