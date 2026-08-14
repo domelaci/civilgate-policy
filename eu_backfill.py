@@ -340,7 +340,12 @@ if __name__ == "__main__":
     conn = sqlite3.connect(DB_FILE)
 
     # Ensure schema is up to date (adds scorer_version and any other new columns)
-    for col, definition in [("scorer_version", "TEXT"), ("level", "TEXT"), ("status", "TEXT"), ("scope", "TEXT"), ("scope_reason", "TEXT")]:
+    for col, definition in [
+        ("scorer_version", "TEXT"), ("level", "TEXT"), ("status", "TEXT"),
+        ("scope", "TEXT"), ("scope_reason", "TEXT"),
+        ("human_rights_score", "INTEGER"), ("human_rights_reason", "TEXT"),
+        ("governance_score", "INTEGER"), ("governance_reason", "TEXT"),
+    ]:
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {col} {definition}")
             conn.commit()
