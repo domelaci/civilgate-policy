@@ -651,6 +651,8 @@ Status/scope calibration:
   - New EU single market regulation → scope: "regional"
   - Minor technical budget amendment → all scores 0 or ±1
 
+IMPORTANT: Score the real-world impact, not how the policy is officially described. A policy enabling deforestation scores negatively on environmental even if described as "land management reform". A surveillance expansion scores negatively on human rights even if framed as "public safety enhancement". An austerity programme scores negatively on social even if called "fiscal responsibility measures". Look past the official language and assess what actually happens to people, the environment, and the economy.
+
 Return ONLY valid JSON. No markdown, no code fences.
 
 Document:
