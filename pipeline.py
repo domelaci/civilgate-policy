@@ -301,6 +301,65 @@ def fetch_eurlex(conn: sqlite3.Connection, max_new: int = 20) -> int:
     return enacted + proposed
 
 
+EURLEX_SPARQL_EP_RESOLUTIONS = """\
+SELECT DISTINCT ?work ?date ?title WHERE {{
+  ?work a <http://publications.europa.eu/ontology/cdm#resolution_legislative_ep> ;
+        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date .
+  ?expr <http://publications.europa.eu/ontology/cdm#expression_belongs_to_work> ?work ;
+        <http://publications.europa.eu/ontology/cdm#expression_uses_language>
+          <http://publications.europa.eu/resource/authority/language/ENG> ;
+        <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
+  FILTER(?date >= "{since}"^^xsd:date)
+}} ORDER BY DESC(?date) LIMIT {limit}
+"""
+
+
+def fetch_eurlex_ep_resolutions(conn: sqlite3.Connection, max_new: int = 20) -> int:
+    since = (date.today() - timedelta(days=180)).isoformat()
+    query = EURLEX_SPARQL_EP_RESOLUTIONS.format(since=since, limit=max_new * 3)
+    try:
+        r = requests.get(
+            "https://publications.europa.eu/webapi/rdf/sparql",
+            params={"query": query, "format": "application/sparql-results+json"},
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
+        )
+        r.raise_for_status()
+        bindings = r.json()["results"]["bindings"]
+    except Exception as e:
+        log.error("EUR-Lex EP resolutions fetch failed: %s", e)
+        return 0
+
+    added = 0
+    for b in bindings:
+        work_uri = (b.get("work", {}).get("value") or "").strip()
+        if not work_uri:
+            continue
+        cellar_id = work_uri.rstrip("/").split("/")[-1]
+        ext_id = f"ep_resolution:{cellar_id}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title    = (b.get("title", {}).get("value") or "EP Resolution").strip()
+        pub_date = (b.get("date", {}).get("value") or "")[:10]
+        url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=cellar:{cellar_id}"
+        raw      = f"Title: {title}\nSource: European Parliament\nStatus: enacted"
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date, raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("eurlex_ep", "EU", ext_id, title, url, pub_date, date.today().isoformat(), raw, "enacted", "eu"),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("EUR-Lex EP resolutions: %d new", added)
+    return added
+
+
 # ── UK GOV.UK fetcher ─────────────────────────────────────────────────────
 
 _GOVUK_STATUS = {
@@ -1415,17 +1474,22 @@ def main() -> None:
     )
     conn.commit()
 
-    fetch_congress(conn)
-    fetch_eurlex(conn)
-    fetch_uk_gov(conn)
-    fetch_uk_parliament(conn)
-    fetch_legislation_gov_uk(conn)
-    fetch_legisinfo(conn)
-    fetch_australia_legislation(conn)
-    # fetch_aph_bills(conn)  — APH API is WAF-blocked; legislation.gov.au covers AU Acts
-    fetch_live_congress(conn)
-    fetch_live_eurlex(conn)
-    fetch_live_uk_bills(conn)
+    fetcher_results = {
+        "congress":            fetch_congress(conn),
+        "eurlex":              fetch_eurlex(conn),
+        "eurlex_ep":           fetch_eurlex_ep_resolutions(conn),
+        "uk_gov":              fetch_uk_gov(conn),
+        "uk_parliament":       fetch_uk_parliament(conn),
+        "legislation_gov_uk":  fetch_legislation_gov_uk(conn),
+        "legisinfo":           fetch_legisinfo(conn),
+        "au_legislation":      fetch_australia_legislation(conn),
+        "live_congress":       fetch_live_congress(conn),
+        "live_eurlex":         fetch_live_eurlex(conn),
+        "live_uk_bills":       fetch_live_uk_bills(conn),
+    }
+    for name, count in fetcher_results.items():
+        if count == 0:
+            log.warning("SILENT FAILURE? %s returned 0 new items — check source availability", name)
 
     try:
         from monitorul_oficial import fetch_monitorul_oficial

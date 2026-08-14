@@ -110,7 +110,7 @@ def get_stats():
 
     # Check if scoring process is active
     try:
-        result = subprocess.run(["pgrep", "-f", "eu_backfill.py|pipeline.py|congress_backfill.py"],
+        result = subprocess.run(["pgrep", "-f", "score_new.py|rescore_v3.py|eu_backfill.py|pipeline.py"],
                                 capture_output=True, text=True)
         scoring_active = bool(result.stdout.strip())
     except Exception:
