@@ -79,6 +79,15 @@ def get_stats():
         ORDER BY bucket
     """).fetchall()
 
+    # Items added per day per source (last 60 days)
+    daily_ingest = conn.execute("""
+        SELECT fetched_date AS day, source, COUNT(*) AS n
+        FROM policies
+        WHERE fetched_date >= date('now', '-60 days')
+        GROUP BY fetched_date, source
+        ORDER BY fetched_date
+    """).fetchall()
+
     # per-minute rate: items scored in the last 5 minutes
     rate = conn.execute("""
         SELECT COUNT(*) FROM policies
@@ -110,6 +119,7 @@ def get_stats():
         "by_version": [dict(r) for r in by_version],
         "by_provider": [dict(r) for r in by_provider],
         "buckets_48h": [dict(r) for r in buckets_48h],
+        "daily_ingest": [dict(r) for r in daily_ingest],
         "recent": [dict(r) for r in recent],
         "social_dist": buckets,
         "rate_5min": rate,
@@ -230,6 +240,10 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
 
 <h2>Scoring rate — last 48 h (10-min buckets)</h2>
 <div id="rate-chart" style="margin-bottom:24px"></div>
+
+<h2>Items added per day (last 60 days)</h2>
+<div id="ingest-chart" style="margin-bottom:24px"></div>
+<div id="ingest-legend" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;font-size:10px;color:#9ca3af"></div>
 
 <h2>By source</h2>
 <table id="sources-table">
@@ -375,6 +389,79 @@ async function refresh(){
       ${xLabels.join('')}
       ${hoverRects}
     </svg>`;
+  })();
+
+  // Daily ingestion stacked bar chart
+  (function() {
+    const raw = stats.daily_ingest || [];
+    if (!raw.length) { document.getElementById('ingest-chart').textContent = 'No data yet'; return; }
+
+    // Collect all days and sources
+    const daySet = new Set(), srcSet = new Set();
+    raw.forEach(r => { daySet.add(r.day); srcSet.add(r.source); });
+    const days = [...daySet].sort();
+    const sources = [...srcSet].sort();
+
+    // Colour palette per source
+    const palette = ['#7F77DD','#1D9E75','#EF9F27','#378ADD','#D85A30','#5DCAA5','#D4537E','#E24B4A'];
+    const srcColor = Object.fromEntries(sources.map((s,i) => [s, palette[i % palette.length]]));
+
+    // Build lookup: day -> source -> n
+    const lookup = {};
+    raw.forEach(r => { (lookup[r.day] = lookup[r.day] || {})[r.source] = r.n; });
+
+    // Day totals for Y scale
+    const totals = days.map(d => sources.reduce((s,src) => s + (lookup[d]?.[src] || 0), 0));
+    const maxTotal = Math.max(...totals, 1);
+
+    const W = document.getElementById('ingest-chart').clientWidth || 900;
+    const H = 120, pad = {t:8, r:8, b:28, l:48};
+    const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+    const barW = Math.max(1, cw / days.length - 1);
+
+    // Build stacked bars
+    let bars = '';
+    days.forEach((day, i) => {
+      const x = pad.l + i * (cw / days.length);
+      let yBase = pad.t + ch;
+      sources.forEach(src => {
+        const n = lookup[day]?.[src] || 0;
+        if (!n) return;
+        const bh = Math.max(1, (n / maxTotal) * ch);
+        yBase -= bh;
+        bars += `<rect x="${x.toFixed(1)}" y="${yBase.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}"
+          fill="${srcColor[src]}" opacity="0.85">
+          <title>${day} · ${src}: ${n.toLocaleString()}</title></rect>`;
+      });
+    });
+
+    // X-axis labels every 7 days
+    let xLabels = '';
+    days.forEach((day, i) => {
+      if (i % 7 === 0 || i === days.length - 1) {
+        const x = pad.l + i * (cw / days.length) + barW / 2;
+        xLabels += `<text x="${x.toFixed(1)}" y="${H - 6}" fill="#4b5563" font-size="9" text-anchor="middle">${day.slice(5)}</text>`;
+      }
+    });
+
+    // Y-axis labels
+    const yLabels = [0, Math.round(maxTotal / 2), maxTotal].map(v => {
+      const y = pad.t + ch - (v / maxTotal) * ch;
+      return `<text x="${pad.l - 4}" y="${y.toFixed(1)}" fill="#4b5563" font-size="9" text-anchor="end" dominant-baseline="middle">${v.toLocaleString()}</text>`;
+    }).join('');
+
+    document.getElementById('ingest-chart').innerHTML =
+      `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block">
+        <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ch}" stroke="#1f2937" stroke-width="1"/>
+        <line x1="${pad.l}" y1="${pad.t+ch}" x2="${pad.l+cw}" y2="${pad.t+ch}" stroke="#1f2937" stroke-width="1"/>
+        ${yLabels}${bars}${xLabels}
+      </svg>`;
+
+    document.getElementById('ingest-legend').innerHTML = sources.map(s =>
+      `<span style="display:flex;align-items:center;gap:4px">
+        <span style="width:10px;height:10px;border-radius:2px;background:${srcColor[s]};display:inline-block"></span>${s}
+      </span>`
+    ).join('');
   })();
 
   const providerColors = {gemini:'bar-gemini',groq:'bar-groq',deepseek:'bar-deepseek',mistral:'bar-mistral',unknown:'bar-unknown'};
