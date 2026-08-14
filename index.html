@@ -1030,6 +1030,17 @@ footer {
   text-align: center;
   padding: .75rem;
 }
+.modal-prompt {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: .6rem;
+}
+.rep-static {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
 
 .mover-sort-btn {
   background: none;
@@ -1279,21 +1290,7 @@ footer {
     <div class="modal-title">Contact your representative</div>
     <div class="modal-policy-title" id="modal-policy-title"></div>
 
-    <div class="location-row">
-      <input class="location-input" id="location-input" type="text" placeholder="Zip code (US), postcode (UK/CA), or EU country&hellip;">
-      <button class="modal-btn primary" id="find-reps-btn">Find</button>
-    </div>
-
-    <div id="rep-results"></div>
-
-    <div class="message-section" id="message-section" style="display:none">
-      <div class="message-label">Pre-drafted message &mdash; edit before sending</div>
-      <textarea class="message-text" id="message-text"></textarea>
-      <div class="modal-actions">
-        <button class="modal-btn" id="copy-btn">Copy</button>
-        <a class="modal-btn" id="mailto-btn" href="#">Send via email</a>
-      </div>
-    </div>
+    <div id="rep-modal-body"></div>
   </div>
 </div>
 
@@ -2208,23 +2205,54 @@ function renderGrid() {
 
 let currentPolicy = null;
 
-const LOCATION_HINT = {
-  eu:       'Enter your EU country (e.g. "France" or "FR")',
-  US:       'Enter your US address or zip code',
-  GB:       'Enter your UK postcode (e.g. SW1A 1AA)',
-  CA:       'Enter your city or province',
-  AU:       'Enter your suburb or postcode',
-};
-
 function openRepModal(policy) {
   currentPolicy = policy;
+  const region = policy.level === 'eu' ? 'eu'
+    : policy.country === 'US' ? 'us'
+    : policy.country === 'GB' ? 'uk'
+    : policy.country === 'CA' ? 'ca'
+    : policy.country === 'AU' ? 'au'
+    : null;
+
   document.getElementById('modal-policy-title').textContent = policy.title;
-  document.getElementById('rep-results').innerHTML = '';
-  document.getElementById('message-section').style.display = 'none';
-  const hint = policy.level === 'eu' ? LOCATION_HINT.eu : (LOCATION_HINT[policy.country] || 'Enter your location');
-  document.getElementById('location-input').placeholder = hint;
-  const saved = localStorage.getItem('cg_location') || '';
-  document.getElementById('location-input').value = saved;
+  const body = document.getElementById('rep-modal-body');
+
+  if (region === 'au') {
+    body.innerHTML =
+      '<p class="rep-static">Find your MP or Senator at the Australian Parliament website.</p>' +
+      '<a class="modal-btn primary" href="https://www.aph.gov.au/Senators_and_Members/Members" target="_blank" rel="noopener">Open aph.gov.au →</a>';
+  } else {
+    const cfgs = {
+      eu: { prompt: 'Which EU country are you in?',  ph: 'Country name or 2-letter code (e.g. France or FR)' },
+      us: { prompt: 'Enter your zip code',           ph: '5-digit zip (e.g. 90210)' },
+      uk: { prompt: 'Enter your postcode',           ph: 'UK postcode (e.g. SW1A 1AA)' },
+      ca: { prompt: 'Enter your postal code',        ph: 'e.g. M5V 3A8' },
+    };
+    const cfg   = cfgs[region] || { prompt: 'Enter your location', ph: '' };
+    const saved = localStorage.getItem('cg_loc_' + region) || '';
+    body.innerHTML =
+      `<div class="modal-prompt">${cfg.prompt}</div>` +
+      `<div class="location-row">` +
+      `<input class="location-input" id="location-input" type="text" placeholder="${cfg.ph}" value="${saved.replace(/"/g, '&quot;')}">` +
+      `<button class="modal-btn primary" id="find-reps-btn">Find</button>` +
+      `</div>` +
+      `<div id="rep-results"></div>` +
+      `<div class="message-section" id="message-section" style="display:none">` +
+      `<div class="message-label">Pre-drafted message — edit before sending</div>` +
+      `<textarea class="message-text" id="message-text"></textarea>` +
+      `<div class="modal-actions">` +
+      `<button class="modal-btn" id="copy-btn">Copy</button>` +
+      `<a class="modal-btn" id="mailto-btn" href="#">Send via email</a>` +
+      `</div></div>`;
+
+    const go = () => {
+      const loc = document.getElementById('location-input').value.trim();
+      if (loc) { localStorage.setItem('cg_loc_' + region, loc); findReps(loc, policy, region); }
+    };
+    document.getElementById('find-reps-btn').addEventListener('click', go);
+    document.getElementById('location-input').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  }
+
   document.getElementById('rep-modal').classList.add('open');
 }
 
@@ -2298,89 +2326,64 @@ const EU_COUNTRIES = {
   cyprus:'CY', greece:'GR',
 };
 
-async function findReps(location, policy) {
+async function findReps(location, policy, region) {
   const results = document.getElementById('rep-results');
-  results.innerHTML = '<div class="rep-status">Looking up representatives&hellip;</div>';
-  localStorage.setItem('cg_location', location);
 
-  // EU-level policy → show MEPs for the user's EU country
-  if (policy.level === 'eu') {
+  if (region === 'eu') {
     const loc     = location.toLowerCase().trim();
     const country = EU_COUNTRIES[loc] || (loc.length === 2 ? loc.toUpperCase() : null);
     if (!country) {
       results.innerHTML = '<div class="rep-status">Enter an EU country name or 2-letter code (e.g. "France" or "FR").</div>';
       return;
     }
+    window.open(`https://www.europarl.europa.eu/meps/en/search/advanced?countryCode=${country}`, '_blank', 'noopener');
+    results.innerHTML = `<div class="rep-status">MEP search opened for ${country} — check your new tab.</div>`;
+    return;
+  }
+
+  if (region === 'us') {
+    const zip = location.trim().replace(/\D/g, '').slice(0, 5);
+    if (zip.length !== 5) {
+      results.innerHTML = '<div class="rep-status">Enter a valid 5-digit zip code (e.g. 10001).</div>';
+      return;
+    }
+    window.open(`https://www.congress.gov/members/find-your-member?zip=${zip}`, '_blank', 'noopener');
+    results.innerHTML = `<div class="rep-status">Congress.gov search opened for zip ${zip} — check your new tab.</div>`;
+    return;
+  }
+
+  if (region === 'uk') {
+    const postcode = location.trim().toUpperCase();
+    window.open(`https://members.parliament.uk/FindYourMP?postcode=${encodeURIComponent(postcode)}`, '_blank', 'noopener');
+    results.innerHTML = `<div class="rep-status">UK Parliament search opened for ${postcode} — check your new tab.</div>`;
+    return;
+  }
+
+  if (region === 'ca') {
+    results.innerHTML = '<div class="rep-status">Looking up representative&hellip;</div>';
+    const code = location.trim().toUpperCase().replace(/\s+/g, '');
     try {
-      const r    = await fetch(`/api/eu-reps?country=${country}`);
+      const r = await fetch(`https://represent.opennorth.ca/postcodes/${encodeURIComponent(code)}/`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = await r.json();
-      if (data.error) { results.innerHTML = `<div class="rep-status">${data.error}</div>`; return; }
-      const meps = (data.meps || []).slice(0, 5).map(m => ({
-        name: m.name, role: `MEP — ${country}`, email: m.email, phone: '', url: '',
+      const repList = data.representatives_elected || data.representatives_centroid || [];
+      const reps = repList.map(rep => ({
+        name:  rep.name,
+        role:  [rep.elected_office, rep.party_name].filter(Boolean).join(' — '),
+        email: rep.email || '',
+        phone: (rep.offices || [])[0]?.tel || '',
+        url:   rep.url || '',
       }));
-      if (!meps.length) {
-        results.innerHTML = '<div class="rep-status">No MEPs found for that country. Check the country code.</div>';
+      if (!reps.length) {
+        results.innerHTML = `<div class="rep-status">No representatives found for ${code}. Try format A1B&nbsp;2C3.</div>`;
         return;
       }
-      showReps(meps, policy);
+      showReps(reps.slice(0, 5), policy);
     } catch {
-      results.innerHTML = '<div class="rep-status">Could not load MEP data. Try again later.</div>';
+      results.innerHTML = '<div class="rep-status">Could not look up that postal code. Try format A1B&nbsp;2C3.</div>';
     }
     return;
   }
-
-  // National policy — route by country
-  if (policy.country === 'US') {
-    try {
-      const r    = await fetch(`/api/reps?address=${encodeURIComponent(location)}`);
-      const data = await r.json();
-      if (data.error) { results.innerHTML = `<div class="rep-status">${data.error.message || data.error}</div>`; return; }
-      const reps = [];
-      (data.offices || []).forEach(office => {
-        (office.officialIndices || []).forEach(i => {
-          const o = (data.officials || [])[i];
-          if (!o) return;
-          reps.push({ name: o.name, role: office.name,
-            email: (o.emails || [])[0] || '', phone: (o.phones || [])[0] || '',
-            url: (o.urls || [])[0] || '' });
-        });
-      });
-      showReps(reps.slice(0, 6), policy);
-    } catch {
-      results.innerHTML = '<div class="rep-status">Could not load representative data. Check the address and try again.</div>';
-    }
-    return;
-  }
-
-  if (policy.country === 'GB') {
-    try {
-      const r    = await fetch(`/api/uk-reps?postcode=${encodeURIComponent(location)}`);
-      const data = await r.json();
-      if (data.error) { results.innerHTML = `<div class="rep-status">${data.error}</div>`; return; }
-      showReps(data.reps || [], policy);
-    } catch {
-      results.innerHTML = '<div class="rep-status">Could not load MP data. Try again later.</div>';
-    }
-    return;
-  }
-
-  if (policy.country === 'CA') {
-    try {
-      const postcode = location.toUpperCase().replace(/\s+/g, '');
-      const r    = await fetch(`/api/ca-reps?postcode=${encodeURIComponent(postcode)}`);
-      const data = await r.json();
-      if (data.error) { results.innerHTML = `<div class="rep-status">${data.error}</div>`; return; }
-      showReps(data.reps || [], policy);
-    } catch {
-      results.innerHTML = '<div class="rep-status">Could not load MP data. Try again later.</div>';
-    }
-    return;
-  }
-
-  // Fallback
-  const links = { AU: 'https://www.aph.gov.au/Senators_and_Members' };
-  const link  = links[policy.country] ? ` <a href="${links[policy.country]}" target="_blank" rel="noopener">Find yours here &rarr;</a>` : '';
-  results.innerHTML = `<div class="rep-status">National MP lookup for ${policy.country} coming soon.${link}</div>`;
 }
 
 function initContactRep() {
@@ -2388,20 +2391,11 @@ function initContactRep() {
   document.getElementById('rep-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('rep-modal')) closeRepModal();
   });
-  document.getElementById('find-reps-btn').addEventListener('click', () => {
-    const loc = document.getElementById('location-input').value.trim();
-    if (loc && currentPolicy) findReps(loc, currentPolicy);
-  });
-  document.getElementById('location-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('find-reps-btn').click();
-  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeRepModal(); });
   document.getElementById('policy-grid').addEventListener('click', e => {
     const btn = e.target.closest('.contact-btn');
     if (!btn) return;
-    try {
-      const policy = JSON.parse(btn.dataset.policy);
-      openRepModal(policy);
-    } catch {}
+    try { openRepModal(JSON.parse(btn.dataset.policy)); } catch {}
   });
 }
 
