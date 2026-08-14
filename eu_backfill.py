@@ -354,6 +354,8 @@ if __name__ == "__main__":
         backfill_eurlex(conn, start_year=args.start_year)
 
     if not args.fetch_only:
+        conn.execute("UPDATE policies SET score_failed=0 WHERE score_failed=1 AND summary IS NULL")
+        conn.commit()
         log.info("Scoring pending items (limit=%d)…", args.score_limit)
         score_pending(conn, limit=args.score_limit)
         log.info("Exporting policies.json…")
