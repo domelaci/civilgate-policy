@@ -1592,7 +1592,8 @@ function renderTrend(policies) {
     key, label, color,
     values: months.map(month => {
       const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
-      const valid = items.filter(p => p[key] !== null && p[key] !== undefined && Math.abs(p[key]) >= 4);
+      const threshold = activeNav === 'uk' ? 3 : 4;
+      const valid = items.filter(p => p[key] !== null && p[key] !== undefined && Math.abs(p[key]) >= threshold);
       return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
     }),
   }));
@@ -1802,6 +1803,7 @@ function badgeLabel(source) {
     uk_gov:               'GOV.UK',
     uk_parliament:        'UK PARL.',
     parliament_live:      'UK PARL.',
+    legislation_gov_uk:   'UK LEG.',
     canada_gazette:       'CA GAZETTE',
     au_legislation:       'AU LEG.',
     ro_monitorul_oficial: 'MONITORUL OF.',
