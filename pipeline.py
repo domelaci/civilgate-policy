@@ -657,6 +657,81 @@ def fetch_uk_parliament(conn: sqlite3.Connection, max_new: int = 15) -> int:
     return added
 
 
+# ── legislation.gov.uk fetcher ────────────────────────────────────────────
+
+def fetch_legislation_gov_uk(conn: sqlite3.Connection, max_new: int = 50) -> int:
+    import xml.etree.ElementTree as ET
+
+    ATOM_NS = "http://www.w3.org/2005/Atom"
+    feeds = [
+        ("https://www.legislation.gov.uk/ukpga/data.feed", "UK Public General Act"),
+        ("https://www.legislation.gov.uk/uksi/data.feed",  "UK Statutory Instrument"),
+    ]
+    total_added = 0
+
+    for feed_url, doc_type in feeds:
+        try:
+            r = requests.get(feed_url, timeout=30,
+                             headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"})
+            r.raise_for_status()
+            root = ET.fromstring(r.content)
+        except Exception as e:
+            log.error("legislation.gov.uk fetch failed (%s): %s", feed_url, e)
+            continue
+
+        entries = root.findall(f"{{{ATOM_NS}}}entry")
+        added = 0
+
+        for entry in entries:
+            link_el = entry.find(f"{{{ATOM_NS}}}link[@rel='alternate']")
+            if link_el is None:
+                link_el = entry.find(f"{{{ATOM_NS}}}link")
+            url = (link_el.get("href", "") if link_el is not None else "").strip()
+            if not url:
+                continue
+
+            ext_id = f"leg_gov_uk:{url}"
+            if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+                continue
+
+            title_el = entry.find(f"{{{ATOM_NS}}}title")
+            title = (title_el.text or "").strip() if title_el is not None else ""
+
+            updated_el = entry.find(f"{{{ATOM_NS}}}updated")
+            pub_date = ((updated_el.text or "")[:10]) if updated_el is not None else date.today().isoformat()
+
+            raw = f"Title: {title}\nType: {doc_type}"
+            text_url = url.rstrip("/") + "/data.htm"
+            try:
+                tr = requests.get(text_url, timeout=20,
+                                  headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"})
+                if tr.status_code == 200:
+                    text_content = re.sub(r"<[^>]+>", " ", tr.text)
+                    text_content = re.sub(r"\s+", " ", text_content).strip()
+                    raw = f"Title: {title}\nType: {doc_type}\nText: {text_content[:4000]}"
+            except Exception:
+                pass
+
+            conn.execute(
+                """INSERT OR IGNORE INTO policies
+                   (source, country, external_id, title, url, published_date, fetched_date,
+                    raw_text, status, level, is_live)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                ("legislation_gov_uk", "GB", ext_id, title, url, pub_date,
+                 date.today().isoformat(), raw, "enacted", "national", 0),
+            )
+            conn.commit()
+            added += 1
+            time.sleep(0.5)
+            if added >= max_new:
+                break
+
+        log.info("legislation.gov.uk (%s): %d new documents", doc_type, added)
+        total_added += added
+
+    return total_added
+
+
 # ── Live legislation fetchers ──────────────────────────────────────────────
 
 def fetch_live_congress(conn: sqlite3.Connection, max_new: int = 50) -> int:
@@ -1194,6 +1269,7 @@ def main() -> None:
     fetch_eurlex(conn)
     fetch_uk_gov(conn)
     fetch_uk_parliament(conn)
+    fetch_legislation_gov_uk(conn)
     fetch_canada_gazette(conn)
     fetch_australia_legislation(conn)
     fetch_live_congress(conn)
