@@ -33,7 +33,7 @@ SITE_URL         = os.environ.get("SITE_URL", "https://civilgate.org")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-SCORER_VERSION = "v2"
+SCORER_VERSION = "v3"
 
 
 # ── Database ───────────────────────────────────────────────────────────────
@@ -573,41 +573,83 @@ def fetch_uk_parliament(conn: sqlite3.Connection, max_new: int = 15) -> int:
 # ── Gemini scorer ──────────────────────────────────────────────────────────
 
 SCORE_PROMPT = """\
-You are a policy analyst. Given the following government policy document, \
-return a JSON object with exactly these fields:
+You are a policy analyst scoring government policies for a public tracking tool. \
+Your job is to signal what matters — scores that cluster near zero are useless.
 
-Primary scores (always required):
+SCORING RULES — read before assigning any number:
+1. 0 means "this policy has no meaningful effect on this dimension." Reserve it for \
+genuinely neutral items: budget line corrections, technical amendments, routine approvals.
+2. ±1 to ±2 means minor or indirect effect only.
+3. ±3 to ±5 means moderate, real-world impact on a meaningful subset of people or systems.
+4. ±6 to ±8 means significant impact: a major law, a large programme, a serious rights change.
+5. ±9 to ±10 means transformative or extreme: landmark legislation, mass-scale harm or benefit, \
+irreversible change.
+If 80% of policies score between -3 and +3, the calibration is wrong. Most real legislation \
+has clear winners and losers — score that reality.
+
+Fields to return as JSON:
 - "summary": 2-3 sentence plain English summary for someone with no political background
-- "social_score": integer -10 to +10 (negative = harm to people, positive = benefit; 0 = negligible)
-- "social_reason": one sentence, starting with the direction ("Expands access to..." or "Restricts...")
-- "environmental_score": integer -10 to +10 (negative = environmental harm, positive = benefit)
+- "social_score": integer -10 to +10
+- "social_reason": one sentence starting with the direction ("Expands...", "Restricts...", "Cuts...")
+- "environmental_score": integer -10 to +10
 - "environmental_reason": one sentence
-- "economic_score": integer -10 to +10 (negative = economic harm, positive = benefit; public-interest perspective)
+- "economic_score": integer -10 to +10 (public-interest perspective — who gains, who loses)
 - "economic_reason": one sentence
-
-Secondary scores (required — use 0 if not applicable):
-- "human_rights_score": integer -10 to +10 (effect on civil liberties, freedoms, minority rights, due process, press freedom)
-- "human_rights_reason": one sentence (use "No significant human rights impact" if score is 0)
-- "governance_score": integer -10 to +10 (effect on rule of law, transparency, anti-corruption, democratic institutions, institutional independence)
-- "governance_reason": one sentence (use "No significant governance impact" if score is 0)
-
-Classification:
+- "human_rights_score": integer -10 to +10 (civil liberties, freedoms, minority rights, due process, \
+press freedom); use 0 only if genuinely no rights dimension
+- "human_rights_reason": one sentence
+- "governance_score": integer -10 to +10 (rule of law, transparency, anti-corruption, democratic \
+institutions, judicial independence); use 0 only if genuinely no governance dimension
+- "governance_reason": one sentence
 - "tags": array of up to 5 lowercase topic keywords
 - "status": one of "enacted", "proposed", "open_for_comment", "decision"
 - "scope": one of "global", "regional", "national", "local"
 - "scope_reason": one sentence
 
-Calibration examples:
-- Oil drilling expansion → environmental_score: -8, economic_score: +4
-- Healthcare expansion → social_score: +9, economic_score: -3
-- Surveillance law without oversight → human_rights_score: -7, governance_score: -5
-- Anti-corruption agency established → governance_score: +8
-- Press freedom restriction → human_rights_score: -8
-- EC Press Corner funding disbursement (no vote pending) → status: "decision"
-- Proposed regulation open for public comment → status: "open_for_comment"
-- EU NextGenerationEU payment to Poland → scope: "national"
-- EU-US trade agreement → scope: "global"
-- New EU single market regulation → scope: "regional"
+CALIBRATION — anchor your scores to these:
+Social:
+  +9  Universal healthcare covering 50 million people who had none before
+  +7  Paid parental leave introduced for all workers nationally
+  +5  Major public housing programme (tens of thousands of new units)
+  -5  Benefit cuts affecting 2 million low-income households
+  -8  Forced displacement of a minority population
+  -10 Apartheid-style segregation law
+
+Environmental:
+  +8  Full national coal phase-out by 2030
+  +8  $369 billion clean energy investment (Inflation Reduction Act scale)
+  +5  National ban on single-use plastics
+  -5  Opening protected marine areas to commercial fishing
+  -8  Oil drilling approved in a major protected ecosystem
+  -9  Deforestation of millions of hectares of primary rainforest legalised
+
+Economic:
+  +6  Free trade agreement opening major new export markets
+  +4  Significant minimum wage increase benefiting millions of low-paid workers
+  -3  Tariff increases raising costs for consumers and businesses
+  -6  Austerity cuts reducing public investment by 10%+ of GDP
+
+Human rights:
+  +7  Legalising same-sex marriage nationally
+  +6  Abolishing the death penalty
+  -6  Comprehensive surveillance law with no judicial oversight
+  -8  Press censorship law or forced closure of independent media
+  -10 Law criminalising political opposition or banning minority groups
+
+Governance:
+  +7  Independent anti-corruption agency established with real investigative powers
+  +5  Freedom of information law expanding public access to government records
+  -5  Gerrymandering law entrenching one party's electoral dominance
+  -8  Executive takeover of judicial appointments, removing court independence
+  -9  Suspension of parliament or constitution during non-emergency
+
+Status/scope calibration:
+  - EC Press Corner funding disbursement (no vote pending) → status: "decision"
+  - Proposed regulation open for public comment → status: "open_for_comment"
+  - EU NextGenerationEU payment to Poland → scope: "national"
+  - EU-US trade agreement → scope: "global"
+  - New EU single market regulation → scope: "regional"
+  - Minor technical budget amendment → all scores 0 or ±1
 
 Return ONLY valid JSON. No markdown, no code fences.
 
