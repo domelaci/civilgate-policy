@@ -839,8 +839,13 @@ def call_mistral(text: str) -> dict:
     return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
 
 
+_cooldown: dict[str, float] = {}  # provider -> unix timestamp when it can be retried
+COOLDOWN_SECS = 3600  # 1 hour
+
+
 def call_llm(text: str) -> dict:
-    """Try Gemini → Groq → DeepSeek → Mistral; return (result, provider_name)."""
+    """Try Gemini → Groq → DeepSeek → Mistral; return (result, provider_name).
+    Skips providers that are in cooldown after a 429."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
@@ -851,13 +856,22 @@ def call_llm(text: str) -> dict:
     if MISTRAL_API_KEY:
         providers.append(("Mistral", call_mistral))
 
+    now = time.time()
     last_err = None
     for name, fn in providers:
+        retry_after = _cooldown.get(name, 0)
+        if now < retry_after:
+            mins = int((retry_after - now) / 60)
+            log.debug("%s in cooldown for ~%d more min, skipping", name, mins)
+            continue
         try:
-            return fn(text), name
+            result = fn(text)
+            _cooldown.pop(name, None)  # clear cooldown on success
+            return result, name
         except RuntimeError as e:
             if "RATE_LIMIT" in str(e):
-                log.warning("%s rate limited, trying next provider…", name)
+                _cooldown[name] = now + COOLDOWN_SECS
+                log.warning("%s rate limited — cooling down for %d min", name, COOLDOWN_SECS // 60)
                 last_err = e
                 continue
             raise
