@@ -28,7 +28,6 @@ OUT_FILE = BASE_DIR / "policies.json"
 load_dotenv(BASE_DIR / ".env")
 GEMINI_API_KEY   = os.environ.get("GEMINI_API_KEY", "")
 GROQ_API_KEY     = os.environ.get("GROQ_API_KEY", "")
-CEREBRAS_API_KEY = os.environ.get("CEREBRAS_API_KEY", "")
 MISTRAL_API_KEY  = os.environ.get("MISTRAL_API_KEY", "")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
 
@@ -237,25 +236,6 @@ def call_gemini(text: str) -> dict:
     return _parse_llm_response(raw)
 
 
-def call_cerebras(text: str) -> dict:
-    for model in ["gpt-oss-120b", "gemma-4-31b", "zai-glm-4.7"]:
-        r = requests.post(
-            "https://api.cerebras.ai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {CEREBRAS_API_KEY}", "Content-Type": "application/json"},
-            json={
-                "model": model,
-                "messages": [{"role": "user", "content": SCORE_PROMPT.format(text=text[:6000])}],
-                "temperature": 0.3,
-                "max_tokens": 1024,
-            },
-            timeout=60,
-        )
-        if r.status_code == 429:
-            continue
-        r.raise_for_status()
-        return _parse_llm_response(r.json()["choices"][0]["message"]["content"])
-    raise RuntimeError("RATE_LIMIT")
-
 
 def call_groq(text: str) -> dict:
     r = requests.post(
@@ -312,12 +292,10 @@ def call_mistral(text: str) -> dict:
 
 
 def call_llm(text: str) -> dict:
-    """Try Gemini → Cerebras → Groq → DeepSeek → Mistral; raise if all exhausted."""
+    """Try Gemini → Groq → DeepSeek → Mistral; raise if all exhausted."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
-    if CEREBRAS_API_KEY:
-        providers.append(("Cerebras", call_cerebras))
     if GROQ_API_KEY:
         providers.append(("Groq", call_groq))
     if DEEPSEEK_API_KEY:
@@ -440,7 +418,7 @@ if __name__ == "__main__":
     parser.add_argument("--start-year", type=int, default=2015, help="Start year for backfill (default: 2015)")
     args = parser.parse_args()
 
-    if not any([GEMINI_API_KEY, CEREBRAS_API_KEY, GROQ_API_KEY, DEEPSEEK_API_KEY, MISTRAL_API_KEY]) and not args.fetch_only:
+    if not any([GEMINI_API_KEY, GROQ_API_KEY, DEEPSEEK_API_KEY, MISTRAL_API_KEY]) and not args.fetch_only:
         raise SystemExit("Missing GEMINI_API_KEY in .env")
 
     conn = sqlite3.connect(DB_FILE)
