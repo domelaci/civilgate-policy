@@ -839,6 +839,12 @@ def main() -> None:
     conn = sqlite3.connect(DB_FILE)
     init_db(conn)
 
+    # Reset transient failures so they get retried on the next daily run
+    conn.execute(
+        "UPDATE policies SET score_failed=0 WHERE score_failed=1 AND summary IS NULL"
+    )
+    conn.commit()
+
     fetch_federal_register(conn)
     fetch_ec_press(conn)
     fetch_eurlex(conn)
