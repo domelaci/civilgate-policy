@@ -183,11 +183,10 @@ header {
 
 /* ── Controls ── */
 .controls {
-  padding: .75rem 2rem;
+  padding: .6rem 2rem;
   display: flex;
   align-items: center;
-  gap: .75rem;
-  flex-wrap: wrap;
+  gap: 1rem;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 52px;
@@ -195,36 +194,28 @@ header {
   background: var(--bg);
 }
 
-.filter-pills {
+.nav-bar {
   display: flex;
-  gap: .4rem;
-  flex-wrap: nowrap;
+  align-items: center;
+  gap: .5rem;
+  flex: 1;
+  flex-wrap: wrap;
 }
-
-.filter-sep {
-  width: 1px;
-  height: 16px;
-  background: var(--border2);
-  flex-shrink: 0;
-}
-
-.pill {
-  padding: .25rem .75rem;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.nav-btn {
+  font-size: 13px;
+  color: rgba(255,255,255,.6);
+  background: none;
+  border: none;
   cursor: pointer;
-  border-radius: 3px;
-  transition: all .15s;
-  user-select: none;
+  padding: 0;
+  transition: color .15s;
+  font-family: 'Inter', system-ui, sans-serif;
+  white-space: nowrap;
 }
-.pill:hover { border-color: var(--border2); color: var(--text); background: rgba(255,255,255,.04); }
-.pill.active { border-color: var(--accent); color: #fff; background: rgba(127,119,221,.25); box-shadow: 0 0 8px rgba(127,119,221,.35); }
+.nav-btn:hover { color: rgba(255,255,255,.9); }
+.nav-btn.active { color: #fff; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.nav-sep { color: var(--border2); font-size: 13px; user-select: none; }
+.nav-chips { display: flex; gap: .3rem; align-items: center; }
 
 .search-wrap {
   position: relative;
@@ -1040,16 +1031,6 @@ footer {
   white-space: nowrap;
 }
 
-/* ── Filter label ── */
-.filter-label {
-  font-family: var(--mono);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 
 /* ── Trend subline ── */
 .trend-sub {
@@ -1183,35 +1164,25 @@ footer {
 </div>
 
 <div class="controls">
-  <span class="filter-label">filter policies</span>
-  <div class="filter-sep"></div>
-  <div class="filter-pills" id="filter-pills">
-    <button class="pill active" data-filter="ALL">All</button>
-    <button class="pill" data-filter="EU">EU</button>
-    <button class="pill" data-filter="US">USA</button>
-    <button class="pill" data-filter="GB">UK</button>
-    <button class="pill" data-filter="CA">Canada</button>
-    <button class="pill" data-filter="AU">Australia</button>
+  <nav class="nav-bar" id="nav-bar">
+    <button class="nav-btn active" data-nav="live">What&rsquo;s happening now?</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn" data-nav="enacted">Just became law</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn" data-nav="comment">Open for comment</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn" data-nav="eu">EU</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn" data-nav="us">US</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn" data-nav="uk">UK</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn" data-nav="all">Show everything</button>
+  </nav>
+  <div class="nav-chips">
+    <div id="tag-chip-wrap"></div>
+    <div id="score-chip-wrap"></div>
   </div>
-  <div class="filter-sep"></div>
-  <div class="filter-pills" id="status-pills">
-    <button class="pill active" data-status="ALL">All status</button>
-    <button class="pill" data-status="enacted">&#9679; Law</button>
-    <button class="pill" data-status="decision">&#9670; Decision</button>
-    <button class="pill" data-status="proposed">&#9680; Proposed</button>
-    <button class="pill" data-status="open_for_comment">&#9711; Comment</button>
-  </div>
-  <div class="filter-sep"></div>
-  <div class="filter-pills" id="scope-pills">
-    <button class="pill active" data-scope="ALL">All scope</button>
-    <button class="pill" data-scope="global">Global</button>
-    <button class="pill" data-scope="regional">Regional</button>
-    <button class="pill" data-scope="national">National</button>
-    <button class="pill" data-scope="local">Local</button>
-  </div>
-  <div class="filter-sep"></div>
-  <div id="tag-chip-wrap"></div>
-  <div id="score-chip-wrap"></div>
   <div class="search-wrap">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -1453,7 +1424,7 @@ async function renderMap(world) {
       if (!regionKey) return;
 
       // Already zoomed into EU → individual country selection
-      if (activeFilter === 'EU' && regionKey === 'EU') {
+      if (activeNav === 'eu' && regionKey === 'EU') {
         const wasSelected = _selectedEuCountry === id;
         _selectedEuCountry = wasSelected ? null : id;
         syncMapFills();
@@ -1468,15 +1439,15 @@ async function renderMap(world) {
         return;
       }
 
-      // First click on a region: zoom in + sync filter pill
+      // First click on a region: zoom in + sync nav
       _selectedEuCountry = null;
       syncMapFills();
       zoomMapToRegion(regionKey);
-      // Sync the filter pill
-      activeFilter = regionKey;
+      const regionToNav = { EU: 'eu', US: 'us', GB: 'uk', CA: 'ca', AU: 'au' };
+      activeNav = regionToNav[regionKey] || 'all';
       activeTag = '';
-      document.querySelectorAll('#filter-pills .pill').forEach(p =>
-        p.classList.toggle('active', p.dataset.filter === regionKey)
+      document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.nav === activeNav)
       );
       renderGrid();
       renderTrend(allPolicies);
@@ -1487,10 +1458,10 @@ async function renderMap(world) {
     if (event.target.tagName === 'path') return; // country click handled above
     _selectedEuCountry = null;
     syncMapFills();
-    activeFilter = 'ALL';
+    activeNav = 'all';
     activeTag = '';
-    document.querySelectorAll('#filter-pills .pill').forEach(p =>
-      p.classList.toggle('active', p.dataset.filter === 'ALL')
+    document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.nav === 'all')
     );
     zoomMapToRegion(null);
     renderGrid();
@@ -1573,9 +1544,10 @@ function renderTrend(policies) {
   svg.selectAll('*').remove();
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  const regionPolicies = activeFilter === 'ALL'
-    ? policies
-    : policies.filter(p => p.country === activeFilter);
+  const NAV_COUNTRY = { eu: 'EU', us: 'US', uk: 'GB', ca: 'CA', au: 'AU' };
+  const regionPolicies = NAV_COUNTRY[activeNav]
+    ? policies.filter(p => p.country === NAV_COUNTRY[activeNav])
+    : policies;
 
   // Dynamic x-axis: span only the months where data actually exists
   const now = new Date();
@@ -1605,8 +1577,8 @@ function renderTrend(policies) {
   const titleEl = document.getElementById('trend-title');
   if (titleEl && months.length) {
     const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
-    const FILTER_LABELS = { EU: 'EU', US: 'USA', GB: 'UK', CA: 'Canada', AU: 'Australia' };
-    const regionPfx = activeFilter !== 'ALL' ? ` — ${FILTER_LABELS[activeFilter] || activeFilter}` : '';
+    const NAV_LABEL = { eu: 'EU', us: 'USA', uk: 'UK', ca: 'Canada', au: 'Australia' };
+    const regionPfx = NAV_LABEL[activeNav] ? ` — ${NAV_LABEL[activeNav]}` : '';
     titleEl.textContent = months.length > 1
       ? `avg impact score${regionPfx} (significant policies) — ${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
       : `avg impact score${regionPfx} (significant policies) — ${fmtM(months[0])}`;
@@ -1772,14 +1744,12 @@ function initTrend(policies) {
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
 
-let allPolicies  = [];
-let activeFilter = 'ALL';
-let activeStatus = 'ALL';
-let activeScope  = 'ALL';
-let searchQuery  = '';
-let activeTag    = '';
-let activeScore  = '';
-let activeSortDir = null; // null = magnitude, 'best' = top 20 descending, 'worst' = bottom 20 ascending
+let allPolicies   = [];
+let activeNav     = 'live';
+let searchQuery   = '';
+let activeTag     = '';
+let activeScore   = '';
+let activeSortDir = null;
 let showProcedural = false;
 
 function timeAgo(isoStr) {
@@ -1919,9 +1889,27 @@ function renderGrid() {
   renderScoreChip();
 
   let list = allPolicies;
-  if (activeFilter !== 'ALL') list = list.filter(p => p.country === activeFilter || p.scope === 'global');
-  if (activeStatus !== 'ALL') list = list.filter(p => p.status === activeStatus);
-  if (activeScope  !== 'ALL') list = list.filter(p => p.scope  === activeScope);
+
+  const cutoff90 = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
+  if (activeNav === 'live') {
+    list = list.filter(p => p.is_live);
+  } else if (activeNav === 'enacted') {
+    list = list.filter(p => p.status === 'enacted' && (p.published_date || '') >= cutoff90);
+  } else if (activeNav === 'comment') {
+    list = list.filter(p => p.status === 'open_for_comment');
+  } else if (activeNav === 'eu') {
+    list = list.filter(p => p.level === 'eu');
+  } else if (activeNav === 'us') {
+    list = list.filter(p => p.country === 'US');
+  } else if (activeNav === 'uk') {
+    list = list.filter(p => p.country === 'GB');
+  } else if (activeNav === 'ca') {
+    list = list.filter(p => p.country === 'CA');
+  } else if (activeNav === 'au') {
+    list = list.filter(p => p.country === 'AU');
+  }
+  // 'all': no filter
+
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -1931,6 +1919,7 @@ function renderGrid() {
       (p.tags || []).some(t => t.toLowerCase().includes(q))
     );
   }
+
   const STATUS_ORDER = { proposed: 0, open_for_comment: 1, enacted: 2, decision: 3 };
   if (activeScore) {
     if (activeSortDir === 'best') {
@@ -1940,6 +1929,8 @@ function renderGrid() {
     } else {
       list = [...list].sort((a, b) => Math.abs(b[activeScore] ?? 0) - Math.abs(a[activeScore] ?? 0));
     }
+  } else if (activeNav === 'live' || activeNav === 'enacted' || activeNav === 'comment') {
+    list = [...list].sort((a, b) => (b.published_date || '') > (a.published_date || '') ? 1 : -1);
   } else {
     list = [...list].sort((a, b) => {
       const sa = STATUS_ORDER[a.status] ?? 4;
@@ -2267,36 +2258,19 @@ async function init() {
   initContactRep();
   initAboutModal();
 
-  document.getElementById('filter-pills').addEventListener('click', e => {
-    const btn = e.target.closest('[data-filter]');
+  document.getElementById('nav-bar').addEventListener('click', e => {
+    const btn = e.target.closest('[data-nav]');
     if (!btn) return;
-    activeFilter = btn.dataset.filter;
-    if (activeFilter === 'ALL') { activeTag = ''; activeSortDir = null; }
+    activeNav = btn.dataset.nav;
+    activeTag = ''; activeScore = ''; activeSortDir = null;
     _selectedEuCountry = null;
-    document.querySelectorAll('#filter-pills .pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    zoomMapToRegion(activeFilter === 'ALL' ? null : activeFilter);
+    const NAV_TO_MAP = { eu: 'EU', us: 'US', uk: 'GB', ca: 'CA', au: 'AU' };
+    zoomMapToRegion(NAV_TO_MAP[activeNav] || null);
     syncMapFills();
     renderGrid();
     renderTrend(allPolicies);
-  });
-
-  document.getElementById('status-pills').addEventListener('click', e => {
-    const btn = e.target.closest('[data-status]');
-    if (!btn) return;
-    activeStatus = btn.dataset.status;
-    document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    renderGrid();
-  });
-
-  document.getElementById('scope-pills').addEventListener('click', e => {
-    const btn = e.target.closest('[data-scope]');
-    if (!btn) return;
-    activeScope = btn.dataset.scope;
-    document.querySelectorAll('#scope-pills .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    renderGrid();
   });
 
   document.getElementById('search').addEventListener('input', e => {
