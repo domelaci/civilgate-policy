@@ -57,8 +57,11 @@ def get_stats():
     """).fetchall()
 
     dist = conn.execute("""
-        SELECT social_score AS s FROM policies
-        WHERE summary IS NOT NULL AND social_score IS NOT NULL
+        SELECT social_score, environmental_score, economic_score FROM policies
+        WHERE summary IS NOT NULL
+          AND social_score IS NOT NULL
+          AND environmental_score IS NOT NULL
+          AND economic_score IS NOT NULL
     """).fetchall()
 
     by_provider = conn.execute("""
@@ -96,11 +99,14 @@ def get_stats():
 
     conn.close()
 
-    buckets = {str(i): 0 for i in range(-10, 11)}
+    social_dist = {str(i): 0 for i in range(-10, 11)}
+    env_dist    = {str(i): 0 for i in range(-10, 11)}
+    eco_dist    = {str(i): 0 for i in range(-10, 11)}
     for r in dist:
-        k = str(r["s"])
-        if k in buckets:
-            buckets[k] += 1
+        for bucket, key in ((social_dist, "social_score"), (env_dist, "environmental_score"), (eco_dist, "economic_score")):
+            k = str(r[key])
+            if k in bucket:
+                bucket[k] += 1
 
     # Check if scoring process is active
     try:
@@ -121,7 +127,9 @@ def get_stats():
         "buckets_48h": [dict(r) for r in buckets_48h],
         "daily_ingest": [dict(r) for r in daily_ingest],
         "recent": [dict(r) for r in recent],
-        "social_dist": buckets,
+        "social_dist": social_dist,
+        "env_dist": env_dist,
+        "eco_dist": eco_dist,
         "rate_5min": rate,
     }
 
@@ -260,8 +268,21 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
 <h2>LLM provider usage</h2>
 <div class="dist" id="provider-dist"></div>
 
-<h2>Social score distribution</h2>
-<div class="dist" id="dist"></div>
+<h2>Score distribution</h2>
+<div style="display:flex;gap:2rem;flex-wrap:wrap">
+  <div>
+    <div style="font-size:11px;color:#9ca3af;margin-bottom:.4rem;font-family:monospace">SOCIAL</div>
+    <div class="dist" id="dist-social"></div>
+  </div>
+  <div>
+    <div style="font-size:11px;color:#38bdf8;margin-bottom:.4rem;font-family:monospace">ENVIRONMENTAL</div>
+    <div class="dist" id="dist-env"></div>
+  </div>
+  <div>
+    <div style="font-size:11px;color:#EF9F27;margin-bottom:.4rem;font-family:monospace">ECONOMIC</div>
+    <div class="dist" id="dist-eco"></div>
+  </div>
+</div>
 
 <h2>Recently scored (last 20)</h2>
 <table id="recent-table">
@@ -473,12 +494,17 @@ async function refresh(){
      <span class="bar-count">${r.n.toLocaleString()}</span></div>`;
   }).join('');
 
-  const maxBar = Math.max(...Object.values(stats.social_dist), 1);
-  document.getElementById('dist').innerHTML = Object.entries(stats.social_dist).map(([k,v]) =>
-    `<div class="bar-row"><span class="bar-label">${+k>0?'+'+k:k}</span>
-     <div class="bar" style="width:${Math.round(180*v/maxBar)}px"></div>
-     <span class="bar-count">${v}</span></div>`
-  ).join('');
+  function renderDist(elId, data, color) {
+    const maxBar = Math.max(...Object.values(data), 1);
+    document.getElementById(elId).innerHTML = Object.entries(data).map(([k,v]) =>
+      `<div class="bar-row"><span class="bar-label">${+k>0?'+'+k:k}</span>
+       <div class="bar" style="width:${Math.round(150*v/maxBar)}px;background:${color}"></div>
+       <span class="bar-count">${v}</span></div>`
+    ).join('');
+  }
+  renderDist('dist-social', stats.social_dist, '#1D9E75');
+  renderDist('dist-env',    stats.env_dist,    '#38bdf8');
+  renderDist('dist-eco',    stats.eco_dist,    '#EF9F27');
 
   document.querySelector('#recent-table tbody').innerHTML = stats.recent.map(r =>
     `<tr><td class="bright" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.title||'').replace(/"/g,'&quot;')}">${r.title||'—'}</td>
