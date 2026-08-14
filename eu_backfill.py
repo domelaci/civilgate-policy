@@ -292,7 +292,7 @@ def call_mistral(text: str) -> dict:
 
 
 def call_llm(text: str) -> dict:
-    """Try Gemini → Groq → DeepSeek → Mistral; raise if all exhausted."""
+    """Try Gemini → Groq → DeepSeek → Mistral; return (result, provider_name)."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
@@ -306,7 +306,7 @@ def call_llm(text: str) -> dict:
     last_err = None
     for name, fn in providers:
         try:
-            return fn(text)
+            return fn(text), name
         except RuntimeError as e:
             if "RATE_LIMIT" in str(e):
                 log.warning("%s rate limited, trying next provider…", name)
@@ -341,14 +341,14 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
             conn.commit()
             continue
         try:
-            result = call_llm(raw_text or "")
+            result, provider = call_llm(raw_text or "")
             conn.execute(
                 """UPDATE policies SET
                    summary=?, social_score=?, social_reason=?,
                    environmental_score=?, environmental_reason=?,
                    economic_score=?, economic_reason=?,
                    tags=?, scored_at=?, scorer_version=?,
-                   scope=?, scope_reason=?, score_failed=0
+                   scope=?, scope_reason=?, scored_by=?, score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
@@ -360,6 +360,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 100) -> int:
                     SCORER_VERSION,
                     result.get("scope"),
                     result.get("scope_reason"),
+                    provider,
                     row_id,
                 ),
             )
@@ -429,6 +430,7 @@ if __name__ == "__main__":
         ("scope", "TEXT"), ("scope_reason", "TEXT"),
         ("human_rights_score", "INTEGER"), ("human_rights_reason", "TEXT"),
         ("governance_score", "INTEGER"), ("governance_reason", "TEXT"),
+        ("scored_by", "TEXT"),
     ]:
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {col} {definition}")

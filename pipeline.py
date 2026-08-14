@@ -100,7 +100,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         pass
     for _col in ("scope TEXT", "scope_reason TEXT",
                  "human_rights_score INTEGER", "human_rights_reason TEXT",
-                 "governance_score INTEGER", "governance_reason TEXT"):
+                 "governance_score INTEGER", "governance_reason TEXT",
+                 "scored_by TEXT"):
         try:
             conn.execute(f"ALTER TABLE policies ADD COLUMN {_col}")
             conn.commit()
@@ -747,7 +748,7 @@ def call_mistral(text: str) -> dict:
 
 
 def call_llm(text: str) -> dict:
-    """Try Gemini → Groq → DeepSeek → Mistral; raise if all exhausted."""
+    """Try Gemini → Groq → DeepSeek → Mistral; return (result, provider_name)."""
     providers = []
     if GEMINI_API_KEY:
         providers.append(("Gemini", call_gemini))
@@ -761,8 +762,7 @@ def call_llm(text: str) -> dict:
     last_err = None
     for name, fn in providers:
         try:
-            result = fn(text)
-            return result
+            return fn(text), name
         except RuntimeError as e:
             if "RATE_LIMIT" in str(e):
                 log.warning("%s rate limited, trying next provider…", name)
@@ -788,7 +788,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
     scored = 0
     for row_id, raw_text in rows:
         try:
-            result = call_llm(raw_text or "")
+            result, provider = call_llm(raw_text or "")
             _VALID_STATUSES = {"enacted", "proposed", "open_for_comment", "decision"}
             llm_status = result.get("status")
             update_status = llm_status if llm_status in _VALID_STATUSES else None
@@ -802,7 +802,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
                    tags=?, scored_at=?, scorer_version=?,
                    scope=?, scope_reason=?,
                    status=COALESCE(?, status),
-                   score_failed=0
+                   scored_by=?, score_failed=0
                    WHERE id=?""",
                 (
                     result.get("summary"),
@@ -817,6 +817,7 @@ def score_pending(conn: sqlite3.Connection, limit: int = 30) -> int:
                     result.get("scope"),
                     result.get("scope_reason"),
                     update_status,
+                    provider,
                     row_id,
                 ),
             )

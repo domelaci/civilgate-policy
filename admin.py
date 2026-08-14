@@ -61,6 +61,18 @@ def get_stats():
         WHERE summary IS NOT NULL AND social_score IS NOT NULL
     """).fetchall()
 
+    by_provider = conn.execute("""
+        SELECT COALESCE(scored_by, 'unknown') AS provider, COUNT(*) AS n
+        FROM policies WHERE summary IS NOT NULL
+        GROUP BY scored_by ORDER BY n DESC
+    """).fetchall()
+
+    # per-minute rate: items scored in the last 5 minutes
+    rate = conn.execute("""
+        SELECT COUNT(*) FROM policies
+        WHERE scored_at >= datetime('now', '-5 minutes')
+    """).fetchone()[0]
+
     conn.close()
 
     buckets = {str(i): 0 for i in range(-10, 11)}
@@ -84,8 +96,10 @@ def get_stats():
         "scoring_active": scoring_active,
         "by_source": [dict(r) for r in by_source],
         "by_version": [dict(r) for r in by_version],
+        "by_provider": [dict(r) for r in by_provider],
         "recent": [dict(r) for r in recent],
         "social_dist": buckets,
+        "rate_5min": rate,
     }
 
 
@@ -179,6 +193,8 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
 .bar-row{display:flex;align-items:center;gap:8px}
 .bar-label{width:28px;text-align:right;color:#4b5563;font-size:10px}
 .bar{background:#7F77DD;height:10px;border-radius:2px;min-width:1px}
+.bar-gemini{background:#1D9E75}.bar-groq{background:#EF9F27}
+.bar-deepseek{background:#378ADD}.bar-mistral{background:#D85A30}.bar-unknown{background:#4b5563}
 .bar-count{font-size:10px;color:#6b7280}
 .log{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px;
      white-space:pre;overflow-x:auto;font-size:11px;color:#6b7280;
@@ -210,6 +226,9 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
   <thead><tr><th>Version</th><th>Count</th></tr></thead>
   <tbody></tbody>
 </table>
+
+<h2>LLM provider usage</h2>
+<div class="dist" id="provider-dist"></div>
 
 <h2>Social score distribution</h2>
 <div class="dist" id="dist"></div>
@@ -249,8 +268,9 @@ async function refresh(){
   prevScored = stats.scored;
 
   const active = stats.scoring_active;
+  const rateStr = stats.rate_5min > 0 ? ` · ${stats.rate_5min} scored in last 5 min (~${(stats.rate_5min/5).toFixed(1)}/min)` : '';
   document.getElementById('scoring-status').innerHTML =
-    `<span class="status-dot ${active?'active':'idle'}"></span>${active ? 'scoring running' + (rate ? ` · +${rate} this interval` : '') : 'scoring idle (crons paused)'}`;
+    `<span class="status-dot ${active?'active':'idle'}"></span>${active ? 'scoring running' + rateStr : 'scoring idle'}`;
 
   document.getElementById('updated').textContent = 'updated ' + new Date().toLocaleTimeString();
 
@@ -264,6 +284,15 @@ async function refresh(){
   document.querySelector('#ver-table tbody').innerHTML = stats.by_version.map(r =>
     `<tr><td class="bright">${r.ver}</td><td>${r.n.toLocaleString()}</td></tr>`
   ).join('');
+
+  const providerColors = {gemini:'bar-gemini',groq:'bar-groq',deepseek:'bar-deepseek',mistral:'bar-mistral',unknown:'bar-unknown'};
+  const maxProv = Math.max(...stats.by_provider.map(r=>r.n), 1);
+  document.getElementById('provider-dist').innerHTML = stats.by_provider.map(r => {
+    const cls = providerColors[r.provider.toLowerCase()] || 'bar';
+    return `<div class="bar-row"><span class="bar-label" style="width:64px;text-align:right">${r.provider}</span>
+     <div class="bar ${cls}" style="width:${Math.round(240*r.n/maxProv)}px"></div>
+     <span class="bar-count">${r.n.toLocaleString()}</span></div>`;
+  }).join('');
 
   const maxBar = Math.max(...Object.values(stats.social_dist), 1);
   document.getElementById('dist').innerHTML = Object.entries(stats.social_dist).map(([k,v]) =>
