@@ -859,7 +859,7 @@ def main() -> None:
     except Exception as e:
         log.error("Monitorul Oficial fetch failed: %s", e)
 
-    score_pending(conn)
+    score_pending(conn, limit=500)
     export_json(conn)
 
     conn.close()
