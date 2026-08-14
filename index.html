@@ -995,13 +995,17 @@ footer {
   font-size: 22px;
   font-weight: 700;
   color: var(--text);
-  line-height: 1.3;
+  line-height: 1.35;
   margin-bottom: .5rem;
 }
 .hero-headline-q {
-  font-weight: 300;
-  color: var(--sub);
+  display: block;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgba(255,255,255,.75);
+  margin-bottom: .2rem;
 }
+.hero-headline-a { display: block; }
 .hero-sub { font-size: 14px; color: var(--sub); line-height: 1.6; }
 .hero-right { flex: 1; display: flex; gap: 1.5rem; justify-content: flex-end; }
 .hero-stat {
@@ -1095,7 +1099,7 @@ footer {
 
 <header>
   <div class="logo">CivilGate</div>
-  <div class="header-sub">live government data &mdash; eu &middot; us &middot; uk &middot; ca &middot; au</div>
+  <div class="header-sub">Tracking EU, US and UK governments daily</div>
   <div class="header-right">
     <div class="live-indicator">
       <div class="live-dot"></div>
@@ -1109,7 +1113,7 @@ footer {
 
 <div class="hero-strip">
   <div class="hero-left">
-    <div class="hero-headline"><span class="hero-headline-q">Is the world getting better or worse?</span> Here&rsquo;s what governments are actually doing.</div>
+    <div class="hero-headline"><span class="hero-headline-q">Is the world getting better or worse?</span><span class="hero-headline-a">Here&rsquo;s what governments are actually doing.</span></div>
     <div class="hero-sub">CivilGate scores government policy across EU, US and UK on social, environmental and economic impact &mdash; from &minus;10 harmful to +10 beneficial &mdash; so you can see what&rsquo;s changing and where things are heading.</div>
   </div>
   <div class="hero-right">
@@ -1131,13 +1135,13 @@ footer {
 <div class="happening-section" id="happening-section" style="display:none">
   <div class="happening-header">
     <span class="happening-label">Happening Now</span>
-    <span class="happening-sub">Bills and proposals currently moving through legislature</span>
+    <span class="happening-sub">These could become law soon &mdash; here&rsquo;s what&rsquo;s moving right now</span>
   </div>
   <div class="happening-scroll" id="happening-scroll"></div>
 </div>
 
 <div class="map-section">
-  <div class="map-header">click a region to filter</div>
+  <div class="map-header">WHERE DO YOU LIVE?</div>
   <svg id="world-map"></svg>
   <div class="map-legend">
     <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
@@ -1151,7 +1155,7 @@ footer {
 
 <div class="trend-section">
   <div class="trend-header">
-    <span id="trend-title">avg impact score</span>
+    <span id="trend-title">are things getting better or worse?</span>
     <div class="trend-sub">Score range: &minus;10 (harmful) &middot; 0 (neutral) &middot; +10 (beneficial) &middot; Only policies scoring &plusmn;4 or above shown</div>
   </div>
   <svg id="trend-chart"></svg>
@@ -1159,17 +1163,17 @@ footer {
 </div>
 
 <div class="movers-section">
-  <div class="movers-header">biggest movers &mdash; last 30 days</div>
+  <div class="movers-header">WHAT SHIFTED MOST THIS MONTH?</div>
   <div class="movers-grid" id="movers-grid"><div class="mover-empty">Loading&hellip;</div></div>
 </div>
 
 <div class="controls">
   <nav class="nav-bar" id="nav-bar">
-    <button class="nav-btn active" data-nav="live">What&rsquo;s happening now?</button>
+    <button class="nav-btn active" data-nav="live">What&rsquo;s being voted on?</button>
     <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="enacted">Just became law</button>
+    <button class="nav-btn" data-nav="enacted">What just passed?</button>
     <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="comment">Open for comment</button>
+    <button class="nav-btn" data-nav="comment">Have your say</button>
     <span class="nav-sep">&middot;</span>
     <button class="nav-btn" data-nav="eu">EU</button>
     <span class="nav-sep">&middot;</span>
@@ -1245,16 +1249,16 @@ footer {
     <button class="modal-close" id="about-modal-close">&times;</button>
     <div class="modal-title">About CivilGate</div>
     <div class="about-section">
-      <div class="about-q">What is CivilGate?</div>
-      <div class="about-a">CivilGate tracks government policy across the EU, US and UK. Every policy is scored by AI on its real-world impact &mdash; not how it&rsquo;s officially described.</div>
+      <div class="about-q">Why does this exist?</div>
+      <div class="about-a">Most of us have a vague feeling that something is off &mdash; that decisions are being made that will affect our lives, but it&rsquo;s hard to know what&rsquo;s actually happening. CivilGate tracks government policy across the EU, US and UK and scores its real-world impact, so you can see what&rsquo;s changing and where things are heading.</div>
     </div>
     <div class="about-section">
-      <div class="about-q">How does scoring work?</div>
+      <div class="about-q">What do the scores mean?</div>
       <div class="about-a">Each policy gets a score from &minus;10 to +10 across five dimensions: Social, Environmental, Economic, Human Rights, and Governance. 0 means no meaningful effect. &plusmn;5 means significant real-world impact. &plusmn;9&ndash;10 means transformative or landmark change.</div>
     </div>
     <div class="about-section">
-      <div class="about-q">Where does the data come from?</div>
-      <div class="about-a">Official government sources: US Congress (congress.gov), EUR-Lex (EU), and UK Parliament. Updated daily.</div>
+      <div class="about-q">How do we know this is accurate?</div>
+      <div class="about-a">All data comes directly from official government sources: US Congress (congress.gov), EUR-Lex (EU legislation register), and UK Parliament. Summaries and impact scores are generated by AI based on the actual policy text &mdash; not headlines or press releases. Updated daily.</div>
     </div>
   </div>
 </div>
@@ -1580,8 +1584,8 @@ function renderTrend(policies) {
     const NAV_LABEL = { eu: 'EU', us: 'USA', uk: 'UK', ca: 'Canada', au: 'Australia' };
     const regionPfx = NAV_LABEL[activeNav] ? ` — ${NAV_LABEL[activeNav]}` : '';
     titleEl.textContent = months.length > 1
-      ? `avg impact score${regionPfx} (significant policies) — ${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
-      : `avg impact score${regionPfx} (significant policies) — ${fmtM(months[0])}`;
+      ? `are things getting better or worse?${regionPfx} — ${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
+      : `are things getting better or worse?${regionPfx} — ${fmtM(months[0])}`;
   }
 
   const series = SCORES.map(({ key, label, color }) => ({
@@ -1844,10 +1848,10 @@ function renderHappeningNow(policies) {
 }
 
 function statusBadge(status) {
-  if (status === 'enacted')          return '<span class="status-badge enacted">ENACTED</span>';
-  if (status === 'proposed')         return '<span class="status-badge proposed">PROPOSED</span>';
-  if (status === 'decision')         return '<span class="status-badge decision">DECISION</span>';
-  if (status === 'open_for_comment') return '<span class="status-badge open_for_comment">OPEN FOR COMMENT</span>';
+  if (status === 'enacted')          return '<span class="status-badge enacted">NOW LAW</span>';
+  if (status === 'proposed')         return '<span class="status-badge proposed">BEING VOTED ON</span>';
+  if (status === 'decision')         return '<span class="status-badge decision">DECIDED</span>';
+  if (status === 'open_for_comment') return '<span class="status-badge open_for_comment">HAVE YOUR SAY</span>';
   return '';
 }
 
@@ -2017,8 +2021,8 @@ function renderGrid() {
         </div>
       </div>
       <div class="card-more-content">
-        ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">source &rarr;</a>` : ''}
-        <button class="contact-btn" data-policy='${policyData}'>contact rep &rarr;</button>
+        ${p.url ? `<a class="card-link" href="${p.url}" target="_blank" rel="noopener">Read the original</a>` : ''}
+        <button class="contact-btn" data-policy='${policyData}'>Contact your representative</button>
       </div>
     </div>`;
   }).join('');
