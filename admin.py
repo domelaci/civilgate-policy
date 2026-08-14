@@ -67,12 +67,16 @@ def get_stats():
         GROUP BY scored_by ORDER BY n DESC
     """).fetchall()
 
-    daily = conn.execute("""
-        SELECT DATE(scored_at) AS day, COUNT(*) AS n
+    buckets_48h = conn.execute("""
+        SELECT
+          strftime('%Y-%m-%dT%H:', scored_at) ||
+          printf('%02d', (CAST(strftime('%M', scored_at) AS INTEGER) / 10) * 10) AS bucket,
+          COUNT(*) AS n
         FROM policies
-        WHERE summary IS NOT NULL AND scored_at IS NOT NULL
-          AND scored_at >= datetime('now', '-30 days')
-        GROUP BY day ORDER BY day
+        WHERE summary IS NOT NULL
+          AND scored_at >= datetime('now', '-48 hours')
+        GROUP BY bucket
+        ORDER BY bucket
     """).fetchall()
 
     # per-minute rate: items scored in the last 5 minutes
@@ -105,7 +109,7 @@ def get_stats():
         "by_source": [dict(r) for r in by_source],
         "by_version": [dict(r) for r in by_version],
         "by_provider": [dict(r) for r in by_provider],
-        "daily": [dict(r) for r in daily],
+        "buckets_48h": [dict(r) for r in buckets_48h],
         "recent": [dict(r) for r in recent],
         "social_dist": buckets,
         "rate_5min": rate,
@@ -224,8 +228,8 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
   <span id="updated"></span>
 </div>
 
-<h2>Scored per day (last 30 days)</h2>
-<div id="daily-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:24px"></div>
+<h2>Scoring rate — last 48 h (10-min buckets)</h2>
+<div id="rate-chart" style="margin-bottom:24px"></div>
 
 <h2>By source</h2>
 <table id="sources-table">
@@ -297,22 +301,81 @@ async function refresh(){
     `<tr><td class="bright">${r.ver}</td><td>${r.n.toLocaleString()}</td></tr>`
   ).join('');
 
-  // Daily throughput chart
-  if (stats.daily && stats.daily.length) {
-    const maxDay = Math.max(...stats.daily.map(r => r.n));
-    const today = new Date().toISOString().slice(0,10);
-    document.getElementById('daily-chart').innerHTML = stats.daily.map(r => {
-      const h = Math.max(4, Math.round(76 * r.n / maxDay));
-      const isToday = r.day === today;
-      return `<div title="${r.day}: ${r.n.toLocaleString()} scored" style="flex:1;min-width:4px;height:${h}px;
-        background:${isToday?'#7F77DD':'#1D9E75'};border-radius:2px 2px 0 0;cursor:default;
-        position:relative" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'"></div>`;
-    }).join('') + `<style>#daily-chart div:hover::after{content:attr(title);position:absolute;
-      bottom:110%;left:50%;transform:translateX(-50%);background:#1f2937;color:#e5e7eb;
-      font-size:10px;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:9}</style>`;
-  } else {
-    document.getElementById('daily-chart').textContent = 'No data yet';
-  }
+  // 48h rate line chart
+  (function() {
+    const raw = stats.buckets_48h || [];
+    const W = document.getElementById('rate-chart').clientWidth || 900;
+    const H = 110, pad = {t:8, r:8, b:28, l:36};
+    const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+
+    // Fill every 10-min slot for the last 48h (288 slots)
+    const now = new Date();
+    now.setSeconds(0, 0);
+    now.setMinutes(Math.floor(now.getMinutes()/10)*10);
+    const slots = [];
+    for (let i = 287; i >= 0; i--) {
+      const d = new Date(now - i * 10 * 60000);
+      const key = d.toISOString().slice(0,13) + ':' + String(Math.floor(d.getMinutes()/10)*10).padStart(2,'0');
+      slots.push({key, n: 0});
+    }
+    const lookup = Object.fromEntries(raw.map(r => [r.bucket, r.n]));
+    slots.forEach(s => { if (lookup[s.key]) s.n = lookup[s.key]; });
+
+    const maxN = Math.max(...slots.map(s => s.n), 1);
+    const xStep = cw / (slots.length - 1);
+
+    const pts = slots.map((s, i) => {
+      const x = pad.l + i * xStep;
+      const y = pad.t + ch - (s.n / maxN) * ch;
+      return [x, y, s];
+    });
+
+    // Area fill path
+    const linePts = pts.map(([x,y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+    const areaPath = `M${pad.l},${pad.t+ch} ` +
+      pts.map(([x,y]) => `L${x.toFixed(1)},${y.toFixed(1)}`).join(' ') +
+      ` L${(pad.l+cw).toFixed(1)},${pad.t+ch} Z`;
+
+    // X-axis labels: every 6h
+    const xLabels = [];
+    slots.forEach((s, i) => {
+      if (s.key.endsWith(':00') && (new Date(s.key.replace('T','') + ':00Z').getUTCHours() % 6 === 0)) {
+        const d = new Date(s.key.replace('T',' ') + ':00Z');
+        const label = d.toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        xLabels.push(`<text x="${(pad.l + i*xStep).toFixed(1)}" y="${H-6}" fill="#4b5563" font-size="9" text-anchor="middle">${label}</text>`);
+      }
+    });
+
+    // Y-axis labels
+    const yLabels = [0, Math.round(maxN/2), maxN].map(v => {
+      const y = pad.t + ch - (v/maxN)*ch;
+      return `<text x="${pad.l-4}" y="${y.toFixed(1)}" fill="#4b5563" font-size="9" text-anchor="end" dominant-baseline="middle">${v}</text>`;
+    });
+
+    // Invisible hover rects for tooltips
+    const hoverRects = pts.map(([x, y, s], i) => {
+      const bx = (x - xStep/2).toFixed(1), bw = xStep.toFixed(1);
+      return `<rect x="${bx}" y="${pad.t}" width="${bw}" height="${ch}" fill="transparent">
+        <title>${s.key.replace('T',' ')}: ${s.n} scored</title></rect>`;
+    }).join('');
+
+    document.getElementById('rate-chart').innerHTML = `
+    <svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <defs>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#7F77DD" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#7F77DD" stop-opacity="0.03"/>
+        </linearGradient>
+      </defs>
+      <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ch}" stroke="#1f2937" stroke-width="1"/>
+      <line x1="${pad.l}" y1="${pad.t+ch}" x2="${pad.l+cw}" y2="${pad.t+ch}" stroke="#1f2937" stroke-width="1"/>
+      ${yLabels.join('')}
+      <path d="${areaPath}" fill="url(#areaGrad)"/>
+      <polyline points="${linePts}" fill="none" stroke="#7F77DD" stroke-width="1.5" stroke-linejoin="round"/>
+      ${xLabels.join('')}
+      ${hoverRects}
+    </svg>`;
+  })();
 
   const providerColors = {gemini:'bar-gemini',groq:'bar-groq',deepseek:'bar-deepseek',mistral:'bar-mistral',unknown:'bar-unknown'};
   const maxProv = Math.max(...stats.by_provider.map(r=>r.n), 1);
