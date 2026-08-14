@@ -1502,14 +1502,15 @@ function badgeClass(country, source) {
 
 function badgeLabel(source) {
   return {
-    federal_register: 'FED. REGISTER',
-    ec_press:         'EC PRESS',
-    eurlex:           'EUR-LEX',
-    uk_gov:           'GOV.UK',
-    uk_parliament:    'UK PARL.',
-    canada_gazette:   'CA GAZETTE',
-    au_legislation:          'AU LEG.',
-    ro_monitorul_oficial:    'MONITORUL OF.',
+    federal_register:     'FED. REGISTER',
+    congress:             'CONGRESS',
+    ec_press:             'EC PRESS',
+    eurlex:               'EUR-LEX',
+    uk_gov:               'GOV.UK',
+    uk_parliament:        'UK PARL.',
+    canada_gazette:       'CA GAZETTE',
+    au_legislation:       'AU LEG.',
+    ro_monitorul_oficial: 'MONITORUL OF.',
   }[source] || source.toUpperCase();
 }
 

@@ -208,7 +208,8 @@ def fetch_federal_register(conn: sqlite3.Connection, max_new: int = 20) -> int:
 
 # ── EUR-Lex CELLAR fetcher ─────────────────────────────────────────────────
 
-# L-series OJ only (laws in force: regulations, directives, decisions)
+# Enacted EU laws — cdm:regulation/directive/decision types map naturally to OJ L-series
+# (the oj_sector property is not indexed on SPARQL; type filter is sufficient)
 EURLEX_SPARQL_ENACTED = """\
 SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
   VALUES ?type {{
@@ -218,15 +219,14 @@ SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
   }}
   ?work a ?type ;
         <http://publications.europa.eu/ontology/cdm#work_date_document> ?date ;
-        <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex ;
-        <http://publications.europa.eu/ontology/cdm#resource_legal_published_in_official-journal_sector> ?oj_sector .
+        <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex .
   OPTIONAL {{
     ?expr <http://publications.europa.eu/ontology/cdm#expression_belongs_to_work> ?work ;
           <http://publications.europa.eu/ontology/cdm#expression_uses_language>
             <http://publications.europa.eu/resource/authority/language/ENG> ;
           <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
   }}
-  FILTER(?date >= "{since}"^^xsd:date && CONTAINS(STR(?oj_sector), "/L/"))
+  FILTER(?date >= "{since}"^^xsd:date)
 }} ORDER BY DESC(?date) LIMIT {limit}
 """
 
@@ -955,7 +955,7 @@ def export_json(conn: sqlite3.Connection) -> None:
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies
             WHERE summary IS NOT NULL
-            ORDER BY published_date DESC LIMIT 500""",
+            ORDER BY published_date DESC LIMIT 5000""",
     ).fetchall()
 
     out = []
