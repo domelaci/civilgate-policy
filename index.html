@@ -140,13 +140,15 @@ header {
 }
 
 .map-header {
-  padding: .6rem 2rem;
+  padding: .6rem 2rem .6rem calc(2rem - 2px);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 16px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
+  letter-spacing: .1em;
+  color: #fff;
   border-bottom: 1px solid var(--border);
+  border-left: 2px solid #1D9E75;
+  margin-top: 1.5rem;
 }
 
 #world-map {
@@ -214,8 +216,41 @@ header {
 }
 .nav-btn:hover { color: rgba(255,255,255,.9); }
 .nav-btn.active { color: #fff; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.nav-btn[data-nav="eu"].active,
+.nav-btn[data-nav="us"].active,
+.nav-btn[data-nav="uk"].active {
+  background: rgba(255,255,255,.10);
+  border-radius: 4px;
+  padding: .2rem .5rem;
+  text-decoration: none;
+}
 .nav-sep { color: var(--border2); font-size: 13px; user-select: none; }
 .nav-chips { display: flex; gap: .3rem; align-items: center; }
+
+/* ── Region filter banner ── */
+.region-banner {
+  padding: .45rem 2rem;
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: rgba(255,255,255,.55);
+}
+.region-banner strong { color: #fff; font-weight: 500; }
+.region-banner-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.region-banner-clear:hover { color: #fff; }
 
 .search-wrap {
   position: relative;
@@ -558,21 +593,23 @@ footer {
   padding: .6rem 0 .8rem;
 }
 .happening-header {
-  padding: .2rem 2rem .5rem;
+  padding: .5rem 2rem .6rem calc(2rem - 2px);
   display: flex;
   align-items: baseline;
   gap: 1rem;
+  border-left: 2px solid #1D9E75;
+  margin-top: 1.5rem;
 }
 .happening-label {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 16px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
+  letter-spacing: .1em;
+  color: #fff;
 }
 .happening-sub {
-  font-size: 11px;
-  color: var(--muted);
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
 }
 .happening-scroll {
   display: flex;
@@ -645,17 +682,19 @@ footer {
 }
 
 .trend-header {
-  padding: .6rem 2rem;
+  padding: .6rem 2rem .6rem calc(2rem - 2px);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 16px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
+  letter-spacing: .1em;
+  color: #fff;
   border-bottom: 1px solid var(--border);
+  border-left: 2px solid #1D9E75;
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: .3rem;
+  gap: .4rem;
 }
 
 
@@ -680,13 +719,15 @@ footer {
 }
 
 .movers-header {
-  padding: .6rem 2rem;
+  padding: .6rem 2rem .6rem calc(2rem - 2px);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 16px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
+  letter-spacing: .1em;
+  color: #fff;
   border-bottom: 1px solid var(--border);
+  border-left: 2px solid #1D9E75;
+  margin-top: 1.5rem;
 }
 
 .movers-grid {
@@ -1039,11 +1080,10 @@ footer {
 /* ── Trend subline ── */
 .trend-sub {
   font-family: var(--mono);
-  font-size: 9px;
-  color: var(--muted);
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
   letter-spacing: .3px;
   text-transform: none;
-  opacity: .7;
 }
 
 /* ── Happening excerpt ── */
@@ -1195,6 +1235,8 @@ footer {
   </div>
   <div class="results-count" id="results-count"></div>
 </div>
+
+<div id="region-banner"></div>
 
 <main>
   <div class="policy-grid" id="policy-grid">
@@ -1872,6 +1914,26 @@ function setScore(scoreKey) {
   renderGrid();
 }
 
+const REGION_DISPLAY = { eu: 'European Union', us: 'United States', uk: 'United Kingdom' };
+
+function renderRegionBanner() {
+  const banner = document.getElementById('region-banner');
+  if (!banner) return;
+  const name = REGION_DISPLAY[activeNav];
+  if (!name) { banner.innerHTML = ''; return; }
+  banner.innerHTML = `<span>Showing <strong>${name}</strong> policies</span><button class="region-banner-clear" id="region-banner-clear">Clear filter</button>`;
+  document.getElementById('region-banner-clear').addEventListener('click', () => {
+    activeNav = 'all';
+    document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('#nav-bar .nav-btn[data-nav="all"]').classList.add('active');
+    _selectedEuCountry = null;
+    zoomMapToRegion(null);
+    syncMapFills();
+    renderGrid();
+    renderTrend(allPolicies);
+  });
+}
+
 function renderTagChip() {
   const wrap = document.getElementById('tag-chip-wrap');
   if (!activeTag) { wrap.innerHTML = ''; return; }
@@ -1891,6 +1953,7 @@ function renderScoreChip() {
 function renderGrid() {
   const grid  = document.getElementById('policy-grid');
   const count = document.getElementById('results-count');
+  renderRegionBanner();
   renderTagChip();
   renderScoreChip();
 
