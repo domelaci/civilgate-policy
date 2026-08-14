@@ -202,7 +202,7 @@ def rescore_batch(conn: sqlite3.Connection, batch_size: int) -> int:
         """SELECT id, raw_text FROM policies
            WHERE summary IS NOT NULL
              AND (scorer_version IS NULL OR scorer_version IN ('v1', 'v2'))
-           ORDER BY published_date DESC
+           ORDER BY RANDOM()
            LIMIT ?""",
         (batch_size,),
     ).fetchall()
@@ -276,9 +276,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch", type=int, default=500, help="Items per batch before export+push")
+    parser.add_argument("--no-push", action="store_true", help="Skip export+push (use for worker instances)")
     args = parser.parse_args()
 
     conn = sqlite3.connect(DB_FILE)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=10000")
 
     total_old = conn.execute(
         "SELECT COUNT(*) FROM policies WHERE summary IS NOT NULL "
@@ -301,8 +304,9 @@ if __name__ == "__main__":
         grand_total += done
         log.info("Batch complete: %d rescored, %d total so far", done, grand_total)
 
-        export_json(conn)
-        push_to_github()
+        if not args.no_push:
+            export_json(conn)
+            push_to_github()
         time.sleep(5)
 
     conn.close()

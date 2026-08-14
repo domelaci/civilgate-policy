@@ -366,7 +366,82 @@ def fetch_uk_gov(conn: sqlite3.Connection, max_new: int = 10) -> int:
     return added
 
 
-# ── Canada Gazette fetcher ─────────────────────────────────────────────────
+# ── LEGISinfo (Canada) fetcher ────────────────────────────────────────────
+
+def fetch_legisinfo(conn: sqlite3.Connection, max_new: int = 30,
+                    session: str = "44-1") -> int:
+    """Fetch Canadian bills from LEGISinfo JSON API for the given parliament session."""
+    _ENACTED  = {"royal assent received", "royal assent"}
+    _SKIP     = {"bill defeated", "bill not proceeded with",
+                 "outside the order of precedence", "introduced as pro forma bill"}
+    try:
+        r = requests.get(
+            "https://www.parl.ca/legisinfo/en/bills/json",
+            params={"parlSession": session},
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)",
+                     "Accept": "application/json"},
+        )
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        log.error("LEGISinfo fetch failed (session=%s): %s", session, e)
+        return 0
+
+    bills = data if isinstance(data, list) else []
+    added = 0
+    for bill in bills:
+        status_raw = (bill.get("StatusNameEn") or "").lower()
+        if status_raw in _SKIP:
+            continue
+        status = "enacted" if status_raw in _ENACTED else "proposed"
+
+        bill_id = str(bill.get("Id") or "").strip()
+        if not bill_id:
+            continue
+        num_code = (bill.get("NumberCode") or bill_id).strip()
+        ext_id = f"legisinfo:{session}:{bill_id}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title  = ((bill.get("ShortTitleEn") or "").strip()
+                  or (bill.get("LongTitleEn") or "").strip()
+                  or num_code)
+        long_t = (bill.get("LongTitleEn") or "").strip()
+
+        raw_dt = (bill.get("ReceivedRoyalAssentDateTime") or
+                  bill.get("LatestBillEventDateTime") or "")
+        pub_date = (raw_dt[:10]
+                    if raw_dt and raw_dt[:4].isdigit() and raw_dt[:4] != "0001"
+                    else date.today().isoformat())
+
+        url = f"https://www.parl.ca/LegisInfo/en/bill/{session}/{num_code}"
+        raw = "\n".join(filter(None, [
+            f"Title: {title}",
+            f"Long title: {long_t}" if long_t else None,
+            f"Session: {session}",
+            f"Bill: {num_code}",
+            f"Status: {bill.get('StatusNameEn', '')}",
+        ]))
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date,
+                raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("legisinfo", "CA", ext_id, title, url, pub_date,
+             date.today().isoformat(), raw, status, "national"),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("LEGISinfo (session=%s): %d new bills", session, added)
+    return added
+
+
+# ── Canada Gazette fetcher (kept for historical records) ───────────────────
 
 def fetch_canada_gazette(conn: sqlite3.Connection, max_new: int = 10) -> int:
     import xml.etree.ElementTree as ET
@@ -470,6 +545,79 @@ def fetch_australia_legislation(conn: sqlite3.Connection, max_new: int = 10) -> 
 
     conn.commit()
     log.info("Australia legislation: %d new documents", added)
+    return added
+
+
+# ── APH (Australian Parliament House) bills fetcher ───────────────────────
+
+def fetch_aph_bills(conn: sqlite3.Connection, max_new: int = 30,
+                    parliament: int = 47) -> int:
+    """Fetch government bills from APH Bills API."""
+    _ENACTED  = {"passed", "royal assent", "act of parliament"}
+    _PROPOSED = {"before senate", "before house of representatives",
+                 "before house", "consideration in detail"}
+    try:
+        r = requests.get(
+            "https://www.aph.gov.au/api/Bills/SearchBills",
+            params={
+                "pageSize": 50, "pageNumber": 1,
+                "sortOrder": "lastUpdated",
+                "billType": "Government",
+                "parliament": parliament,
+            },
+            timeout=30,
+            headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)",
+                     "Accept": "application/json"},
+        )
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        log.error("APH bills fetch failed (parliament=%d): %s", parliament, e)
+        return 0
+
+    bills = (data.get("results") or data.get("bills") or
+             (data if isinstance(data, list) else []))
+    added = 0
+    for bill in bills:
+        bill_id = (bill.get("billId") or bill.get("id") or "").strip()
+        if not bill_id:
+            continue
+        ext_id = f"aph:{parliament}:{bill_id}"
+        if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
+            continue
+
+        title      = (bill.get("title") or bill.get("shortTitle") or bill_id).strip()
+        raw_status = (bill.get("billStatus") or bill.get("status") or "").lower()
+        status = ("enacted"  if any(s in raw_status for s in _ENACTED)
+                  else "proposed" if any(s in raw_status for s in _PROPOSED)
+                  else None)
+        if not status:
+            continue
+
+        pub_date = (bill.get("lastUpdated") or bill.get("introducedDate") or
+                    date.today().isoformat())[:10]
+        url = (bill.get("url") or
+               f"https://www.aph.gov.au/Parliamentary_Business/Bills_LEGislation/Bills_Search_Results/Result?bId={bill_id}")
+        raw = "\n".join(filter(None, [
+            f"Title: {title}",
+            f"Parliament: {parliament}",
+            f"Status: {raw_status}",
+        ]))
+
+        conn.execute(
+            """INSERT OR IGNORE INTO policies
+               (source, country, external_id, title, url, published_date, fetched_date,
+                raw_text, status, level)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            ("aph", "AU", ext_id, title, url, pub_date,
+             date.today().isoformat(), raw, status, "national"),
+        )
+        added += 1
+        if added >= max_new:
+            break
+
+    conn.commit()
+    log.info("APH (parliament=%d): %d new bills", parliament, added)
     return added
 
 
@@ -1272,8 +1420,9 @@ def main() -> None:
     fetch_uk_gov(conn)
     fetch_uk_parliament(conn)
     fetch_legislation_gov_uk(conn)
-    fetch_canada_gazette(conn)
+    fetch_legisinfo(conn)
     fetch_australia_legislation(conn)
+    # fetch_aph_bills(conn)  — APH API is WAF-blocked; legislation.gov.au covers AU Acts
     fetch_live_congress(conn)
     fetch_live_eurlex(conn)
     fetch_live_uk_bills(conn)
