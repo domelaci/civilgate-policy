@@ -338,7 +338,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: .3rem;
-  height: 280px;
+  height: 310px;
   overflow: hidden;
   transition: border-color .15s;
 }
@@ -433,7 +433,7 @@ main {
 .card-date {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--muted);
+  color: rgba(255,255,255,.6);
   white-space: nowrap;
 }
 
@@ -446,6 +446,7 @@ main {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .card-reason {
@@ -467,12 +468,13 @@ main {
 }
 .score-chip {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: .3px;
-  padding: 2px 5px;
+  padding: 2px 6px;
   border-radius: 3px;
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
   white-space: nowrap;
 }
 
@@ -483,6 +485,8 @@ main {
   justify-content: space-between;
   margin-top: auto;
   gap: .5rem;
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding-top: .5rem;
 }
 .card-bottom-right {
   display: flex;
@@ -493,7 +497,7 @@ main {
 .card-more-btn {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--muted);
+  color: rgba(255,255,255,.6);
   background: none;
   border: none;
   cursor: pointer;
@@ -537,11 +541,11 @@ main {
 
 .tag {
   font-family: var(--mono);
-  font-size: 10px;
-  color: var(--muted);
-  border: 1px solid var(--border);
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.15);
   border-radius: 3px;
-  padding: 1px 6px;
+  padding: 2px 8px;
   cursor: pointer;
   transition: color .12s, border-color .12s;
   user-select: none;
@@ -552,16 +556,16 @@ main {
 
 .card-link {
   font-family: var(--mono);
-  font-size: 10px;
-  color: var(--muted);
+  font-size: 12px;
+  color: #1D9E75;
   letter-spacing: .5px;
   display: inline-flex;
   align-items: center;
   gap: .3rem;
-  margin-top: auto;
   transition: color .12s;
+  text-decoration: none;
 }
-.card-link:hover { color: var(--text); }
+.card-link:hover { color: #5DCAA5; }
 
 /* ── Empty/loading ── */
 .state-msg {
@@ -1008,8 +1012,8 @@ footer {
 
 .contact-btn {
   font-family: var(--mono);
-  font-size: 10px;
-  color: var(--muted);
+  font-size: 12px;
+  color: #1D9E75;
   letter-spacing: .5px;
   background: none;
   border: none;
@@ -1017,7 +1021,7 @@ footer {
   transition: color .12s;
   padding: 0;
 }
-.contact-btn:hover { color: var(--accent); }
+.contact-btn:hover { color: #5DCAA5; }
 
 .rep-status {
   font-family: var(--mono);
@@ -1906,6 +1910,11 @@ function scoreDisplay(score) {
   return (score > 0 ? '+' : '') + score;
 }
 
+function countryBadge(country) {
+  const loc = LOCATIONS.find(l => l.db_country_code === country);
+  return loc ? `${loc.flag_emoji} ${loc.nav_label}` : country;
+}
+
 function badgeClass(country, source) {
   if (country === 'EU') return 'eu';
   if (country === 'US') return 'us';
@@ -2160,7 +2169,7 @@ function renderGrid() {
 
     return `<div class="policy-card" style="background:linear-gradient(160deg,#111827 55%,${tint})">
       <div class="card-badges">
-        <span class="source-badge ${badgeClass(p.country, p.source)}">${badgeLabel(p.source)}</span>
+        <span class="source-badge ${badgeClass(p.country, p.source)}">${countryBadge(p.country)}</span>
         ${statusBadge(p.status)}${scopeBadge(p.scope)}
       </div>
       <div class="hero-score-row">

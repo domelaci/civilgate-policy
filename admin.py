@@ -496,7 +496,8 @@ async function refresh(){
 
   function renderDist(elId, data, color) {
     const maxBar = Math.max(...Object.values(data), 1);
-    document.getElementById(elId).innerHTML = Object.entries(data).map(([k,v]) =>
+    const sorted = Object.entries(data).sort((a, b) => +b[0] - +a[0]);
+    document.getElementById(elId).innerHTML = sorted.map(([k,v]) =>
       `<div class="bar-row"><span class="bar-label">${+k>0?'+'+k:k}</span>
        <div class="bar" style="width:${Math.round(150*v/maxBar)}px;background:${color}"></div>
        <span class="bar-count">${v}</span></div>`
