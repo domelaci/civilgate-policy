@@ -2331,8 +2331,36 @@ function initAboutModal() {
   });
 }
 
+const EU_MEMBER_CODES = new Set(['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE']);
+
+async function detectRegion() {
+  const cached = sessionStorage.getItem('cg_region');
+  if (cached) { _applyRegionNav(cached); return; }
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 1500);
+    const r    = await fetch('https://ipapi.co/json/', { signal: ctrl.signal });
+    clearTimeout(tid);
+    const d  = await r.json();
+    const cc = (d.country_code || '').toUpperCase();
+    const region = cc === 'US' ? 'us' : cc === 'GB' ? 'uk' : EU_MEMBER_CODES.has(cc) ? 'eu' : 'live';
+    sessionStorage.setItem('cg_region', region);
+    _applyRegionNav(region);
+  } catch { /* timeout or network error — keep default 'live' */ }
+}
+
+function _applyRegionNav(region) {
+  if (!region || region === 'live') return;
+  activeNav = region;
+  document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.nav === region)
+  );
+}
+
 async function init() {
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  await detectRegion();
 
   initContactRep();
   initAboutModal();
