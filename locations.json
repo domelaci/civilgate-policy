@@ -1,0 +1,57 @@
+[
+  {
+    "region_code": "eu",
+    "display_name": "European Union",
+    "flag_emoji": "🇪🇺",
+    "nav_label": "EU",
+    "world_region": "Europe",
+    "data_quality": "full",
+    "is_active": 1,
+    "sort_order": 1,
+    "db_country_code": "EU"
+  },
+  {
+    "region_code": "us",
+    "display_name": "United States",
+    "flag_emoji": "🇺🇸",
+    "nav_label": "US",
+    "world_region": "North America",
+    "data_quality": "full",
+    "is_active": 1,
+    "sort_order": 2,
+    "db_country_code": "US"
+  },
+  {
+    "region_code": "uk",
+    "display_name": "United Kingdom",
+    "flag_emoji": "🇬🇧",
+    "nav_label": "UK",
+    "world_region": "Europe",
+    "data_quality": "full",
+    "is_active": 1,
+    "sort_order": 3,
+    "db_country_code": "GB"
+  },
+  {
+    "region_code": "ca",
+    "display_name": "Canada",
+    "flag_emoji": "🇨🇦",
+    "nav_label": "CA",
+    "world_region": "North America",
+    "data_quality": "limited",
+    "is_active": 1,
+    "sort_order": 4,
+    "db_country_code": "CA"
+  },
+  {
+    "region_code": "au",
+    "display_name": "Australia",
+    "flag_emoji": "🇦🇺",
+    "nav_label": "AU",
+    "world_region": "Asia-Pacific",
+    "data_quality": "limited",
+    "is_active": 1,
+    "sort_order": 5,
+    "db_country_code": "AU"
+  }
+]

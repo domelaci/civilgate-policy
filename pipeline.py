@@ -17,9 +17,10 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).parent
-DB_FILE  = BASE_DIR / "policies.db"
-OUT_FILE = BASE_DIR / "policies.json"
+BASE_DIR        = Path(__file__).parent
+DB_FILE         = BASE_DIR / "policies.db"
+OUT_FILE        = BASE_DIR / "policies.json"
+LOCATIONS_FILE  = BASE_DIR / "locations.json"
 
 load_dotenv(BASE_DIR / ".env")
 GEMINI_API_KEY   = os.environ.get("GEMINI_API_KEY", "")
@@ -77,6 +78,22 @@ def init_db(conn: sqlite3.Connection) -> None:
         countries  TEXT,
         active     BOOLEAN DEFAULT TRUE
     );
+    CREATE TABLE IF NOT EXISTS locations (
+        region_code      TEXT PRIMARY KEY,
+        display_name     TEXT NOT NULL,
+        flag_emoji       TEXT NOT NULL,
+        nav_label        TEXT NOT NULL,
+        world_region     TEXT NOT NULL,
+        data_quality     TEXT NOT NULL DEFAULT 'full',
+        is_active        INTEGER NOT NULL DEFAULT 1,
+        sort_order       INTEGER NOT NULL DEFAULT 99,
+        db_country_code  TEXT NOT NULL DEFAULT ''
+    );
+    INSERT OR IGNORE INTO locations VALUES ('eu','European Union', '🇪🇺','EU','Europe',       'full',   1,1,'EU');
+    INSERT OR IGNORE INTO locations VALUES ('us','United States',  '🇺🇸','US','North America','full',   1,2,'US');
+    INSERT OR IGNORE INTO locations VALUES ('uk','United Kingdom', '🇬🇧','UK','Europe',       'full',   1,3,'GB');
+    INSERT OR IGNORE INTO locations VALUES ('ca','Canada',         '🇨🇦','CA','North America','limited',1,4,'CA');
+    INSERT OR IGNORE INTO locations VALUES ('au','Australia',      '🇦🇺','AU','Asia-Pacific', 'limited',1,5,'AU');
     """)
     # Migration: add status column to existing databases
     try:
@@ -1427,6 +1444,16 @@ def export_json(conn: sqlite3.Connection) -> None:
     OUT_FILE.write_text(json.dumps(export, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("Exported %d policies to policies.json", len(out))
 
+    cursor = conn.execute(
+        "SELECT region_code,display_name,flag_emoji,nav_label,world_region,"
+        "data_quality,is_active,sort_order,db_country_code "
+        "FROM locations WHERE is_active=1 ORDER BY sort_order"
+    )
+    cols = [d[0] for d in cursor.description]
+    locations = [dict(zip(cols, row)) for row in cursor.fetchall()]
+    LOCATIONS_FILE.write_text(json.dumps(locations, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("Exported %d locations to locations.json", len(locations))
+
 
 # ── GitHub push ────────────────────────────────────────────────────────────
 
@@ -1502,7 +1529,10 @@ def main() -> None:
 
     conn.close()
 
-    push_to_github({"policies.json": OUT_FILE.read_bytes()})
+    push_to_github({
+        "policies.json":  OUT_FILE.read_bytes(),
+        "locations.json": LOCATIONS_FILE.read_bytes(),
+    })
     log.info("Pipeline complete.")
 
 

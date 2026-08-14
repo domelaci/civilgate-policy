@@ -1182,7 +1182,7 @@ footer {
     </div>
     <div class="hero-stat">
       <div class="hero-stat-label">regions</div>
-      <div class="hero-stat-val">EU &middot; US &middot; UK</div>
+      <div class="hero-stat-val" id="region-chip">EU &middot; US &middot; UK</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-label">updated</div>
@@ -1202,14 +1202,7 @@ footer {
 <div class="map-section">
   <div class="map-header">WHERE DO YOU LIVE?</div>
   <svg id="world-map"></svg>
-  <div class="map-legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Canada (limited)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Australia (limited)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#1a2535"></div>Coming soon</div>
-  </div>
+  <div class="map-legend" id="map-legend"></div>
 </div>
 
 <div class="trend-section">
@@ -1234,15 +1227,7 @@ footer {
     <span class="nav-sep">&middot;</span>
     <button class="nav-btn" data-nav="comment">Have your say</button>
     <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="eu">EU</button>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="us">US</button>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="uk">UK</button>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn nav-btn-limited" data-nav="ca" title="Limited data available">CA</button>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn nav-btn-limited" data-nav="au" title="Limited data available">AU</button>
+    <span id="region-nav-buttons"></span>
     <span class="nav-sep">&middot;</span>
     <button class="nav-btn" data-nav="all">Show everything</button>
   </nav>
@@ -1613,9 +1598,9 @@ function renderTrend(policies) {
   svg.selectAll('*').remove();
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  const NAV_COUNTRY = { eu: 'EU', us: 'US', uk: 'GB', ca: 'CA', au: 'AU' };
-  const regionPolicies = NAV_COUNTRY[activeNav]
-    ? policies.filter(p => p.country === NAV_COUNTRY[activeNav])
+  const activeLoc = LOCATIONS.find(l => l.region_code === activeNav);
+  const regionPolicies = activeLoc
+    ? policies.filter(p => p.country === activeLoc.db_country_code)
     : policies;
 
   // Dynamic x-axis: span only the months where data actually exists
@@ -1646,12 +1631,9 @@ function renderTrend(policies) {
   const titleEl = document.getElementById('trend-title');
   if (titleEl && months.length) {
     const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
-    const NAV_LABEL = { eu: 'EU', us: 'USA', uk: 'UK', ca: 'Canada', au: 'Australia' };
-    const NAV_FLAG  = { eu: '🇪🇺', us: '🇺🇸', uk: '🇬🇧', ca: '🇨🇦', au: '🇦🇺' };
-    const regionLabel = NAV_LABEL[activeNav];
-    const regionFlag  = NAV_FLAG[activeNav] || '';
-    const regionSpan  = regionLabel
-      ? ` · <span class="trend-region">${regionFlag} ${regionLabel}</span>`
+    const trendLoc   = LOCATIONS.find(l => l.region_code === activeNav);
+    const regionSpan = trendLoc
+      ? ` · <span class="trend-region">${trendLoc.flag_emoji} ${trendLoc.display_name}</span>`
       : '';
     const dateRange = months.length > 1
       ? `${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
@@ -1820,6 +1802,77 @@ function initTrend(policies) {
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
 
+// ── Locations ──────────────────────────────────────────────────────────────
+
+let LOCATIONS = [];
+
+async function loadLocations() {
+  try {
+    const res = await fetch('locations.json?v=' + Date.now());
+    LOCATIONS = await res.json();
+  } catch (e) {
+    console.warn('locations.json failed, using fallback', e);
+    LOCATIONS = [
+      { region_code:'eu', display_name:'European Union', flag_emoji:'🇪🇺', nav_label:'EU', world_region:'Europe',        data_quality:'full',    sort_order:1, db_country_code:'EU' },
+      { region_code:'us', display_name:'United States',  flag_emoji:'🇺🇸', nav_label:'US', world_region:'North America', data_quality:'full',    sort_order:2, db_country_code:'US' },
+      { region_code:'uk', display_name:'United Kingdom', flag_emoji:'🇬🇧', nav_label:'UK', world_region:'Europe',        data_quality:'full',    sort_order:3, db_country_code:'GB' },
+      { region_code:'ca', display_name:'Canada',         flag_emoji:'🇨🇦', nav_label:'CA', world_region:'North America', data_quality:'limited', sort_order:4, db_country_code:'CA' },
+      { region_code:'au', display_name:'Australia',      flag_emoji:'🇦🇺', nav_label:'AU', world_region:'Asia-Pacific',  data_quality:'limited', sort_order:5, db_country_code:'AU' },
+    ];
+  }
+}
+
+function getLocation(code) {
+  return LOCATIONS.find(l => l.region_code === code) || {
+    display_name: code.toUpperCase(), flag_emoji: '', nav_label: code.toUpperCase(),
+    world_region: 'Other', data_quality: 'limited', db_country_code: code.toUpperCase(),
+  };
+}
+
+function renderRegionChip() {
+  const seen = new Set();
+  const regions = [];
+  LOCATIONS
+    .filter(l => l.is_active !== 0)
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .forEach(l => { if (!seen.has(l.world_region)) { seen.add(l.world_region); regions.push(l.world_region); } });
+  const el = document.getElementById('region-chip');
+  if (el) el.textContent = regions.join(' · ');
+}
+
+const REGION_DOT_COLOR = { eu: 'var(--eu)', us: 'var(--us)', uk: 'var(--gb)' };
+
+function renderMapLegend() {
+  const legend = document.getElementById('map-legend');
+  if (!legend) return;
+  const rows = LOCATIONS
+    .filter(l => l.is_active !== 0)
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map(loc => {
+      const color  = REGION_DOT_COLOR[loc.region_code] || 'var(--border2)';
+      const label  = loc.data_quality === 'limited' ? `${loc.display_name} (limited)` : loc.display_name;
+      const style  = loc.data_quality === 'limited' ? ' style="opacity:.5"' : '';
+      return `<div class="legend-item"${style}><div class="legend-dot" style="background:${color}"></div>${loc.flag_emoji} ${label}</div>`;
+    });
+  rows.push('<div class="legend-item" style="background:#1a2535;border-radius:3px;padding:0 4px;opacity:.4">Coming soon</div>');
+  legend.innerHTML = rows.join('');
+}
+
+function renderNavButtons() {
+  const container = document.getElementById('region-nav-buttons');
+  if (!container) return;
+  const locs = LOCATIONS.filter(l => l.is_active !== 0).sort((a, b) => a.sort_order - b.sort_order);
+  container.innerHTML = locs.map((loc, i) => {
+    const limited = loc.data_quality === 'limited';
+    const cls     = limited ? 'nav-btn nav-btn-limited' : 'nav-btn';
+    const tip     = limited ? `${loc.display_name} — limited data` : loc.display_name;
+    const sep     = i < locs.length - 1 ? '<span class="nav-sep">&middot;</span>' : '';
+    return `<button class="${cls}" data-nav="${loc.region_code}" title="${tip}">${loc.flag_emoji} ${loc.nav_label}</button>${sep}`;
+  }).join('');
+}
+
+// ── Policy Feed ────────────────────────────────────────────────────────────
+
 let allPolicies   = [];
 let activeNav     = 'live';
 let searchQuery   = '';
@@ -1946,14 +1999,14 @@ function setScore(scoreKey) {
   renderGrid();
 }
 
-const REGION_DISPLAY = { eu: 'European Union', us: 'United States', uk: 'United Kingdom', ca: 'Canada', au: 'Australia' };
-
 function renderRegionBanner() {
   const banner = document.getElementById('region-banner');
   if (!banner) return;
-  const name = REGION_DISPLAY[activeNav];
-  if (!name) { banner.innerHTML = ''; return; }
-  banner.innerHTML = `<span>Showing <strong>${name}</strong> policies</span><button class="region-banner-clear" id="region-banner-clear">Clear filter</button>`;
+  const loc = LOCATIONS.find(l => l.region_code === activeNav);
+  if (!loc) { banner.innerHTML = ''; return; }
+  const limitedNote = loc.data_quality === 'limited'
+    ? ' <span style="opacity:.5;font-size:.8em">(limited data)</span>' : '';
+  banner.innerHTML = `<span>${loc.flag_emoji} Showing <strong>${loc.display_name}</strong>${limitedNote} policies</span><button class="region-banner-clear" id="region-banner-clear">Clear filter</button>`;
   document.getElementById('region-banner-clear').addEventListener('click', () => {
     activeNav = 'all';
     document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
@@ -2008,18 +2061,15 @@ function renderGrid() {
     list = list.filter(p => p.status === 'enacted' && (p.published_date || '') >= cutoff90);
   } else if (activeNav === 'comment') {
     list = list.filter(p => p.status === 'open_for_comment');
-  } else if (activeNav === 'eu') {
-    list = list.filter(p => p.level === 'eu');
-  } else if (activeNav === 'us') {
-    list = list.filter(p => p.country === 'US');
-  } else if (activeNav === 'uk') {
-    list = list.filter(p => p.country === 'GB');
-  } else if (activeNav === 'ca') {
-    list = list.filter(p => p.country === 'CA');
-  } else if (activeNav === 'au') {
-    list = list.filter(p => p.country === 'AU');
+  } else {
+    const filterLoc = LOCATIONS.find(l => l.region_code === activeNav);
+    if (filterLoc) {
+      list = activeNav === 'eu'
+        ? list.filter(p => p.level === 'eu')
+        : list.filter(p => p.country === filterLoc.db_country_code);
+    }
+    // 'all' and unknown modes: no filter
   }
-  // 'all': no filter
 
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
   if (searchQuery) {
@@ -2373,11 +2423,19 @@ async function detectRegion() {
     const tid  = setTimeout(() => ctrl.abort(), 1500);
     const r    = await fetch('https://ipapi.co/json/', { signal: ctrl.signal });
     clearTimeout(tid);
-    const d  = await r.json();
-    const cc = (d.country_code || '').toUpperCase();
-    const region = cc === 'US' ? 'us' : cc === 'GB' ? 'uk' : EU_MEMBER_CODES.has(cc) ? 'eu' : 'live';
-    sessionStorage.setItem('cg_region', region);
-    _applyRegionNav(region);
+    const d    = await r.json();
+    const cc   = (d.country_code || '').toUpperCase();
+    const validCodes = new Set(LOCATIONS.map(l => l.region_code));
+    let detected = 'live';
+    if      (cc === 'US')                detected = 'us';
+    else if (cc === 'GB')                detected = 'uk';
+    else if (cc === 'CA')                detected = 'ca';
+    else if (cc === 'AU')                detected = 'au';
+    else if (EU_MEMBER_CODES.has(cc))    detected = 'eu';
+    if (validCodes.has(detected)) {
+      sessionStorage.setItem('cg_region', detected);
+      _applyRegionNav(detected);
+    }
   } catch { /* timeout or network error — keep default 'live' */ }
 }
 
@@ -2392,6 +2450,11 @@ function _applyRegionNav(region) {
 async function init() {
   document.getElementById('year').textContent = new Date().getFullYear();
 
+  await loadLocations();
+  renderNavButtons();
+  renderRegionChip();
+  renderMapLegend();
+
   await detectRegion();
 
   initContactRep();
@@ -2405,8 +2468,8 @@ async function init() {
     _selectedEuCountry = null;
     document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const NAV_TO_MAP = { eu: 'EU', us: 'US', uk: 'GB', ca: 'CA', au: 'AU' };
-    zoomMapToRegion(NAV_TO_MAP[activeNav] || null);
+    const navLoc = LOCATIONS.find(l => l.region_code === activeNav);
+    zoomMapToRegion(navLoc ? navLoc.db_country_code : null);
     syncMapFills();
     renderGrid();
     renderTrend(allPolicies);
