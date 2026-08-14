@@ -1871,7 +1871,7 @@ function renderNavButtons() {
     const cls     = limited ? 'nav-btn nav-btn-limited' : 'nav-btn';
     const tip     = limited ? `${loc.display_name} — limited data` : loc.display_name;
     const sep     = i < locs.length - 1 ? '<span class="nav-sep">&middot;</span>' : '';
-    return `<button class="${cls}" data-nav="${loc.region_code}" title="${tip}">${loc.flag_emoji} ${loc.nav_label}</button>${sep}`;
+    return `<button class="${cls}" data-nav="${loc.region_code}" title="${tip}">${loc.nav_label}</button>${sep}`;
   }).join('');
 }
 
