@@ -99,9 +99,9 @@ def get_stats():
 
     conn.close()
 
-    social_dist = {str(i): 0 for i in range(-10, 11)}
-    env_dist    = {str(i): 0 for i in range(-10, 11)}
-    eco_dist    = {str(i): 0 for i in range(-10, 11)}
+    social_dist = {str(i): 0 for i in range(1, 11)}
+    env_dist    = {str(i): 0 for i in range(1, 11)}
+    eco_dist    = {str(i): 0 for i in range(1, 11)}
     for r in dist:
         for bucket, key in ((social_dist, "social_score"), (env_dist, "environmental_score"), (eco_dist, "economic_score")):
             k = str(r[key])
@@ -495,8 +495,10 @@ async function refresh(){
   }).join('');
 
   function renderDist(elId, data, color) {
-    const maxBar = Math.max(...Object.values(data), 1);
-    const sorted = Object.entries(data).sort((a, b) => +b[0] - +a[0]);
+    const nonzero = Object.entries(data).filter(([k,v]) => v > 0);
+    if (!nonzero.length) { document.getElementById(elId).innerHTML = '<span style="color:#4b5563;font-size:11px">no data</span>'; return; }
+    const maxBar = Math.max(...nonzero.map(([k,v]) => v));
+    const sorted = nonzero.sort((a, b) => +b[0] - +a[0]);
     document.getElementById(elId).innerHTML = sorted.map(([k,v]) =>
       `<div class="bar-row"><span class="bar-label">${+k>0?'+'+k:k}</span>
        <div class="bar" style="width:${Math.round(150*v/maxBar)}px;background:${color}"></div>

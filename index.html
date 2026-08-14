@@ -1975,7 +1975,7 @@ function renderHappeningNow(policies) {
 
     card.innerHTML =
       `<div class="happening-badge-row">` +
-        `<span class="source-badge ${badgeClass(p.country, p.source)}">${badgeLabel(p.source)}</span>` +
+        `<span class="source-badge ${badgeClass(p.country, p.source)}">${countryBadge(p.country)}</span>` +
         `<span class="happening-live"><span class="happening-live-dot"></span>LIVE</span>` +
       `</div>` +
       `<div class="happening-title">${p.title || 'Untitled'}</div>` +
