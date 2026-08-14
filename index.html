@@ -216,9 +216,13 @@ header {
 }
 .nav-btn:hover { color: rgba(255,255,255,.9); }
 .nav-btn.active { color: #fff; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.nav-btn-limited { color: rgba(255,255,255,.38); font-style: italic; }
+.nav-btn-limited:hover { color: rgba(255,255,255,.65); }
 .nav-btn[data-nav="eu"].active,
 .nav-btn[data-nav="us"].active,
-.nav-btn[data-nav="uk"].active {
+.nav-btn[data-nav="uk"].active,
+.nav-btn[data-nav="ca"].active,
+.nav-btn[data-nav="au"].active {
   background: rgba(255,255,255,.10);
   border-radius: 4px;
   padding: .2rem .5rem;
@@ -1187,9 +1191,9 @@ footer {
     <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--ca)"></div>Canada</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Canada (limited)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Australia (limited)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1a2535"></div>Coming soon</div>
   </div>
 </div>
 
@@ -1220,6 +1224,10 @@ footer {
     <button class="nav-btn" data-nav="us">US</button>
     <span class="nav-sep">&middot;</span>
     <button class="nav-btn" data-nav="uk">UK</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn nav-btn-limited" data-nav="ca" title="Limited data available">CA</button>
+    <span class="nav-sep">&middot;</span>
+    <button class="nav-btn nav-btn-limited" data-nav="au" title="Limited data available">AU</button>
     <span class="nav-sep">&middot;</span>
     <button class="nav-btn" data-nav="all">Show everything</button>
   </nav>
@@ -1634,7 +1642,7 @@ function renderTrend(policies) {
     key, label, color,
     values: months.map(month => {
       const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
-      const threshold = activeNav === 'uk' ? 3 : 4;
+      const threshold = (activeNav === 'ca' || activeNav === 'au') ? 2 : activeNav === 'uk' ? 3 : 4;
       const valid = items.filter(p => p[key] !== null && p[key] !== undefined && Math.abs(p[key]) >= threshold);
       return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
     }),
@@ -1914,7 +1922,7 @@ function setScore(scoreKey) {
   renderGrid();
 }
 
-const REGION_DISPLAY = { eu: 'European Union', us: 'United States', uk: 'United Kingdom' };
+const REGION_DISPLAY = { eu: 'European Union', us: 'United States', uk: 'United Kingdom', ca: 'Canada', au: 'Australia' };
 
 function renderRegionBanner() {
   const banner = document.getElementById('region-banner');
