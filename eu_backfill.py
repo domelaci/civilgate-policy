@@ -36,14 +36,9 @@ log = logging.getLogger(__name__)
 SCORER_VERSION = "v1"
 
 EURLEX_SPARQL = """\
-SELECT DISTINCT ?work ?date ?title ?celex ?type WHERE {{
-  VALUES ?type {{
-    <http://publications.europa.eu/ontology/cdm#regulation>
-    <http://publications.europa.eu/ontology/cdm#directive>
-  }}
-  ?work a ?type ;
-        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date ;
-        <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex .
+SELECT DISTINCT ?work ?date ?title ?celex WHERE {{
+  ?work <http://publications.europa.eu/ontology/cdm#resource_legal_id_celex> ?celex ;
+        <http://publications.europa.eu/ontology/cdm#work_date_document> ?date .
   OPTIONAL {{
     ?expr <http://publications.europa.eu/ontology/cdm#expression_belongs_to_work> ?work ;
           <http://publications.europa.eu/ontology/cdm#expression_uses_language>
@@ -51,6 +46,7 @@ SELECT DISTINCT ?work ?date ?title ?celex ?type WHERE {{
           <http://publications.europa.eu/ontology/cdm#expression_title> ?title .
   }}
   FILTER(
+    REGEX(STR(?celex), "^3{year}[RLD]") &&
     ?date >= "{since}"^^xsd:date &&
     ?date <= "{until}"^^xsd:date &&
     !REGEX(STR(?celex), "R\\\\(")
@@ -61,7 +57,8 @@ ORDER BY DESC(?date) LIMIT 200
 
 
 def fetch_eurlex_month(conn: sqlite3.Connection, since: str, until: str) -> int:
-    query = EURLEX_SPARQL.format(since=since, until=until)
+    year = since[:4]
+    query = EURLEX_SPARQL.format(since=since, until=until, year=year)
     try:
         r = requests.get(
             "https://publications.europa.eu/webapi/rdf/sparql",
@@ -84,9 +81,8 @@ def fetch_eurlex_month(conn: sqlite3.Connection, since: str, until: str) -> int:
         if conn.execute("SELECT 1 FROM policies WHERE external_id=?", (ext_id,)).fetchone():
             continue
 
-        type_uri = (b.get("type", {}).get("value") or "")
-        status   = "proposed" if "proposal_for" in type_uri else "enacted"
-        title    = (b.get("title", {}).get("value") or celex).strip()
+        status = "enacted"  # CELEX prefix 3YYYY[RLD] = adopted legislation
+        title  = (b.get("title", {}).get("value") or celex).strip()
         pub_date = (b.get("date", {}).get("value") or "")[:10]
         url      = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
         raw      = f"Title: {title}\nCELEX: {celex}"
@@ -305,8 +301,10 @@ def export_json(conn: sqlite3.Connection) -> None:
         "source", "country", "external_id", "title", "url", "published_date",
         "summary", "social_score", "social_reason",
         "environmental_score", "environmental_reason",
-        "economic_score", "economic_reason", "tags", "status", "level",
-        "scope", "scope_reason",
+        "economic_score", "economic_reason",
+        "human_rights_score", "human_rights_reason",
+        "governance_score", "governance_reason",
+        "tags", "status", "level", "scope", "scope_reason",
     ]
     rows = conn.execute(
         f"""SELECT {','.join(cols)} FROM policies

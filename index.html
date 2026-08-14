@@ -993,7 +993,7 @@ footer {
     <div class="modal-policy-title" id="modal-policy-title"></div>
 
     <div class="location-row">
-      <input class="location-input" id="location-input" type="text" placeholder="Your zip code or city, country&hellip;">
+      <input class="location-input" id="location-input" type="text" placeholder="Zip code (US), postcode (UK/CA), or EU country&hellip;">
       <button class="modal-btn primary" id="find-reps-btn">Find</button>
     </div>
 
@@ -1824,8 +1824,21 @@ async function findReps(location, policy) {
     return;
   }
 
+  if (policy.country === 'CA') {
+    try {
+      const postcode = location.toUpperCase().replace(/\s+/g, '');
+      const r    = await fetch(`/api/ca-reps?postcode=${encodeURIComponent(postcode)}`);
+      const data = await r.json();
+      if (data.error) { results.innerHTML = `<div class="rep-status">${data.error}</div>`; return; }
+      showReps(data.reps || [], policy);
+    } catch {
+      results.innerHTML = '<div class="rep-status">Could not load MP data. Try again later.</div>';
+    }
+    return;
+  }
+
   // Fallback
-  const links = { CA: 'https://www.ourcommons.ca/members/en', AU: 'https://www.aph.gov.au/Senators_and_Members' };
+  const links = { AU: 'https://www.aph.gov.au/Senators_and_Members' };
   const link  = links[policy.country] ? ` <a href="${links[policy.country]}" target="_blank" rel="noopener">Find yours here &rarr;</a>` : '';
   results.innerHTML = `<div class="rep-status">National MP lookup for ${policy.country} coming soon.${link}</div>`;
 }
