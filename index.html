@@ -151,7 +151,7 @@ header {
 
 #world-map {
   width: 100%;
-  height: 300px;
+  height: 240px;
   display: block;
   background: var(--surface);
 }
@@ -631,8 +631,9 @@ footer {
   color: var(--muted);
   border-bottom: 1px solid var(--border);
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .3rem;
 }
 
 
@@ -958,16 +959,117 @@ footer {
 .mover-sort-btn:hover { color: var(--text); }
 .mover-sort-btn.active { color: var(--accent); }
 
+/* ── Hero Strip ── */
+.hero-strip {
+  background: #0d1221;
+  border-bottom: 1px solid var(--border);
+  padding: 24px 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.hero-left { flex: 0 0 60%; max-width: 60%; }
+.hero-headline {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: .5rem;
+}
+.hero-sub { font-size: 14px; color: var(--sub); line-height: 1.6; }
+.hero-right { flex: 1; display: flex; gap: 1.5rem; justify-content: flex-end; }
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .2rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  min-width: 80px;
+  text-align: center;
+}
+.hero-stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+.hero-stat-val {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ── Filter label ── */
+.filter-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Trend subline ── */
+.trend-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: .3px;
+  text-transform: none;
+  opacity: .7;
+}
+
+/* ── Happening excerpt ── */
+.happening-excerpt {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-top: .2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Fed Register muted cards ── */
+.policy-card.fed-register { opacity: 0.85; }
+.policy-card.fed-register .source-badge { opacity: 0.6; }
+
+/* ── About modal sections ── */
+.about-section {
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.about-section:last-child { border-bottom: none; }
+.about-q { font-size: 13px; font-weight: 500; color: var(--text); }
+.about-a { font-size: 13px; color: var(--sub); line-height: 1.6; }
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: 1fr; }
-  #world-map { height: 200px; }
+  #world-map { height: 192px; }
   .header-clock { display: none; }
   .header-sub { display: none; }
 }
 
+@media (max-width: 700px) {
+  .hero-strip { flex-direction: column; align-items: flex-start; }
+  .hero-left { flex: none; max-width: 100%; }
+  .hero-right { width: 100%; overflow-x: auto; justify-content: flex-start; }
+}
+
 @media (max-width: 600px) {
-  header, .map-header, .map-legend, .controls, main, footer { padding-left: 1rem; padding-right: 1rem; }
+  header, .map-header, .map-legend, .controls, .hero-strip, main, footer { padding-left: 1rem; padding-right: 1rem; }
   #world-map { height: 150px; }
   .score-reason { display: none; }
 }
@@ -984,11 +1086,70 @@ footer {
       <span id="updated-label">loading&hellip;</span>
     </div>
     <div class="header-clock" id="clock"></div>
+    <a href="#" class="volunteer-link" id="about-link">? about</a>
     <a href="https://volunteer.civilgate.org" class="volunteer-link">volunteer &rarr;</a>
   </div>
 </header>
 
+<div class="hero-strip">
+  <div class="hero-left">
+    <div class="hero-headline">Track what governments are actually doing.</div>
+    <div class="hero-sub">CivilGate scores government policy across EU, US and UK on social, environmental and economic impact &mdash; from &minus;10 harmful to +10 beneficial &mdash; so you can see what&rsquo;s changing and where things are heading.</div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-stat">
+      <div class="hero-stat-label">policies tracked</div>
+      <div class="hero-stat-val">5,000+</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">regions</div>
+      <div class="hero-stat-val">EU &middot; US &middot; UK</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-label">updated</div>
+      <div class="hero-stat-val">daily</div>
+    </div>
+  </div>
+</div>
+
+<div class="happening-section" id="happening-section" style="display:none">
+  <div class="happening-header">
+    <span class="happening-label">Happening Now</span>
+    <span class="happening-sub">Bills and proposals currently moving through legislature</span>
+  </div>
+  <div class="happening-scroll" id="happening-scroll"></div>
+</div>
+
+<div class="map-section">
+  <div class="map-header">click a region to filter</div>
+  <svg id="world-map"></svg>
+  <div class="map-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--ca)"></div>Canada</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
+  </div>
+</div>
+
+<div class="trend-section">
+  <div class="trend-header">
+    <span id="trend-title">avg impact score</span>
+    <div class="trend-sub">Score range: &minus;10 (harmful) &middot; 0 (neutral) &middot; +10 (beneficial) &middot; Only policies scoring &plusmn;4 or above shown</div>
+  </div>
+  <svg id="trend-chart"></svg>
+  <div class="trend-legend" id="trend-legend"></div>
+</div>
+
+<div class="movers-section">
+  <div class="movers-header">biggest movers &mdash; last 30 days</div>
+  <div class="movers-grid" id="movers-grid"><div class="mover-empty">Loading&hellip;</div></div>
+</div>
+
 <div class="controls">
+  <span class="filter-label">filter policies</span>
+  <div class="filter-sep"></div>
   <div class="filter-pills" id="filter-pills">
     <button class="pill active" data-filter="ALL">All</button>
     <button class="pill" data-filter="EU">EU</button>
@@ -1023,40 +1184,6 @@ footer {
     <input type="search" id="search" placeholder="search policies, tags&hellip;" autocomplete="off">
   </div>
   <div class="results-count" id="results-count"></div>
-</div>
-
-<div class="happening-section" id="happening-section" style="display:none">
-  <div class="happening-header">
-    <span class="happening-label">Happening Now</span>
-    <span class="happening-sub">Bills and proposals currently moving through legislature</span>
-  </div>
-  <div class="happening-scroll" id="happening-scroll"></div>
-</div>
-
-<div class="map-section">
-  <div class="map-header">select region</div>
-  <svg id="world-map"></svg>
-  <div class="map-legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--eu)"></div>EU</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--us)"></div>USA</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--gb)"></div>UK</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--ca)"></div>Canada</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--au)"></div>Australia</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--border2)"></div>Coming soon</div>
-  </div>
-</div>
-
-<div class="trend-section">
-  <div class="trend-header">
-    <span id="trend-title">avg impact score</span>
-  </div>
-  <svg id="trend-chart"></svg>
-  <div class="trend-legend" id="trend-legend"></div>
-</div>
-
-<div class="movers-section">
-  <div class="movers-header">biggest movers &mdash; last 30 days</div>
-  <div class="movers-grid" id="movers-grid"><div class="mover-empty">Loading&hellip;</div></div>
 </div>
 
 <main>
@@ -1101,6 +1228,26 @@ footer {
         <button class="modal-btn" id="copy-btn">Copy</button>
         <a class="modal-btn" id="mailto-btn" href="#">Send via email</a>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="about-modal">
+  <div class="modal">
+    <button class="modal-close" id="about-modal-close">&times;</button>
+    <div class="modal-title">About CivilGate</div>
+    <div class="about-section">
+      <div class="about-q">What is CivilGate?</div>
+      <div class="about-a">CivilGate tracks government policy across the EU, US and UK. Every policy is scored by AI on its real-world impact &mdash; not how it&rsquo;s officially described.</div>
+    </div>
+    <div class="about-section">
+      <div class="about-q">How does scoring work?</div>
+      <div class="about-a">Each policy gets a score from &minus;10 to +10 across five dimensions: Social, Environmental, Economic, Human Rights, and Governance. 0 means no meaningful effect. &plusmn;5 means significant real-world impact. &plusmn;9&ndash;10 means transformative or landmark change.</div>
+    </div>
+    <div class="about-section">
+      <div class="about-q">Where does the data come from?</div>
+      <div class="about-a">Official government sources: US Congress (congress.gov), EUR-Lex (EU), and UK Parliament. Updated daily.</div>
     </div>
   </div>
 </div>
@@ -1156,7 +1303,7 @@ function zoomMapToRegion(regionKey) {
 
   if (!regionKey || regionKey === 'ALL') {
     svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
-    updateMapHeader('select region');
+    updateMapHeader('click a region to filter');
     return;
   }
 
@@ -1616,11 +1763,13 @@ function renderHappeningNow(policies) {
   const live = policies.filter(p => {
     if (!p.is_live || !p.summary) return false;
     const mx = Math.max(
-      Math.abs(p.social_score       || 0),
-      Math.abs(p.environmental_score|| 0),
-      Math.abs(p.economic_score     || 0)
+      Math.abs(p.social_score        || 0),
+      Math.abs(p.environmental_score || 0),
+      Math.abs(p.economic_score      || 0),
+      Math.abs(p.human_rights_score  || 0),
+      Math.abs(p.governance_score    || 0)
     );
-    return mx >= 3;
+    return mx >= 4;
   });
   const section = document.getElementById('happening-section');
   if (live.length < 3) { section.style.display = 'none'; return; }
@@ -1629,13 +1778,9 @@ function renderHappeningNow(policies) {
   const scroll = document.getElementById('happening-scroll');
   scroll.innerHTML = '';
 
-  live.slice(0, 8).forEach(p => {
-    const dims = [
-      { dim: 'SOCIAL', val: p.social_score },
-      { dim: 'ENV', val: p.environmental_score },
-      { dim: 'ECON', val: p.economic_score },
-    ].filter(s => s.val != null);
-    const best = dims.sort((a, b) => Math.abs(b.val) - Math.abs(a.val))[0];
+  live.slice(0, 6).forEach(p => {
+    const raw = (p.summary || '').split('. ')[0];
+    const excerpt = raw.length > 80 ? raw.slice(0, 77) + '…' : raw;
 
     const card = document.createElement('div');
     card.className = 'happening-card';
@@ -1647,9 +1792,7 @@ function renderHappeningNow(policies) {
         `<span class="happening-live"><span class="happening-live-dot"></span>LIVE</span>` +
       `</div>` +
       `<div class="happening-title">${p.title || 'Untitled'}</div>` +
-      (best
-        ? `<div class="happening-score">${best.dim} <strong>${best.val > 0 ? '+' : ''}${best.val}</strong></div>`
-        : '');
+      `<div class="happening-excerpt">${excerpt}</div>`;
 
     scroll.appendChild(card);
   });
@@ -1754,7 +1897,7 @@ function renderGrid() {
       `<span class="tag${t.toLowerCase() === activeTag ? ' active' : ''}" data-tag="${t.toLowerCase()}">${t}</span>`
     ).join('');
 
-    return `<div class="policy-card">
+    return `<div class="policy-card${p.source === 'federal_register' ? ' fed-register' : ''}">
       <div class="card-top">
         <span class="source-badge ${badgeClass(p.country, p.source)}">${badgeLabel(p.source)}</span>
         ${statusBadge(p.status)}
@@ -2007,10 +2150,28 @@ function initContactRep() {
   });
 }
 
+function initAboutModal() {
+  document.getElementById('about-link').addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('about-modal').classList.add('open');
+  });
+  document.getElementById('about-modal-close').addEventListener('click', () => {
+    document.getElementById('about-modal').classList.remove('open');
+  });
+  document.getElementById('about-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('about-modal'))
+      document.getElementById('about-modal').classList.remove('open');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('about-modal').classList.remove('open');
+  });
+}
+
 async function init() {
   document.getElementById('year').textContent = new Date().getFullYear();
 
   initContactRep();
+  initAboutModal();
 
   document.getElementById('filter-pills').addEventListener('click', e => {
     const btn = e.target.closest('[data-filter]');
