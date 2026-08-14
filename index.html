@@ -1945,18 +1945,18 @@ function badgeLabel(source) {
   }[source] || source.toUpperCase();
 }
 
+function isHighSignal(p) {
+  return [p.social_score, p.environmental_score, p.economic_score,
+          p.human_rights_score, p.governance_score]
+         .some(s => s !== null && s !== undefined && Math.abs(s) >= 4);
+}
+
 function renderHappeningNow(policies) {
-  const live = policies.filter(p => {
-    if (!p.is_live || !p.summary) return false;
-    const mx = Math.max(
-      Math.abs(p.social_score        || 0),
-      Math.abs(p.environmental_score || 0),
-      Math.abs(p.economic_score      || 0),
-      Math.abs(p.human_rights_score  || 0),
-      Math.abs(p.governance_score    || 0)
-    );
-    return mx >= 4;
-  });
+  const maxAbs = p => Math.max(...[p.social_score, p.environmental_score,
+    p.economic_score, p.human_rights_score, p.governance_score].map(s => Math.abs(s || 0)));
+  const live = policies
+    .filter(p => p.is_live && p.summary && isHighSignal(p))
+    .sort((a, b) => maxAbs(b) - maxAbs(a));
   const section = document.getElementById('happening-section');
   if (live.length < 3) { section.style.display = 'none'; return; }
   section.style.display = 'block';
@@ -2077,6 +2077,10 @@ function renderGrid() {
         : list.filter(p => p.country === filterLoc.db_country_code);
     }
     // 'all' and unknown modes: no filter
+  }
+
+  if (activeNav !== 'ca') {
+    list = list.filter(p => !(p.source === 'canada_gazette' && !isHighSignal(p)));
   }
 
   if (activeTag) list = list.filter(p => (p.tags || []).some(t => t.toLowerCase() === activeTag));
