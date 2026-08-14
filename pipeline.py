@@ -745,10 +745,12 @@ def fetch_live_congress(conn: sqlite3.Connection, max_new: int = 50) -> int:
     ]
     enacted_kw = ["Signed by President", "Became Public Law", "Signed into law", "Enacted"]
 
+    cutoff = (date.today() - timedelta(days=90)).isoformat() + "T00:00:00Z"
     try:
         r = requests.get(
             "https://api.congress.gov/v3/bill/119",
-            params={"sort": "updateDate+desc", "limit": 250, "api_key": CONGRESS_API_KEY},
+            params={"sort": "updateDate+desc", "limit": 250,
+                    "fromDateTime": cutoff, "api_key": CONGRESS_API_KEY},
             timeout=20,
             headers={"User-Agent": "CivilGate/1.0 (+https://civilgate.org)"},
         )
