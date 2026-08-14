@@ -74,7 +74,7 @@ def get_stats():
           COUNT(*) AS n
         FROM policies
         WHERE summary IS NOT NULL
-          AND scored_at >= datetime('now', '-48 hours')
+          AND datetime(scored_at) >= datetime('now', '-48 hours')
         GROUP BY bucket
         ORDER BY bucket
     """).fetchall()
@@ -82,7 +82,7 @@ def get_stats():
     # per-minute rate: items scored in the last 5 minutes
     rate = conn.execute("""
         SELECT COUNT(*) FROM policies
-        WHERE scored_at >= datetime('now', '-5 minutes')
+        WHERE datetime(scored_at) >= datetime('now', '-5 minutes')
     """).fetchone()[0]
 
     conn.close()
