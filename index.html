@@ -1292,15 +1292,15 @@ function renderTrend(policies) {
   if (titleEl && months.length) {
     const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
     titleEl.textContent = months.length > 1
-      ? `avg impact score — ${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
-      : `avg impact score — ${fmtM(months[0])}`;
+      ? `avg impact score (significant policies) — ${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
+      : `avg impact score (significant policies) — ${fmtM(months[0])}`;
   }
 
   const series = SCORES.map(({ key, label, color }) => ({
     key, label, color,
     values: months.map(month => {
       const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
-      const valid = items.filter(p => p[key] !== null && p[key] !== undefined);
+      const valid = items.filter(p => p[key] !== null && p[key] !== undefined && Math.abs(p[key]) >= 4);
       return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
     }),
   }));
