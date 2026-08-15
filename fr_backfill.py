@@ -125,7 +125,14 @@ def parse_zip(buf, since_year, seen):
             status = "enacted" if prom_date else "proposed"
             url    = f"https://www.assemblee-nationale.fr/dyn/{legislature}/dossiers/{slug}"
 
-            rows.append((SOURCE, COUNTRY, LEVEL, eid, title, url, pub_date, status))
+            raw_text = (
+                f"Titre: {title}\n"
+                f"Procédure: {proc}\n"
+                f"Statut: {'Promulguée' if status == 'enacted' else 'En cours'}\n"
+                f"Législature: {legislature}\n"
+                f"Source: Assemblée Nationale, France"
+            )
+            rows.append((SOURCE, COUNTRY, LEVEL, eid, title, url, pub_date, status, raw_text))
             seen.add(eid)
     return rows
 
@@ -141,8 +148,8 @@ def insert(conn, rows):
     conn.executemany(
         """INSERT OR IGNORE INTO policies
            (source, country, level, external_id, title, url,
-            published_date, fetched_date, status)
-           VALUES (?,?,?,?,?,?,?,date('now'),?)""",
+            published_date, fetched_date, status, raw_text)
+           VALUES (?,?,?,?,?,?,?,date('now'),?,?)""",
         rows,
     )
     conn.commit()

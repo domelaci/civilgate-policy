@@ -51,8 +51,8 @@ def insert(conn, rows, dry_run=False):
     conn.executemany(
         """INSERT OR IGNORE INTO policies
            (source, country, level, external_id, title, url,
-            published_date, fetched_date, status)
-           VALUES (?,?,?,?,?,?,?,date('now'),?)""",
+            published_date, fetched_date, status, raw_text)
+           VALUES (?,?,?,?,?,?,?,date('now'),?,?)""",
         rows,
     )
     conn.commit()
@@ -181,18 +181,20 @@ def main():
             for eid, title, url, date_str in fetch_offenegesetze(year, seen):
                 if not title:
                     continue
-                rows.append((SOURCE, COUNTRY, LEVEL, eid, title, url, date_str, STATUS))
+                raw_text = f"Titel: {title}\nQuelle: Bundesgesetzblatt Teil I, Deutschland\nJahr: {year}"
+                rows.append((SOURCE, COUNTRY, LEVEL, eid, title, url, date_str, STATUS, raw_text))
                 print(".", end="", flush=True)
         else:
             for eid, title, url, date_str in fetch_recht_bund(year, seen):
-                rows.append((SOURCE, COUNTRY, LEVEL, eid, title, url, date_str, STATUS))
+                raw_text = f"Titel: {title}\nQuelle: Bundesgesetzblatt Teil I, Deutschland\nJahr: {year}"
+                rows.append((SOURCE, COUNTRY, LEVEL, eid, title, url, date_str, STATUS, raw_text))
                 print(".", end="", flush=True)
 
         print(f" → {len(rows)} new")
         total_found += len(rows)
 
         if args.dry_run:
-            for _, _, _, eid, title, url, date_str, _ in rows[:3]:
+            for _, _, _, eid, title, url, date_str, _, _ in rows[:3]:
                 print(f"  SAMPLE: {date_str}  {title[:70]}")
         else:
             inserted = insert(conn, rows)
