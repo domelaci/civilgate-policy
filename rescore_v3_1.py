@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 """
-Rescore all v1/null items with the v3 prompt via DeepSeek.
-Runs until every old-version scored item is upgraded.
+Re-score v3 items where governance_score = 1 using the v3.1 prompt.
+
+Targets the ~11 000 miscalibrated items where the model assigned governance_score=1
+to routine legislation that passes through normal parliamentary process.
+v3.1 adds DIMENSION-SPECIFIC CALIBRATION to suppress that bias.
 
 Usage:
-  python3 rescore_v3.py                    # batches of 500, forever
-  python3 rescore_v3.py --batch 100        # smaller batches
+  python3 rescore_v3_1.py                     # single worker, batches of 500
+  python3 rescore_v3_1.py --batch 200         # smaller batches
+  python3 rescore_v3_1.py --no-push           # skip export+push (parallel workers)
+
+  # 5 parallel workers:
+  for i in 1 2 3 4 5; do
+    nohup python3 rescore_v3_1.py --no-push >> rescore_v3_1_w${i}.log 2>&1 &
+  done
 """
 import argparse
 import json
@@ -133,6 +142,8 @@ Return ONLY valid JSON. No markdown, no code fences.
 Document:
 {text}"""
 
+TARGET_FILTER = "scorer_version = 'v3' AND governance_score = 1"
+
 
 def _parse(raw: str) -> dict:
     raw = re.sub(r"^```(?:json)?\s*", "", raw.strip())
@@ -202,7 +213,7 @@ def push_to_github() -> None:
     r = requests.get(api_url, headers=headers, timeout=15)
     sha = r.json()["sha"] if r.status_code == 200 else None
     payload = {
-        "message": f"chore: v3 rescore update {date.today().isoformat()}",
+        "message": f"chore: v3.1 rescore update {date.today().isoformat()}",
         "content": base64.b64encode(OUT_FILE.read_bytes()).decode(),
         "branch": "main",
     }
@@ -217,11 +228,10 @@ def push_to_github() -> None:
 
 def rescore_batch(conn: sqlite3.Connection, batch_size: int) -> int:
     rows = conn.execute(
-        """SELECT id, raw_text FROM policies
-           WHERE summary IS NOT NULL
-             AND (scorer_version IS NULL OR scorer_version IN ('v1', 'v2'))
-           ORDER BY RANDOM()
-           LIMIT ?""",
+        f"""SELECT id, raw_text FROM policies
+            WHERE {TARGET_FILTER}
+            ORDER BY RANDOM()
+            LIMIT ?""",
         (batch_size,),
     ).fetchall()
 
@@ -263,11 +273,11 @@ def rescore_batch(conn: sqlite3.Connection, batch_size: int) -> int:
                WHERE id=?""",
             (
                 result.get("summary"),
-                result.get("social_score"),    result.get("social_reason"),
+                result.get("social_score"),        result.get("social_reason"),
                 result.get("environmental_score"), result.get("environmental_reason"),
-                result.get("economic_score"),  result.get("economic_reason"),
+                result.get("economic_score"),      result.get("economic_reason"),
                 result.get("human_rights_score"),  result.get("human_rights_reason"),
-                result.get("governance_score"), result.get("governance_reason"),
+                result.get("governance_score"),    result.get("governance_reason"),
                 json.dumps(result.get("tags", []), ensure_ascii=False),
                 result.get("scope"), result.get("scope_reason"),
                 datetime.utcnow().isoformat(),
@@ -279,10 +289,9 @@ def rescore_batch(conn: sqlite3.Connection, batch_size: int) -> int:
         done += 1
         if done % 50 == 0:
             remaining = conn.execute(
-                "SELECT COUNT(*) FROM policies WHERE summary IS NOT NULL "
-                "AND (scorer_version IS NULL OR scorer_version IN ('v1','v2'))"
+                f"SELECT COUNT(*) FROM policies WHERE {TARGET_FILTER}"
             ).fetchone()[0]
-            log.info("Rescored %d this batch — %d old-version items remaining", done, remaining)
+            log.info("Rescored %d this batch — %d items remaining", done, remaining)
         time.sleep(1)
 
     return done
@@ -293,31 +302,29 @@ if __name__ == "__main__":
         raise SystemExit("Missing DEEPSEEK_API_KEY in .env")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch", type=int, default=500, help="Items per batch before export+push")
-    parser.add_argument("--no-push", action="store_true", help="Skip export+push (use for worker instances)")
+    parser.add_argument("--batch",   type=int, default=500)
+    parser.add_argument("--no-push", action="store_true", help="Skip export+push (parallel workers)")
     args = parser.parse_args()
 
     conn = sqlite3.connect(DB_FILE)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA busy_timeout=10000")
 
-    total_old = conn.execute(
-        "SELECT COUNT(*) FROM policies WHERE summary IS NOT NULL "
-        "AND (scorer_version IS NULL OR scorer_version IN ('v1','v2'))"
+    total = conn.execute(
+        f"SELECT COUNT(*) FROM policies WHERE {TARGET_FILTER}"
     ).fetchone()[0]
-    log.info("Starting v3 rescore — %d items to upgrade", total_old)
+    log.info("v3.1 rescore — %d items to reprocess (scorer_version=v3, governance_score=1)", total)
 
     grand_total = 0
     while True:
         remaining = conn.execute(
-            "SELECT COUNT(*) FROM policies WHERE summary IS NOT NULL "
-            "AND (scorer_version IS NULL OR scorer_version IN ('v1','v2'))"
+            f"SELECT COUNT(*) FROM policies WHERE {TARGET_FILTER}"
         ).fetchone()[0]
         if remaining == 0:
-            log.info("All items upgraded to v3. Done.")
+            log.info("All v3/governance_score=1 items upgraded to v3.1. Done.")
             break
 
-        log.info("=== Batch start — %d old-version items left ===", remaining)
+        log.info("=== Batch — %d remaining ===", remaining)
         done = rescore_batch(conn, args.batch)
         grand_total += done
         log.info("Batch complete: %d rescored, %d total so far", done, grand_total)
@@ -325,6 +332,3 @@ if __name__ == "__main__":
         if not args.no_push:
             export_json(conn)
             push_to_github()
-        time.sleep(5)
-
-    conn.close()

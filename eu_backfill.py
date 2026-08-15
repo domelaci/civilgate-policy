@@ -37,7 +37,7 @@ GITHUB_REPO      = os.environ.get("GITHUB_REPO", "")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-SCORER_VERSION = "v3"
+SCORER_VERSION = "v3.1"
 
 
 def push_to_github() -> None:
@@ -168,6 +168,24 @@ genuinely neutral items: budget line corrections, technical amendments, routine 
 irreversible change.
 If 80% of policies score between -3 and +3, the calibration is wrong. Most real legislation \
 has clear winners and losers — score that reality.
+
+DIMENSION-SPECIFIC CALIBRATION:
+
+- governance_score 0 = no meaningful change to accountability, transparency, rule of law, or \
+institutional integrity. Routine legislation, budget line corrections, technical amendments, \
+administrative reorganisations, and standard regulatory updates all score 0. Only score ±1 or \
+above if there is a genuine, direct change to democratic process, oversight mechanisms, \
+anti-corruption measures, judicial independence, or institutional transparency. Do not reward \
+a law simply for existing or for being passed through normal parliamentary process.
+
+- human_rights_score 0 = no meaningful change to civil liberties, individual rights, or \
+protections for vulnerable groups. Administrative and economic laws with no rights implications \
+score 0. Only score positive if rights are meaningfully expanded, only score negative if rights \
+are meaningfully restricted.
+
+- environmental_score 0 = no meaningful environmental implication. The majority of legislation \
+(economic, social, administrative) scores 0. Only score if the law directly affects land use, \
+emissions, pollution, biodiversity, energy, water, or natural resources.
 
 Fields to return as JSON:
 - "summary": 2-3 sentence plain English summary for someone with no political background
