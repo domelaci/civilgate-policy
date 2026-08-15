@@ -553,13 +553,12 @@ async function refresh(){
   }).join('');
 
   function renderDist(elId, data, color) {
-    const nonzero = Object.entries(data).filter(([k,v]) => v > 0);
-    if (!nonzero.length) { document.getElementById(elId).innerHTML = '<span style="color:#4b5563;font-size:11px">no data</span>'; return; }
-    const maxBar = Math.max(...nonzero.map(([k,v]) => v));
-    const sorted = nonzero.sort((a, b) => +b[0] - +a[0]);
-    document.getElementById(elId).innerHTML = sorted.map(([k,v]) =>
+    if (!data) { document.getElementById(elId).innerHTML = '<span style="color:#4b5563;font-size:11px">no data</span>'; return; }
+    const entries = Object.entries(data).sort((a, b) => +b[0] - +a[0]);
+    const maxBar = Math.max(...entries.map(([k,v]) => v), 1);
+    document.getElementById(elId).innerHTML = entries.map(([k,v]) =>
       `<div class="bar-row"><span class="bar-label">${+k>0?'+'+k:k}</span>
-       <div class="bar" style="width:${Math.round(150*v/maxBar)}px;background:${color}"></div>
+       <div class="bar" style="width:${Math.round(150*v/maxBar)}px;background:${color};opacity:${v>0?1:0.15}"></div>
        <span class="bar-count">${v}</span></div>`
     ).join('');
   }
