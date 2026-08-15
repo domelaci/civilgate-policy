@@ -57,11 +57,10 @@ def get_stats():
     """).fetchall()
 
     dist = conn.execute("""
-        SELECT social_score, environmental_score, economic_score FROM policies
+        SELECT social_score, environmental_score, economic_score,
+               human_rights_score, governance_score FROM policies
         WHERE summary IS NOT NULL
           AND social_score IS NOT NULL
-          AND environmental_score IS NOT NULL
-          AND economic_score IS NOT NULL
     """).fetchall()
 
     by_provider = conn.execute("""
@@ -97,13 +96,26 @@ def get_stats():
         WHERE datetime(scored_at) >= datetime('now', '-5 minutes')
     """).fetchone()[0]
 
+    by_country = conn.execute("""
+        SELECT country,
+            COUNT(*) AS total,
+            SUM(CASE WHEN summary IS NOT NULL THEN 1 ELSE 0 END) AS scored
+        FROM policies GROUP BY country ORDER BY total DESC
+    """).fetchall()
+
     conn.close()
 
-    social_dist = {str(i): 0 for i in range(1, 11)}
-    env_dist    = {str(i): 0 for i in range(1, 11)}
-    eco_dist    = {str(i): 0 for i in range(1, 11)}
+    social_dist = {str(i): 0 for i in range(-10, 11)}
+    env_dist    = {str(i): 0 for i in range(-10, 11)}
+    eco_dist    = {str(i): 0 for i in range(-10, 11)}
+    hr_dist     = {str(i): 0 for i in range(-10, 11)}
+    gov_dist    = {str(i): 0 for i in range(-10, 11)}
     for r in dist:
-        for bucket, key in ((social_dist, "social_score"), (env_dist, "environmental_score"), (eco_dist, "economic_score")):
+        for bucket, key in (
+            (social_dist, "social_score"), (env_dist, "environmental_score"),
+            (eco_dist, "economic_score"), (hr_dist, "human_rights_score"),
+            (gov_dist, "governance_score"),
+        ):
             k = str(r[key])
             if k in bucket:
                 bucket[k] += 1
@@ -116,11 +128,20 @@ def get_stats():
     except Exception:
         scoring_active = False
 
+    try:
+        bf = subprocess.run(["pgrep", "-f", "de_backfill.py|fr_backfill.py"],
+                            capture_output=True, text=True)
+        backfill_workers = len([l for l in bf.stdout.strip().split("\n") if l])
+    except Exception:
+        backfill_workers = 0
+
     return {
         "total": row["total"], "scored": row["scored"],
         "pending": row["pending"], "failed": row["failed"],
         "pct": round(100 * row["scored"] / row["total"], 1) if row["total"] else 0,
         "scoring_active": scoring_active,
+        "by_country": [dict(r) for r in by_country],
+        "backfill_workers": backfill_workers,
         "by_source": [dict(r) for r in by_source],
         "by_version": [dict(r) for r in by_version],
         "by_provider": [dict(r) for r in by_provider],
@@ -130,6 +151,8 @@ def get_stats():
         "social_dist": social_dist,
         "env_dist": env_dist,
         "eco_dist": eco_dist,
+        "hr_dist": hr_dist,
+        "gov_dist": gov_dist,
         "rate_5min": rate,
     }
 
@@ -246,6 +269,12 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
   <span id="updated"></span>
 </div>
 
+<h2>Backfill workers</h2>
+<div class="meta" style="margin-bottom:6px"><span id="backfill-status"></span></div>
+
+<h2>By country</h2>
+<div id="country-bars" style="margin-bottom:24px"></div>
+
 <h2>Scoring rate — last 48 h (10-min buckets)</h2>
 <div id="rate-chart" style="margin-bottom:24px"></div>
 
@@ -271,7 +300,7 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
 <h2>Score distribution</h2>
 <div style="display:flex;gap:2rem;flex-wrap:wrap">
   <div>
-    <div style="font-size:11px;color:#9ca3af;margin-bottom:.4rem;font-family:monospace">SOCIAL</div>
+    <div style="font-size:11px;color:#1D9E75;margin-bottom:.4rem;font-family:monospace">SOCIAL</div>
     <div class="dist" id="dist-social"></div>
   </div>
   <div>
@@ -281,6 +310,14 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
   <div>
     <div style="font-size:11px;color:#EF9F27;margin-bottom:.4rem;font-family:monospace">ECONOMIC</div>
     <div class="dist" id="dist-eco"></div>
+  </div>
+  <div>
+    <div style="font-size:11px;color:#818cf8;margin-bottom:.4rem;font-family:monospace">HUMAN RIGHTS</div>
+    <div class="dist" id="dist-hr"></div>
+  </div>
+  <div>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:.4rem;font-family:monospace">GOVERNANCE</div>
+    <div class="dist" id="dist-gov"></div>
   </div>
 </div>
 
@@ -324,6 +361,27 @@ async function refresh(){
     `<span class="status-dot ${active?'active':'idle'}"></span>${active ? 'scoring running' + rateStr : 'scoring idle'}`;
 
   document.getElementById('updated').textContent = 'updated ' + new Date().toLocaleTimeString();
+
+  const bfWorkers = stats.backfill_workers || 0;
+  document.getElementById('backfill-status').innerHTML =
+    `<span class="status-dot ${bfWorkers > 0 ? 'active' : 'idle'}"></span>` +
+    (bfWorkers > 0
+      ? `${bfWorkers} backfill worker${bfWorkers > 1 ? 's' : ''} running`
+      : 'no backfill running');
+
+  const countryColors = {EU:'#1D9E75',US:'#EF9F27',GB:'#378ADD',CA:'#fcd34d',
+                         AU:'#c4b5fd',DE:'#818cf8',FR:'#D85A30'};
+  document.getElementById('country-bars').innerHTML = (stats.by_country || []).map(r => {
+    const pct = r.total ? Math.round(100 * r.scored / r.total) : 0;
+    const color = countryColors[r.country] || '#7F77DD';
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:11px">
+        <span style="color:#e5e7eb;font-weight:500">${r.country}</span>
+        <span style="color:#4b5563">${r.scored.toLocaleString()} / ${r.total.toLocaleString()} scored &nbsp;${pct}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
 
   document.querySelector('#sources-table tbody').innerHTML = stats.by_source.map(r => {
     const pct = r.total ? Math.round(100*r.scored/r.total) : 0;
@@ -508,6 +566,8 @@ async function refresh(){
   renderDist('dist-social', stats.social_dist, '#1D9E75');
   renderDist('dist-env',    stats.env_dist,    '#38bdf8');
   renderDist('dist-eco',    stats.eco_dist,    '#EF9F27');
+  renderDist('dist-hr',     stats.hr_dist,     '#818cf8');
+  renderDist('dist-gov',    stats.gov_dist,    '#94a3b8');
 
   document.querySelector('#recent-table tbody').innerHTML = stats.recent.map(r =>
     `<tr><td class="bright" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r.title||'').replace(/"/g,'&quot;')}">${r.title||'—'}</td>
