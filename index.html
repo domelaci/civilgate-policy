@@ -140,35 +140,56 @@ header {
 
 /* ── Map section ── */
 .map-section {
-  border-bottom: 1px solid var(--border);
-}
-
-.map-header {
-  padding: .6rem 2rem .6rem calc(2rem - 2px);
-  font-family: var(--mono);
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: #fff;
-  border-bottom: 1px solid var(--border);
-  border-left: 2px solid #1D9E75;
-  margin-top: 1.5rem;
+  border-bottom: none;
 }
 
 #world-map {
   width: 100%;
-  height: 240px;
+  height: 120px;
   display: block;
   background: var(--surface);
+  cursor: default;
 }
 
-.map-legend {
+/* ── Region selector pill bar ── */
+.region-selector {
   display: flex;
-  gap: 1.5rem;
+  align-items: center;
+  gap: .5rem;
   padding: .6rem 2rem;
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
+  background: var(--bg);
 }
+.region-selector-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  white-space: nowrap;
+  margin-right: .4rem;
+  flex-shrink: 0;
+}
+.region-pill {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  padding: .42rem 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: none;
+  color: rgba(255,255,255,.6);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.region-pill:hover { border-color: rgba(255,255,255,.35); color: #fff; }
+.region-pill.active { background: #1D9E75; border-color: #1D9E75; color: #fff; }
+.region-pill[data-region="all"].active { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.38); color: #fff; }
+.region-pill.limited { opacity: .5; }
 
 .legend-item {
   display: flex;
@@ -191,7 +212,7 @@ header {
 .controls {
   padding: .45rem 2rem;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1rem;
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -202,26 +223,16 @@ header {
 
 .nav-bar {
   display: flex;
-  flex-direction: column;
-  gap: .3rem;
-  flex: 1;
-}
-.nav-feed-row, .nav-region-row {
-  display: flex;
   align-items: center;
   gap: .3rem;
+  flex: 1;
   flex-wrap: wrap;
-}
-.nav-region-row {
-  border-top: 1px solid var(--border);
-  padding-top: .3rem;
 }
 .controls-right {
   display: flex;
   align-items: center;
   gap: .6rem;
   flex-shrink: 0;
-  padding-top: .05rem;
 }
 .nav-btn {
   font-size: 12px;
@@ -1213,7 +1224,7 @@ footer {
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .policy-grid { grid-template-columns: repeat(2, 1fr); }
-  #world-map { height: 192px; }
+  #world-map { height: 80px; }
   .header-clock { display: none; }
   .header-sub { display: none; }
 }
@@ -1229,8 +1240,8 @@ footer {
 }
 
 @media (max-width: 600px) {
-  header, .map-header, .map-legend, .controls, .hero-strip, main, footer { padding-left: 1rem; padding-right: 1rem; }
-  #world-map { height: 150px; }
+  header, .controls, .hero-strip, main, footer, .region-selector { padding-left: 1rem; padding-right: 1rem; }
+  #world-map { height: 70px; }
 }
 </style>
 </head>
@@ -1280,10 +1291,10 @@ footer {
 </div>
 
 <div class="map-section">
-  <div class="map-header">WHERE DO YOU LIVE?</div>
   <svg id="world-map"></svg>
-  <div class="map-legend" id="map-legend"></div>
 </div>
+
+<div class="region-selector" id="region-selector"></div>
 
 <div class="trend-section">
   <div class="trend-header">
@@ -1305,13 +1316,10 @@ footer {
 
 <div class="controls">
   <nav class="nav-bar" id="nav-bar">
-    <div class="nav-feed-row">
-      <button class="nav-btn active" data-nav="live">What&rsquo;s being voted on?</button>
-      <button class="nav-btn" data-nav="enacted">What just passed?</button>
-      <button class="nav-btn" data-nav="comment">Have your say</button>
-      <button class="nav-btn" data-nav="all">Show everything</button>
-    </div>
-    <div class="nav-region-row" id="region-nav-buttons"></div>
+    <button class="nav-btn active" data-nav="live">What&rsquo;s being voted on?</button>
+    <button class="nav-btn" data-nav="enacted">What just passed?</button>
+    <button class="nav-btn" data-nav="comment">Have your say</button>
+    <button class="nav-btn" data-nav="all">Show everything</button>
   </nav>
   <div class="controls-right">
     <div class="nav-chips">
@@ -1570,9 +1578,8 @@ async function renderMap(world) {
       const regionToNav = { EU: 'eu', US: 'us', GB: 'uk', CA: 'ca', AU: 'au' };
       activeNav = regionToNav[regionKey] || 'all';
       activeTag = '';
-      document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.nav === activeNav)
-      );
+      document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
+      updateRegionPills(activeNav);
       renderGrid();
       renderTrend(allPolicies);
     });
@@ -1587,6 +1594,7 @@ async function renderMap(world) {
     document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
       b.classList.toggle('active', b.dataset.nav === 'all')
     );
+    updateRegionPills(null);
     zoomMapToRegion(null);
     renderGrid();
     renderTrend(allPolicies);
@@ -1915,6 +1923,47 @@ function renderMovers(policies) {
       <div class="mover-context">vs prev 30 days · now avg ${m.rAvg > 0 ? '+' : ''}${m.rAvg.toFixed(1)}</div>
     </div>`;
   }).join('');
+}
+
+function updateRegionPills(region) {
+  const active = (!region || region === 'live' || region === 'enacted' || region === 'comment') ? 'all' : region;
+  document.querySelectorAll('.region-pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.region === active)
+  );
+}
+
+function renderRegionSelector() {
+  const container = document.getElementById('region-selector');
+  if (!container) return;
+  const locs = LOCATIONS.filter(l => l.is_active !== 0).sort((a, b) => a.sort_order - b.sort_order);
+  container.innerHTML =
+    '<span class="region-selector-label">Where do you live?</span>' +
+    locs.map(loc => {
+      const limited = loc.data_quality === 'limited';
+      const cls = `region-pill${limited ? ' limited' : ''}`;
+      const tip = limited ? `${loc.display_name} — limited data` : loc.display_name;
+      return `<button class="${cls}" data-region="${loc.region_code}" title="${tip}">${loc.flag_emoji} ${loc.nav_label}</button>`;
+    }).join('') +
+    '<button class="region-pill" data-region="all">Show all</button>';
+
+  container.addEventListener('click', e => {
+    const pill = e.target.closest('.region-pill[data-region]');
+    if (!pill) return;
+    const region = pill.dataset.region;
+    activeTag = ''; activeScore = ''; activeSortDir = null; _selectedEuCountry = null;
+    activeNav = region === 'all' ? 'all' : region;
+    document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.nav === (region === 'all' ? 'all' : 'live'))
+    );
+    updateRegionPills(region === 'all' ? null : region);
+    const navLoc = LOCATIONS.find(l => l.region_code === region);
+    zoomMapToRegion(navLoc ? navLoc.db_country_code : null);
+    syncMapFills();
+    renderGrid();
+    renderTrend(allPolicies);
+  });
+
+  updateRegionPills(null);
 }
 
 function initScoreToggles() {
@@ -2595,9 +2644,8 @@ async function detectRegion() {
 function _applyRegionNav(region) {
   if (!region || region === 'live') return;
   activeNav = region;
-  document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.nav === region)
-  );
+  document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
+  updateRegionPills(region);
 }
 
 async function init() {
@@ -2606,8 +2654,8 @@ async function init() {
   await loadLocations();
   renderNavButtons();
   renderRegionChip();
-  renderMapLegend();
   initScoreToggles();
+  renderRegionSelector();
 
   await detectRegion();
 
@@ -2622,8 +2670,8 @@ async function init() {
     _selectedEuCountry = null;
     document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const navLoc = LOCATIONS.find(l => l.region_code === activeNav);
-    zoomMapToRegion(navLoc ? navLoc.db_country_code : null);
+    updateRegionPills(null);
+    zoomMapToRegion(null);
     syncMapFills();
     renderGrid();
     renderTrend(allPolicies);
