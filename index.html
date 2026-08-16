@@ -1269,7 +1269,7 @@ footer {
   <div class="hero-right">
     <div class="hero-stat">
       <div class="hero-stat-label">policies tracked</div>
-      <div class="hero-stat-val">5,000+</div>
+      <div class="hero-stat-val" id="policies-count">—</div>
     </div>
     <div class="hero-stat">
       <div class="hero-stat-label">regions</div>
@@ -2725,6 +2725,8 @@ async function init() {
     const res  = await fetch(`policies.json?v=${Date.now()}`);
     const data = await res.json();
     allPolicies = Array.isArray(data) ? data : (data.policies || []);
+    const countEl = document.getElementById('policies-count');
+    if (countEl) countEl.textContent = allPolicies.length.toLocaleString('en-GB');
     await new Promise(r => requestAnimationFrame(r));
     initTrend(allPolicies);
     renderHappeningNow(allPolicies);
