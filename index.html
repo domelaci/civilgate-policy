@@ -189,9 +189,9 @@ header {
 
 /* ── Controls ── */
 .controls {
-  padding: .6rem 2rem;
+  padding: .45rem 2rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -202,37 +202,50 @@ header {
 
 .nav-bar {
   display: flex;
-  align-items: center;
-  gap: .5rem;
+  flex-direction: column;
+  gap: .3rem;
   flex: 1;
+}
+.nav-feed-row, .nav-region-row {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
   flex-wrap: wrap;
 }
+.nav-region-row {
+  border-top: 1px solid var(--border);
+  padding-top: .3rem;
+}
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-shrink: 0;
+  padding-top: .05rem;
+}
 .nav-btn {
-  font-size: 13px;
-  color: rgba(255,255,255,.6);
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
   background: none;
-  border: none;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 4px;
   cursor: pointer;
-  padding: 0;
-  transition: color .15s;
+  padding: .18rem .55rem;
+  transition: color .15s, border-color .15s, background .15s;
   font-family: 'Inter', system-ui, sans-serif;
   white-space: nowrap;
 }
-.nav-btn:hover { color: rgba(255,255,255,.9); }
-.nav-btn.active { color: #fff; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
-.nav-btn-limited { color: rgba(255,255,255,.38); font-style: italic; }
-.nav-btn-limited:hover { color: rgba(255,255,255,.65); }
-.nav-btn[data-nav="eu"].active,
-.nav-btn[data-nav="us"].active,
-.nav-btn[data-nav="uk"].active,
-.nav-btn[data-nav="ca"].active,
-.nav-btn[data-nav="au"].active {
-  background: rgba(255,255,255,.10);
-  border-radius: 4px;
-  padding: .2rem .5rem;
-  text-decoration: none;
-}
-.nav-sep { color: var(--border2); font-size: 13px; user-select: none; }
+.nav-btn:hover { color: rgba(255,255,255,.9); border-color: rgba(255,255,255,.28); }
+.nav-btn.active { color: #fff; background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.35); }
+.nav-btn-limited { color: rgba(255,255,255,.28); font-style: italic; }
+.nav-btn-limited:hover { color: rgba(255,255,255,.55); }
+.nav-btn[data-nav="eu"].active  { background: rgba(29,158,117,.14);  border-color: #1D9E75; color: #5DCAA5; }
+.nav-btn[data-nav="us"].active  { background: rgba(239,159,39,.14);  border-color: #EF9F27; color: #EF9F27; }
+.nav-btn[data-nav="uk"].active  { background: rgba(55,138,221,.14);  border-color: #378ADD; color: #378ADD; }
+.nav-btn[data-nav="ca"].active  { background: rgba(224,82,82,.14);   border-color: #e05252; color: #e05252; }
+.nav-btn[data-nav="au"].active  { background: rgba(127,119,221,.14); border-color: #7F77DD; color: #7F77DD; }
+.nav-btn[data-nav="de"].active  { background: rgba(239,159,39,.14);  border-color: #EF9F27; color: #EF9F27; }
+.nav-sep { display: none; }
 .nav-chips { display: flex; gap: .3rem; align-items: center; }
 
 /* ── Region filter banner ── */
@@ -723,9 +736,61 @@ footer {
 
 #trend-chart {
   width: 100%;
-  height: 210px;
+  height: 280px;
   display: block;
   background: var(--surface);
+}
+
+/* ── Score toggles ── */
+.score-toggles {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem 2rem;
+  border-top: 1px solid var(--border);
+}
+.score-toggle-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-right: .2rem;
+  flex-shrink: 0;
+}
+.score-toggle {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .3px;
+  padding: .14rem .45rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.score-toggle.active {
+  border-color: var(--c, rgba(255,255,255,.4));
+  color: var(--c, #fff);
+}
+.score-toggle:hover { opacity: .75; }
+
+/* ── Trend chart wrapper + tooltip ── */
+.trend-chart-wrap { position: relative; }
+.trend-tooltip {
+  position: absolute;
+  background: #1a2535;
+  border: 1px solid #2d3a4f;
+  border-radius: 6px;
+  padding: .45rem .6rem;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  display: none;
+  z-index: 10;
+  min-width: 130px;
+  line-height: 1.6;
 }
 
 .trend-legend {
@@ -1225,7 +1290,11 @@ footer {
     <span id="trend-title">are things getting better or worse?</span>
     <div class="trend-sub">Score range: &minus;10 (harmful) &middot; 0 (neutral) &middot; +10 (beneficial) &middot; Only policies scoring &plusmn;4 or above shown</div>
   </div>
-  <svg id="trend-chart"></svg>
+  <div class="score-toggles" id="score-toggles"></div>
+  <div class="trend-chart-wrap">
+    <svg id="trend-chart"></svg>
+    <div class="trend-tooltip" id="trend-tooltip"></div>
+  </div>
   <div class="trend-legend" id="trend-legend"></div>
 </div>
 
@@ -1236,27 +1305,27 @@ footer {
 
 <div class="controls">
   <nav class="nav-bar" id="nav-bar">
-    <button class="nav-btn active" data-nav="live">What&rsquo;s being voted on?</button>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="enacted">What just passed?</button>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="comment">Have your say</button>
-    <span class="nav-sep">&middot;</span>
-    <span id="region-nav-buttons"></span>
-    <span class="nav-sep">&middot;</span>
-    <button class="nav-btn" data-nav="all">Show everything</button>
+    <div class="nav-feed-row">
+      <button class="nav-btn active" data-nav="live">What&rsquo;s being voted on?</button>
+      <button class="nav-btn" data-nav="enacted">What just passed?</button>
+      <button class="nav-btn" data-nav="comment">Have your say</button>
+      <button class="nav-btn" data-nav="all">Show everything</button>
+    </div>
+    <div class="nav-region-row" id="region-nav-buttons"></div>
   </nav>
-  <div class="nav-chips">
-    <div id="tag-chip-wrap"></div>
-    <div id="score-chip-wrap"></div>
+  <div class="controls-right">
+    <div class="nav-chips">
+      <div id="tag-chip-wrap"></div>
+      <div id="score-chip-wrap"></div>
+    </div>
+    <div class="search-wrap">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="search" id="search" placeholder="search policies, tags&hellip;" autocomplete="off">
+    </div>
+    <div class="results-count" id="results-count"></div>
   </div>
-  <div class="search-wrap">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="search" id="search" placeholder="search policies, tags&hellip;" autocomplete="off">
-  </div>
-  <div class="results-count" id="results-count"></div>
 </div>
 
 <div id="region-banner"></div>
@@ -1584,18 +1653,18 @@ function isFedRegisterProcedural(p) {
 
 const REGION_COLORS = { EU: '#1D9E75', US: '#EF9F27', GB: '#378ADD', CA: '#e05252', AU: '#7F77DD' };
 const SCORES = [
-  { key: 'social_score',        label: 'Social',        color: '#4ade80' },
-  { key: 'environmental_score', label: 'Environmental', color: '#e879f9' },
-  { key: 'economic_score',      label: 'Economic',      color: '#f59e0b' },
-  { key: 'human_rights_score',  label: 'Human Rights',  color: '#818cf8' },
-  { key: 'governance_score',    label: 'Governance',    color: '#94a3b8' },
+  { key: 'social_score',        label: 'Social',       color: '#1D9E75', abbr: 'SOC' },
+  { key: 'environmental_score', label: 'Env.',          color: '#5DCAA5', abbr: 'ENV' },
+  { key: 'economic_score',      label: 'Economic',     color: '#EF9F27', abbr: 'ECO' },
+  { key: 'human_rights_score',  label: 'Rights',       color: '#378ADD', abbr: 'HRT' },
+  { key: 'governance_score',    label: 'Governance',   color: '#9ca3af', abbr: 'GOV' },
 ];
 
 function renderTrend(policies) {
   const svg = d3.select('#trend-chart');
   const el  = document.getElementById('trend-chart');
   const W   = el.getBoundingClientRect().width || 960;
-  const H   = 210;
+  const H   = 280;
   const pad = { top: 20, right: 24, bottom: 28, left: 38 };
 
   svg.selectAll('*').remove();
@@ -1644,7 +1713,9 @@ function renderTrend(policies) {
     titleEl.innerHTML = `are things getting better or worse?${regionSpan} · ${dateRange}`;
   }
 
-  const series = SCORES.map(({ key, label, color }) => ({
+  const series = SCORES
+    .filter(s => !activeSeries || activeSeries.has(s.key))
+    .map(({ key, label, color }) => ({
     key, label, color,
     values: months.map(month => {
       const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
@@ -1718,10 +1789,58 @@ function renderTrend(policies) {
       .attr('r', 2.5).attr('fill', d => scoreColor(d.v)).attr('opacity', .9);
   });
 
+  // Hover tooltip
+  const tooltip = document.getElementById('trend-tooltip');
+  if (tooltip && series.length) {
+    const overlay = g.append('rect')
+      .attr('x', pad.left).attr('y', pad.top)
+      .attr('width', W - pad.left - pad.right).attr('height', H - pad.top - pad.bottom)
+      .attr('fill', 'none').style('pointer-events', 'all').style('cursor', 'crosshair');
+    const vLine = g.append('line')
+      .attr('y1', pad.top).attr('y2', H - pad.bottom)
+      .attr('stroke', 'rgba(255,255,255,.18)').attr('stroke-width', 1)
+      .attr('stroke-dasharray', '3,3').style('display', 'none');
+
+    overlay.on('mousemove', function(event) {
+      const [mx] = d3.pointer(event);
+      const domain = xScale.domain();
+      if (!domain.length) return;
+      const idx = domain.reduce((best, m, i) =>
+        Math.abs(xScale(m) - mx) < Math.abs(xScale(domain[best]) - mx) ? i : best, 0);
+      const month = domain[idx];
+      const x = xScale(month);
+      vLine.style('display', null).attr('x1', x).attr('x2', x);
+
+      const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
+      const rows = series.map(s => {
+        const pt = s.values.find(v => v.month === month);
+        const v = pt ? pt.v : 0;
+        const col = v > 0 ? '#1D9E75' : v < 0 ? '#f87171' : '#6b7280';
+        return `<div style="display:flex;justify-content:space-between;gap:.75rem"><span style="color:${s.color}">${s.label}</span><span style="color:${col}">${v > 0 ? '+' : ''}${v.toFixed(1)}</span></div>`;
+      }).join('');
+      tooltip.innerHTML = `<div style="color:#9ca3af;font-size:10px;margin-bottom:.3rem;letter-spacing:.3px">${fmtM(month)}</div>${rows}`;
+      tooltip.style.display = 'block';
+
+      const svgW = el.getBoundingClientRect().width;
+      const pxX = x / W * svgW;
+      const tipW = 145;
+      tooltip.style.top = pad.top + 'px';
+      if (pxX + tipW + 16 < svgW) {
+        tooltip.style.left = (pxX + 12) + 'px'; tooltip.style.right = '';
+      } else {
+        tooltip.style.left = ''; tooltip.style.right = (svgW - pxX + 12) + 'px';
+      }
+    }).on('mouseleave', function() {
+      vLine.style('display', 'none');
+      tooltip.style.display = 'none';
+    });
+  }
+
   // Legend
-  document.getElementById('trend-legend').innerHTML = SCORES.map(s =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label}</div>`
-  ).join('') + `<div class="legend-item" style="margin-left:auto;color:#4b5563;font-size:10px;font-family:var(--mono)">+10 benefit &nbsp; 0 neutral &nbsp; −10 harm</div>`;
+  document.getElementById('trend-legend').innerHTML = SCORES
+    .filter(s => !activeSeries || activeSeries.has(s.key))
+    .map(s => `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label}</div>`)
+    .join('') + `<div class="legend-item" style="margin-left:auto;color:#4b5563;font-size:10px;font-family:var(--mono)">+10 benefit &nbsp; 0 neutral &nbsp; −10 harm</div>`;
 }
 
 // ── Biggest Movers ─────────────────────────────────────────────────────────
@@ -1796,6 +1915,30 @@ function renderMovers(policies) {
       <div class="mover-context">vs prev 30 days · now avg ${m.rAvg > 0 ? '+' : ''}${m.rAvg.toFixed(1)}</div>
     </div>`;
   }).join('');
+}
+
+function initScoreToggles() {
+  const container = document.getElementById('score-toggles');
+  if (!container) return;
+  activeSeries = new Set(SCORES.map(s => s.key));
+  container.innerHTML = '<span class="score-toggle-label">SHOW</span>' +
+    SCORES.map(s =>
+      `<button class="score-toggle active" data-key="${s.key}" style="--c:${s.color}">${s.label}</button>`
+    ).join('');
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.score-toggle[data-key]');
+    if (!btn) return;
+    const key = btn.dataset.key;
+    if (activeSeries.has(key)) {
+      if (activeSeries.size > 1) activeSeries.delete(key);
+    } else {
+      activeSeries.add(key);
+    }
+    container.querySelectorAll('.score-toggle').forEach(b =>
+      b.classList.toggle('active', activeSeries.has(b.dataset.key))
+    );
+    renderTrend(allPolicies);
+  });
 }
 
 function initTrend(policies) {
@@ -1883,6 +2026,7 @@ let activeTag     = '';
 let activeScore   = '';
 let activeSortDir = null;
 let showProcedural = false;
+let activeSeries  = null;
 
 function timeAgo(isoStr) {
   if (!isoStr) return 'unknown';
@@ -2463,6 +2607,7 @@ async function init() {
   renderNavButtons();
   renderRegionChip();
   renderMapLegend();
+  initScoreToggles();
 
   await detectRegion();
 
