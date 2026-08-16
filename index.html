@@ -151,45 +151,6 @@ header {
   cursor: default;
 }
 
-/* ── Region selector pill bar ── */
-.region-selector {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .6rem 2rem;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  background: var(--bg);
-}
-.region-selector-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--muted);
-  white-space: nowrap;
-  margin-right: .4rem;
-  flex-shrink: 0;
-}
-.region-pill {
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: .04em;
-  padding: .42rem 1rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,.15);
-  background: none;
-  color: rgba(255,255,255,.6);
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.region-pill:hover { border-color: rgba(255,255,255,.35); color: #fff; }
-.region-pill.active { background: #1D9E75; border-color: #1D9E75; color: #fff; }
-.region-pill[data-region="all"].active { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.38); color: #fff; }
-.region-pill.limited { opacity: .5; }
 
 .legend-item {
   display: flex;
@@ -756,37 +717,41 @@ footer {
 .score-toggles {
   display: flex;
   align-items: center;
-  gap: .35rem;
-  padding: .35rem 2rem;
+  gap: 8px;
+  padding: .45rem 2rem;
   border-top: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 .score-toggle-label {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
-  letter-spacing: 1px;
-  margin-right: .2rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
   flex-shrink: 0;
-  min-width: 4rem;
+  min-width: 4.5rem;
   display: inline-block;
 }
 .score-toggle {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .3px;
-  padding: .14rem .45rem;
-  border-radius: 3px;
-  border: 1px solid rgba(255,255,255,.1);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.15);
   background: none;
-  color: var(--muted);
+  color: rgba(255,255,255,.55);
   cursor: pointer;
   transition: all .15s;
+  white-space: nowrap;
 }
 .score-toggle.active {
   border-color: var(--c, rgba(255,255,255,.4));
   color: var(--c, #fff);
+  background: rgba(255,255,255,.04);
 }
-.score-toggle:hover { opacity: .75; }
+.score-toggle:hover { opacity: .85; border-color: rgba(255,255,255,.3); color: #fff; }
 
 /* Task B — dimension tooltip */
 .score-toggle { position: relative; overflow: visible; }
@@ -817,32 +782,42 @@ footer {
 }
 .score-toggle[data-tooltip]:hover::after { opacity: 1; }
 
-/* ── Chart region toggle row (Task A) ── */
+/* ── Chart region toggle row ── */
 .chart-region-toggle-row {
   display: flex;
   align-items: center;
-  gap: .35rem;
-  padding: .35rem 2rem;
+  gap: 8px;
+  padding: .45rem 2rem;
   border-top: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 .chart-region-pill {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .3px;
-  padding: .14rem .45rem;
-  border-radius: 3px;
-  border: 1px solid rgba(255,255,255,.1);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.15);
   background: none;
-  color: var(--muted);
+  color: rgba(255,255,255,.55);
   cursor: pointer;
   transition: all .15s;
+  white-space: nowrap;
 }
 .chart-region-pill.active {
   border-color: var(--c, rgba(255,255,255,.4));
   color: var(--c, #fff);
+  background: rgba(255,255,255,.04);
 }
-.chart-region-pill.limited { opacity: .5; }
-.chart-region-pill:hover { opacity: .75; }
+.chart-region-pill[data-region="__all__"].active {
+  border-color: rgba(255,255,255,.35);
+  color: #fff;
+  background: rgba(255,255,255,.08);
+  --c: #fff;
+}
+.chart-region-pill.limited { opacity: .55; }
+.chart-region-pill:hover { opacity: .85; border-color: rgba(255,255,255,.3); color: #fff; }
 
 /* ── Scoring explainer (Task C) ── */
 .scoring-section { border-bottom: 1px solid var(--border); }
@@ -1358,7 +1333,7 @@ footer {
 }
 
 @media (max-width: 600px) {
-  header, .controls, .hero-strip, main, footer, .region-selector { padding-left: 1rem; padding-right: 1rem; }
+  header, .controls, .hero-strip, main, footer { padding-left: 1rem; padding-right: 1rem; }
   #world-map { height: 70px; }
 }
 </style>
@@ -1411,8 +1386,6 @@ footer {
 <div class="map-section">
   <svg id="world-map"></svg>
 </div>
-
-<div class="region-selector" id="region-selector"></div>
 
 <div class="trend-section">
   <div class="trend-header">
@@ -1726,7 +1699,7 @@ async function renderMap(world) {
       if (!regionKey) return;
 
       // Already zoomed into EU → individual country selection
-      if (activeNav === 'eu' && regionKey === 'EU') {
+      if (activeChartRegions.size === 1 && activeChartRegions.has('eu') && regionKey === 'EU') {
         const wasSelected = _selectedEuCountry === id;
         _selectedEuCountry = wasSelected ? null : id;
         syncMapFills();
@@ -1741,15 +1714,17 @@ async function renderMap(world) {
         return;
       }
 
-      // First click on a region: zoom in + sync nav
+      // First click on a region: zoom in + sync chart region
       _selectedEuCountry = null;
       syncMapFills();
       zoomMapToRegion(regionKey);
-      const regionToNav = { EU: 'eu', US: 'us', GB: 'uk', CA: 'ca', AU: 'au' };
-      activeNav = regionToNav[regionKey] || 'all';
+      const regionToCode = { EU: 'eu', US: 'us', GB: 'uk', CA: 'ca', AU: 'au' };
+      const regionCode = regionToCode[regionKey];
       activeTag = '';
-      document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
-      updateRegionPills(activeNav);
+      if (regionCode) {
+        activeChartRegions = new Set([regionCode]);
+        updateChartRegionToggles();
+      }
       renderGrid();
       renderTrend(allPolicies);
     });
@@ -1759,12 +1734,9 @@ async function renderMap(world) {
     if (event.target.tagName === 'path') return; // country click handled above
     _selectedEuCountry = null;
     syncMapFills();
-    activeNav = 'all';
     activeTag = '';
-    document.querySelectorAll('#nav-bar .nav-btn').forEach(b =>
-      b.classList.toggle('active', b.dataset.nav === 'all')
-    );
-    updateRegionPills(null);
+    activeChartRegions = new Set(LOCATIONS.filter(l => l.is_active !== 0).map(l => l.region_code));
+    updateChartRegionToggles();
     zoomMapToRegion(null);
     renderGrid();
     renderTrend(allPolicies);
@@ -2227,28 +2199,37 @@ function initChartRegionToggles() {
     locs.map(loc => {
       const limited = loc.data_quality === 'limited';
       const color   = CHART_REGION_COLORS[loc.region_code] || '#fff';
-      const tip     = limited ? `${loc.display_name} — limited data` : '';
+      const tip     = limited ? `${loc.display_name} — limited data` : loc.display_name;
       return `<button class="chart-region-pill${limited ? ' limited' : ''}" data-region="${loc.region_code}" style="--c:${color}" title="${tip}">${loc.flag_emoji} ${loc.nav_label}</button>`;
-    }).join('');
+    }).join('') +
+    '<button class="chart-region-pill" data-region="__all__" title="Compare all regions">Show all</button>';
+
   container.addEventListener('click', e => {
     const btn = e.target.closest('.chart-region-pill[data-region]');
     if (!btn) return;
     const code = btn.dataset.region;
-    if (activeChartRegions.has(code)) {
-      if (activeChartRegions.size > 1) activeChartRegions.delete(code);
+    if (code === '__all__') {
+      activeChartRegions = new Set(locs.map(l => l.region_code));
     } else {
-      activeChartRegions.add(code);
+      activeChartRegions = new Set([code]); // single-select: deselects others
     }
     updateChartRegionToggles();
+    renderGrid();
     renderTrend(allPolicies);
   });
   updateChartRegionToggles();
 }
 
 function updateChartRegionToggles() {
-  document.querySelectorAll('.chart-region-pill[data-region]').forEach(p =>
-    p.classList.toggle('active', activeChartRegions.has(p.dataset.region))
-  );
+  const totalLocs = LOCATIONS.filter(l => l.is_active !== 0).length;
+  const isShowAll = totalLocs > 0 && activeChartRegions.size >= totalLocs;
+  document.querySelectorAll('.chart-region-pill[data-region]').forEach(p => {
+    if (p.dataset.region === '__all__') {
+      p.classList.toggle('active', isShowAll);
+    } else {
+      p.classList.toggle('active', !isShowAll && activeChartRegions.has(p.dataset.region));
+    }
+  });
 }
 
 function initScoring() {
@@ -2479,15 +2460,18 @@ function setScore(scoreKey) {
 function renderRegionBanner() {
   const banner = document.getElementById('region-banner');
   if (!banner) return;
-  const loc = LOCATIONS.find(l => l.region_code === activeNav);
+  const _tl = LOCATIONS.filter(l => l.is_active !== 0).length;
+  const _sa = activeChartRegions.size === 0 || activeChartRegions.size >= _tl;
+  if (_sa || activeChartRegions.size !== 1) { banner.innerHTML = ''; return; }
+  const code = [...activeChartRegions][0];
+  const loc  = LOCATIONS.find(l => l.region_code === code);
   if (!loc) { banner.innerHTML = ''; return; }
   const limitedNote = loc.data_quality === 'limited'
     ? ' <span style="opacity:.5;font-size:.8em">(limited data)</span>' : '';
-  banner.innerHTML = `<span>${loc.flag_emoji} Showing <strong>${loc.display_name}</strong>${limitedNote} policies</span><button class="region-banner-clear" id="region-banner-clear">Clear filter</button>`;
+  banner.innerHTML = `<span>${loc.flag_emoji} Showing <strong>${loc.display_name}</strong>${limitedNote} policies</span><button class="region-banner-clear" id="region-banner-clear">Show all</button>`;
   document.getElementById('region-banner-clear').addEventListener('click', () => {
-    activeNav = 'all';
-    document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('#nav-bar .nav-btn[data-nav="all"]').classList.add('active');
+    activeChartRegions = new Set(LOCATIONS.filter(l => l.is_active !== 0).map(l => l.region_code));
+    updateChartRegionToggles();
     _selectedEuCountry = null;
     zoomMapToRegion(null);
     syncMapFills();
@@ -2538,17 +2522,25 @@ function renderGrid() {
     list = list.filter(p => p.status === 'enacted' && (p.published_date || '') >= cutoff90);
   } else if (activeNav === 'comment') {
     list = list.filter(p => p.status === 'open_for_comment');
-  } else {
-    const filterLoc = LOCATIONS.find(l => l.region_code === activeNav);
-    if (filterLoc) {
-      list = activeNav === 'eu'
-        ? list.filter(p => p.level === 'eu')
-        : list.filter(p => p.country === filterLoc.db_country_code);
-    }
-    // 'all' and unknown modes: no filter
   }
 
-  if (activeNav !== 'ca') {
+  // Region filter from chart REGION toggle (single-select or show-all)
+  const _totalLocs = LOCATIONS.filter(l => l.is_active !== 0).length;
+  const _isShowAll = activeChartRegions.size === 0 || activeChartRegions.size >= _totalLocs;
+  if (!_isShowAll) {
+    const _codes = [...activeChartRegions];
+    list = list.filter(p =>
+      _codes.some(code => {
+        if (code === 'eu') return p.level === 'eu';
+        const loc = LOCATIONS.find(l => l.region_code === code);
+        return loc && p.country === loc.db_country_code;
+      })
+    );
+  }
+
+  // Only show low-signal Canada Gazette items when CA is the sole active region
+  const _isCaSole = activeChartRegions.size === 1 && activeChartRegions.has('ca');
+  if (!_isCaSole) {
     list = list.filter(p => !(p.source === 'canada_gazette' && !isHighSignal(p)));
   }
 
@@ -2919,9 +2911,6 @@ async function detectRegion() {
 
 function _applyRegionNav(region) {
   if (!region || region === 'live') return;
-  activeNav = region;
-  document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
-  updateRegionPills(region);
   activeChartRegions = new Set([region]);
   updateChartRegionToggles();
 }
@@ -2934,7 +2923,6 @@ async function init() {
   renderRegionChip();
   initScoreToggles();
   initChartRegionToggles();
-  renderRegionSelector();
   initScoring();
 
   await detectRegion();
@@ -2950,7 +2938,6 @@ async function init() {
     _selectedEuCountry = null;
     document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    updateRegionPills(null);
     zoomMapToRegion(null);
     syncMapFills();
     renderGrid();
