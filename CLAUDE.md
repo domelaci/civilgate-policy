@@ -545,3 +545,35 @@ Most civic tech shows *what* is happening. This product shows *direction and vel
 - Each item sent to Gemini → summary + 3 scores + reasons + tags ✅
 - Results stored and queryable ✅
 - HTML page shows latest policies with scores at civilgate.org ✅
+
+---
+
+## Monetisation Strategy
+
+> Full detail in `MONETISATION.md`. Summary here for session context.
+
+**Core principle:** The data is not the product. Filtering, relevance, and alerts are the product. Free tier builds trust and traffic; paid tiers sell "not having to read the data yourself."
+
+### Tiers
+| Tier | Price | What they get |
+|---|---|---|
+| Free | £0 | Public feed, scores, trend chart, basic filters |
+| Freemium | £5–15/mo | Email alerts, saved filters, weekly digest |
+| Organisation | £30–80/mo | Multi-user, sector dashboards, PDF snapshots, rep voting history, consultation deadlines |
+| Enterprise | £200–500/mo | API access, white-label, custom scoring weights, bulk export |
+
+### Grant funding (parallel track)
+- NLnet Foundation, Shuttleworth Foundation, Omidyar Network, Luminate, UK National Lottery Community Fund
+
+### Feature priority order
+1. User accounts + saved filters
+2. Email alerts (sector/keyword)
+3. Weekly digest email
+4. Consultation deadline detection
+5. MP/rep voting record per constituency
+6. PDF snapshot export
+7. Organisation multi-user
+8. API access tier
+9. Custom scoring weights
+
+**Design rule:** Before building any feature, ask: free tier (trust/traffic) or paid tier (saves time/adds relevance)? Never put relevance filtering behind a wall too early — it kills growth.

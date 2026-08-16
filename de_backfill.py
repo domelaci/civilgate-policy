@@ -67,6 +67,7 @@ def fetch_offenegesetze(year, seen):
     """Yield (external_id, title, url, date) for each BGBl I item in the year."""
     page = 1
     limit = 100
+    yielded = set()  # prevent re-yielding duplicates if API loops
     while True:
         r = get(OFFENE_URL, params={
             "format": "json",
@@ -82,12 +83,17 @@ def fetch_offenegesetze(year, seen):
         results = data.get("results", [])
         if not results:
             break
+        new_on_page = 0
         for item in results:
             eid = f"de_bgbl_{item['id']}"
-            if eid in seen:
+            if eid in seen or eid in yielded:
                 continue
             date_str = item.get("date", "")[:10]
+            yielded.add(eid)
+            new_on_page += 1
             yield eid, item.get("title", "").strip(), item.get("url", ""), date_str
+        if new_on_page == 0:  # full page was already seen — stop paginating
+            break
         if not data.get("next"):
             break
         page += 1
