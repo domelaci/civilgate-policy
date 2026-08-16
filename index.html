@@ -767,6 +767,8 @@ footer {
   letter-spacing: 1px;
   margin-right: .2rem;
   flex-shrink: 0;
+  min-width: 4rem;
+  display: inline-block;
 }
 .score-toggle {
   font-family: var(--mono);
@@ -785,6 +787,122 @@ footer {
   color: var(--c, #fff);
 }
 .score-toggle:hover { opacity: .75; }
+
+/* Task B — dimension tooltip */
+.score-toggle { position: relative; overflow: visible; }
+.score-toggle[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.85);
+  color: #fff;
+  font-size: 11px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: .35rem .5rem;
+  border-radius: 4px;
+  width: 200px;
+  max-width: 220px;
+  white-space: normal;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s .2s;
+  z-index: 50;
+  line-height: 1.4;
+}
+.score-toggle[data-tooltip]:hover::after { opacity: 1; }
+
+/* ── Chart region toggle row (Task A) ── */
+.chart-region-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem 2rem;
+  border-top: 1px solid var(--border);
+}
+.chart-region-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .3px;
+  padding: .14rem .45rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.chart-region-pill.active {
+  border-color: var(--c, rgba(255,255,255,.4));
+  color: var(--c, #fff);
+}
+.chart-region-pill.limited { opacity: .5; }
+.chart-region-pill:hover { opacity: .75; }
+
+/* ── Scoring explainer (Task C) ── */
+.scoring-section { border-bottom: 1px solid var(--border); }
+.scoring-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .55rem 2rem .55rem calc(2rem - 2px);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.45);
+  border-left: 2px solid #1D9E75;
+  border-top: none; border-right: none; border-bottom: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: color .15s;
+}
+.scoring-toggle-btn:hover { color: rgba(255,255,255,.8); }
+.scoring-arrow { display: inline-block; font-size: 9px; transition: transform .2s; }
+.scoring-section.open .scoring-arrow { transform: rotate(90deg); }
+.scoring-body { display: none; padding: .5rem 2rem 1.25rem; }
+.scoring-section.open .scoring-body { display: block; }
+.scoring-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: var(--sub);
+  margin-bottom: .75rem;
+}
+.scoring-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  padding: .3rem .75rem .3rem 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.scoring-table td {
+  padding: .4rem .75rem .4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.scoring-table tr:last-child td { border-bottom: none; }
+.scoring-table td:first-child {
+  font-family: var(--mono);
+  color: var(--text);
+  white-space: nowrap;
+}
+.scoring-scale {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
 
 /* ── Trend chart wrapper + tooltip ── */
 .trend-chart-wrap { position: relative; }
@@ -1301,12 +1419,64 @@ footer {
     <span id="trend-title">are things getting better or worse?</span>
     <div class="trend-sub">Score range: &minus;10 (harmful) &middot; 0 (neutral) &middot; +10 (beneficial) &middot; Only policies scoring &plusmn;4 or above shown</div>
   </div>
+  <div id="chart-region-toggles" class="chart-region-toggle-row"></div>
   <div class="score-toggles" id="score-toggles"></div>
   <div class="trend-chart-wrap">
     <svg id="trend-chart"></svg>
     <div class="trend-tooltip" id="trend-tooltip"></div>
   </div>
   <div class="trend-legend" id="trend-legend"></div>
+</div>
+
+<div class="scoring-section" id="scoring-section">
+  <button class="scoring-toggle-btn" onclick="toggleScoring()">
+    <span class="scoring-arrow">&#9658;</span>
+    HOW ARE THESE SCORED?
+  </button>
+  <div class="scoring-body">
+    <table class="scoring-table">
+      <thead>
+        <tr><th>Dimension</th><th>What it measures</th><th>+score example</th><th>&minus;score example</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Social</td>
+          <td>Welfare, equality, education, public health, quality of life</td>
+          <td>Universal healthcare expansion, paid parental leave</td>
+          <td>Benefit cuts affecting low-income households</td>
+        </tr>
+        <tr>
+          <td>Env.</td>
+          <td>Emissions, land use, biodiversity, water, natural resources</td>
+          <td>National coal phase-out, clean energy investment</td>
+          <td>Oil drilling in protected ecosystems, deforestation legalised</td>
+        </tr>
+        <tr>
+          <td>Economic</td>
+          <td>Growth, jobs, inequality, cost of living, trade</td>
+          <td>Free trade agreement, minimum wage increase</td>
+          <td>Austerity cuts, tariffs raising consumer costs</td>
+        </tr>
+        <tr>
+          <td>Rights</td>
+          <td>Civil liberties, individual protections, access to justice</td>
+          <td>Abolishing the death penalty, press freedom expanded</td>
+          <td>Surveillance without judicial oversight, media censorship</td>
+        </tr>
+        <tr>
+          <td>Governance</td>
+          <td>Transparency, accountability, rule of law, democratic process</td>
+          <td>Independent anti-corruption agency, freedom of information</td>
+          <td>Gerrymandering, executive takeover of judicial appointments</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="scoring-scale">
+      Scores run from &minus;10 (severely harmful) to +10 (transformative benefit).
+      &nbsp; 0 = no meaningful impact &nbsp;&middot;&nbsp; &plusmn;1&ndash;2 = minor &nbsp;&middot;&nbsp; &plusmn;3&ndash;5 = moderate &nbsp;&middot;&nbsp; &plusmn;6&ndash;8 = significant &nbsp;&middot;&nbsp; &plusmn;9&ndash;10 = landmark or irreversible.
+      &nbsp; Scores reflect real-world impact, not how a policy is officially described.
+    </div>
+  </div>
 </div>
 
 <div class="movers-section">
@@ -1668,6 +1838,23 @@ const SCORES = [
   { key: 'governance_score',    label: 'Governance',   color: '#9ca3af', abbr: 'GOV' },
 ];
 
+const CHART_REGION_COLORS = { eu:'#1D9E75', us:'#EF9F27', uk:'#378ADD', ca:'#9ca3af', au:'#a78bfa' };
+const CHART_DIMENSION_DASH = {
+  social_score:        null,
+  environmental_score: '6,3',
+  economic_score:      '2,2',
+  human_rights_score:  '8,3,2,3',
+  governance_score:    '4,4',
+};
+const LIMITED_REGIONS = new Set(['ca','au']);
+const SCORE_TOOLTIPS = {
+  social_score:        'Impact on welfare, equality, education, public health and quality of life',
+  environmental_score: 'Impact on emissions, land use, biodiversity, water and natural resources',
+  economic_score:      'Impact on growth, jobs, inequality, cost of living and trade',
+  human_rights_score:  'Impact on civil liberties, individual protections and access to justice',
+  governance_score:    'Impact on transparency, accountability, rule of law and democratic process',
+};
+
 function renderTrend(policies) {
   const svg = d3.select('#trend-chart');
   const el  = document.getElementById('trend-chart');
@@ -1678,15 +1865,24 @@ function renderTrend(policies) {
   svg.selectAll('*').remove();
   svg.attr('viewBox', `0 0 ${W} ${H}`);
 
-  const activeLoc = LOCATIONS.find(l => l.region_code === activeNav);
-  const regionPolicies = activeLoc
-    ? policies.filter(p => p.country === activeLoc.db_country_code)
-    : policies;
+  // ── Region groups ───────────────────────────────────────────────────────
+  const multiRegion = activeChartRegions.size > 1;
+  let regionGroups;
+  if (activeChartRegions.size === 0) {
+    regionGroups = [{ code: null, policies, limited: false }];
+  } else {
+    regionGroups = [...activeChartRegions].map(code => {
+      const loc = LOCATIONS.find(l => l.region_code === code);
+      const rPolicies = loc ? policies.filter(p => p.country === loc.db_country_code) : policies;
+      return { code, policies: rPolicies, limited: LIMITED_REGIONS.has(code) };
+    });
+  }
 
-  // Dynamic x-axis: span only the months where data actually exists
+  // ── Month range from all visible policies ───────────────────────────────
   const now = new Date();
+  const allRegionPols = regionGroups.flatMap(g => g.policies);
   let months;
-  const validMonths = regionPolicies
+  const validMonths = allRegionPols
     .filter(p => p.published_date && p.published_date.length >= 7)
     .map(p => p.published_date.slice(0, 7));
   if (validMonths.length) {
@@ -1707,97 +1903,90 @@ function renderTrend(policies) {
     }
   }
 
-  // Update header label
+  // ── Header label ────────────────────────────────────────────────────────
   const titleEl = document.getElementById('trend-title');
   if (titleEl && months.length) {
     const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
-    const trendLoc   = LOCATIONS.find(l => l.region_code === activeNav);
-    const regionSpan = trendLoc
-      ? ` · <span class="trend-region">${trendLoc.flag_emoji} ${trendLoc.display_name}</span>`
-      : '';
-    const dateRange = months.length > 1
-      ? `${fmtM(months[0])} – ${fmtM(months[months.length - 1])}`
-      : fmtM(months[0]);
+    const dateRange = months.length > 1 ? `${fmtM(months[0])} – ${fmtM(months[months.length-1])}` : fmtM(months[0]);
+    let regionSpan = '';
+    if (multiRegion) {
+      regionSpan = ` · <span style="font-family:var(--mono);font-size:11px;color:#6b7280">comparing ${activeChartRegions.size} regions</span>`;
+    } else if (activeChartRegions.size === 1) {
+      const code = [...activeChartRegions][0];
+      const loc = LOCATIONS.find(l => l.region_code === code);
+      if (loc) regionSpan = ` · <span class="trend-region">${loc.flag_emoji} ${loc.display_name}</span>`;
+    }
     titleEl.innerHTML = `are things getting better or worse?${regionSpan} · ${dateRange}`;
   }
 
-  const series = SCORES
-    .filter(s => !activeSeries || activeSeries.has(s.key))
-    .map(({ key, label, color }) => ({
-    key, label, color,
-    values: months.map(month => {
-      const items = regionPolicies.filter(p => (p.published_date || '').startsWith(month));
-      const threshold = (activeNav === 'ca' || activeNav === 'au') ? 2 : activeNav === 'uk' ? 3 : 4;
-      const valid = items.filter(p => p[key] !== null && p[key] !== undefined && Math.abs(p[key]) >= threshold);
-      return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
-    }),
-  }));
+  // ── Build series: one entry per region × dimension ──────────────────────
+  const activeScores = SCORES.filter(s => !activeSeries || activeSeries.has(s.key));
+  const series = [];
+  regionGroups.forEach(({ code, policies: rPolicies, limited }) => {
+    const threshold = limited ? 2 : (code === 'uk' ? 3 : 4);
+    activeScores.forEach(({ key, label, color: dimColor }) => {
+      const lineColor = multiRegion ? (CHART_REGION_COLORS[code] || dimColor) : dimColor;
+      const dimDash   = CHART_DIMENSION_DASH[key];
+      const dashArray = limited ? (dimDash || '4,3') : (multiRegion ? dimDash : null);
+      const values = months.map(month => {
+        const items = rPolicies.filter(p => (p.published_date || '').startsWith(month));
+        const valid = items.filter(p => p[key] !== null && p[key] !== undefined && Math.abs(p[key]) >= threshold);
+        return { month, v: valid.length >= 1 ? valid.reduce((s, p) => s + p[key], 0) / valid.length : 0 };
+      });
+      series.push({ key, label, dimLabel: label, color: lineColor, dashArray, regionCode: code, limited, values });
+    });
+  });
 
-  // Fixed diverging scale: -10 to +10
+  // ── Axes ────────────────────────────────────────────────────────────────
   const xScale = d3.scalePoint().domain(months).range([pad.left, W - pad.right]);
   const yScale = d3.scaleLinear().domain([-10, 10]).range([H - pad.bottom, pad.top]);
   const y0     = yScale(0);
-
   const g = svg.append('g');
 
-  // Subtle positive/negative background bands
-  g.append('rect')
-    .attr('x', pad.left).attr('y', pad.top)
+  g.append('rect').attr('x', pad.left).attr('y', pad.top)
     .attr('width', W - pad.left - pad.right).attr('height', y0 - pad.top)
     .attr('fill', '#1D9E75').attr('opacity', .03);
-  g.append('rect')
-    .attr('x', pad.left).attr('y', y0)
+  g.append('rect').attr('x', pad.left).attr('y', y0)
     .attr('width', W - pad.left - pad.right).attr('height', H - pad.bottom - y0)
     .attr('fill', '#f87171').attr('opacity', .03);
 
-  // Grid + Y axis
-  g.append('g')
-    .attr('transform', `translate(${pad.left},0)`)
+  g.append('g').attr('transform', `translate(${pad.left},0)`)
     .call(d3.axisLeft(yScale).tickValues([-10,-5,0,5,10]).tickSize(-(W - pad.left - pad.right)))
     .call(ax => {
       ax.select('.domain').remove();
-      ax.selectAll('line').attr('stroke', d => d === 0 ? '#374151' : '#1f2937')
-        .attr('stroke-width', d => d === 0 ? 1.5 : 1);
-      ax.selectAll('text').attr('fill', '#4b5563')
-        .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9);
+      ax.selectAll('line').attr('stroke', d => d === 0 ? '#374151' : '#1f2937').attr('stroke-width', d => d === 0 ? 1.5 : 1);
+      ax.selectAll('text').attr('fill', '#4b5563').attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9);
     });
 
-  // X axis — tick every N months based on range length
   const tickEvery = months.length <= 6 ? 1 : months.length <= 18 ? 3 : months.length <= 36 ? 6 : 12;
-  g.append('g')
-    .attr('transform', `translate(0,${H - pad.bottom})`)
+  g.append('g').attr('transform', `translate(0,${H - pad.bottom})`)
     .call(d3.axisBottom(xScale).tickValues(months.filter((_, i) => i % tickEvery === 0)).tickSize(0))
     .call(ax => {
       ax.select('.domain').remove();
-      ax.selectAll('text').attr('fill', '#4b5563')
-        .attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9).attr('dy', '1.2em');
+      ax.selectAll('text').attr('fill', '#4b5563').attr('font-family', 'JetBrains Mono, monospace').attr('font-size', 9).attr('dy', '1.2em');
     });
 
-  // Area + line per score metric
-  const lineGen = d3.line()
-    .x(d => xScale(d.month))
-    .y(d => yScale(d.v))
-    .curve(d3.curveMonotoneX);
+  // ── Lines (and optionally areas + dots) ─────────────────────────────────
+  const lineGen = d3.line().x(d => xScale(d.month)).y(d => yScale(d.v)).curve(d3.curveMonotoneX);
+  const areaGen = d3.area().x(d => xScale(d.month)).y0(y0).y1(d => yScale(d.v)).curve(d3.curveMonotoneX);
+  const showDots = series.length <= 5;
+  const showArea = !multiRegion;
 
-  const areaGen = d3.area()
-    .x(d => xScale(d.month))
-    .y0(y0)
-    .y1(d => yScale(d.v))
-    .curve(d3.curveMonotoneX);
-
-  series.forEach(({ color, values }) => {
-    g.append('path').datum(values)
-      .attr('fill', color).attr('opacity', .07).attr('d', areaGen);
-    g.append('path').datum(values)
-      .attr('fill', 'none').attr('stroke', color)
-      .attr('stroke-width', 1.5).attr('opacity', .9).attr('d', lineGen);
-    g.selectAll(null).data(values).join('circle')
-      .attr('cx', d => xScale(d.month))
-      .attr('cy', d => yScale(d.v))
-      .attr('r', 2.5).attr('fill', d => scoreColor(d.v)).attr('opacity', .9);
+  series.forEach(({ color, dashArray, values }) => {
+    if (showArea) {
+      g.append('path').datum(values).attr('fill', color).attr('opacity', .07).attr('d', areaGen);
+    }
+    const line = g.append('path').datum(values)
+      .attr('fill', 'none').attr('stroke', color).attr('stroke-width', 1.5).attr('opacity', .9).attr('d', lineGen);
+    if (dashArray) line.attr('stroke-dasharray', dashArray);
+    if (showDots) {
+      g.selectAll(null).data(values).join('circle')
+        .attr('cx', d => xScale(d.month)).attr('cy', d => yScale(d.v))
+        .attr('r', 2.5).attr('fill', color).attr('opacity', .9);
+    }
   });
 
-  // Hover tooltip
+  // ── Hover tooltip ───────────────────────────────────────────────────────
   const tooltip = document.getElementById('trend-tooltip');
   if (tooltip && series.length) {
     const overlay = g.append('rect')
@@ -1820,18 +2009,37 @@ function renderTrend(policies) {
       vLine.style('display', null).attr('x1', x).attr('x2', x);
 
       const fmtM = m => { const [y, mo] = m.split('-'); return new Date(+y, +mo-1, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }); };
-      const rows = series.map(s => {
-        const pt = s.values.find(v => v.month === month);
-        const v = pt ? pt.v : 0;
-        const col = v > 0 ? '#1D9E75' : v < 0 ? '#f87171' : '#6b7280';
-        return `<div style="display:flex;justify-content:space-between;gap:.75rem"><span style="color:${s.color}">${s.label}</span><span style="color:${col}">${v > 0 ? '+' : ''}${v.toFixed(1)}</span></div>`;
-      }).join('');
+      let rows;
+      if (multiRegion) {
+        const byRegion = {};
+        series.forEach(s => {
+          if (!byRegion[s.regionCode]) byRegion[s.regionCode] = { color: s.color, entries: [] };
+          const pt = s.values.find(v => v.month === month);
+          byRegion[s.regionCode].entries.push({ label: s.dimLabel, v: pt ? pt.v : 0, color: s.color });
+        });
+        rows = Object.entries(byRegion).map(([code, { color, entries }]) => {
+          const loc = LOCATIONS.find(l => l.region_code === code);
+          const hdr = `<div style="color:${color};font-weight:600;margin-top:.2rem">${loc ? loc.flag_emoji + ' ' + loc.nav_label : code.toUpperCase()}</div>`;
+          const dRows = entries.map(e => {
+            const col = e.v > 0 ? '#1D9E75' : e.v < 0 ? '#f87171' : '#6b7280';
+            return `<div style="display:flex;justify-content:space-between;gap:.75rem;padding-left:.5rem"><span style="color:#9ca3af">${e.label}</span><span style="color:${col}">${e.v > 0 ? '+' : ''}${e.v.toFixed(1)}</span></div>`;
+          }).join('');
+          return hdr + dRows;
+        }).join('');
+      } else {
+        rows = series.map(s => {
+          const pt = s.values.find(v => v.month === month);
+          const v = pt ? pt.v : 0;
+          const col = v > 0 ? '#1D9E75' : v < 0 ? '#f87171' : '#6b7280';
+          return `<div style="display:flex;justify-content:space-between;gap:.75rem"><span style="color:${s.color}">${s.label}</span><span style="color:${col}">${v > 0 ? '+' : ''}${v.toFixed(1)}</span></div>`;
+        }).join('');
+      }
       tooltip.innerHTML = `<div style="color:#9ca3af;font-size:10px;margin-bottom:.3rem;letter-spacing:.3px">${fmtM(month)}</div>${rows}`;
       tooltip.style.display = 'block';
 
       const svgW = el.getBoundingClientRect().width;
       const pxX = x / W * svgW;
-      const tipW = 145;
+      const tipW = multiRegion ? 170 : 145;
       tooltip.style.top = pad.top + 'px';
       if (pxX + tipW + 16 < svgW) {
         tooltip.style.left = (pxX + 12) + 'px'; tooltip.style.right = '';
@@ -1844,11 +2052,28 @@ function renderTrend(policies) {
     });
   }
 
-  // Legend
-  document.getElementById('trend-legend').innerHTML = SCORES
-    .filter(s => !activeSeries || activeSeries.has(s.key))
-    .map(s => `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label}</div>`)
-    .join('') + `<div class="legend-item" style="margin-left:auto;color:#4b5563;font-size:10px;font-family:var(--mono)">+10 benefit &nbsp; 0 neutral &nbsp; −10 harm</div>`;
+  // ── Legend ──────────────────────────────────────────────────────────────
+  const legendEl = document.getElementById('trend-legend');
+  if (legendEl) {
+    const scale = `<div class="legend-item" style="margin-left:auto;color:#4b5563;font-size:10px;font-family:var(--mono)">+10 benefit &nbsp; 0 neutral &nbsp; −10 harm</div>`;
+    if (multiRegion) {
+      const regionItems = [...activeChartRegions].map(code => {
+        const loc = LOCATIONS.find(l => l.region_code === code);
+        const col = CHART_REGION_COLORS[code] || '#fff';
+        const lim = LIMITED_REGIONS.has(code) ? ' <span style="opacity:.55;font-size:9px">(limited)</span>' : '';
+        return `<div class="legend-item"><div class="legend-dot" style="background:${col}"></div>${loc ? loc.flag_emoji + ' ' + loc.display_name : code.toUpperCase()}${lim}</div>`;
+      }).join('');
+      const dimItems = activeScores.map(s => {
+        const dash = CHART_DIMENSION_DASH[s.key];
+        return `<div class="legend-item"><svg width="16" height="10" style="margin-right:3px;flex-shrink:0;vertical-align:middle"><line x1="0" y1="5" x2="16" y2="5" stroke="#6b7280" stroke-width="1.5"${dash ? ` stroke-dasharray="${dash}"` : ''}/></svg>${s.label}</div>`;
+      }).join('');
+      legendEl.innerHTML = regionItems + dimItems + scale;
+    } else {
+      legendEl.innerHTML = activeScores
+        .map(s => `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label}</div>`)
+        .join('') + scale;
+    }
+  }
 }
 
 // ── Biggest Movers ─────────────────────────────────────────────────────────
@@ -1956,6 +2181,9 @@ function renderRegionSelector() {
       b.classList.toggle('active', b.dataset.nav === (region === 'all' ? 'all' : 'live'))
     );
     updateRegionPills(region === 'all' ? null : region);
+    // Sync chart: specific region → sole active; "Show all" → empty (combined)
+    activeChartRegions = region === 'all' ? new Set() : new Set([region]);
+    updateChartRegionToggles();
     const navLoc = LOCATIONS.find(l => l.region_code === region);
     zoomMapToRegion(navLoc ? navLoc.db_country_code : null);
     syncMapFills();
@@ -1972,7 +2200,7 @@ function initScoreToggles() {
   activeSeries = new Set(SCORES.map(s => s.key));
   container.innerHTML = '<span class="score-toggle-label">SHOW</span>' +
     SCORES.map(s =>
-      `<button class="score-toggle active" data-key="${s.key}" style="--c:${s.color}">${s.label}</button>`
+      `<button class="score-toggle active" data-key="${s.key}" style="--c:${s.color}" data-tooltip="${SCORE_TOOLTIPS[s.key] || ''}">${s.label}</button>`
     ).join('');
   container.addEventListener('click', e => {
     const btn = e.target.closest('.score-toggle[data-key]');
@@ -1988,6 +2216,53 @@ function initScoreToggles() {
     );
     renderTrend(allPolicies);
   });
+}
+
+function initChartRegionToggles() {
+  const container = document.getElementById('chart-region-toggles');
+  if (!container) return;
+  activeChartRegions = new Set(['eu']); // default EU; detectRegion() may override
+  const locs = LOCATIONS.filter(l => l.is_active !== 0).sort((a, b) => a.sort_order - b.sort_order);
+  container.innerHTML = '<span class="score-toggle-label">REGION</span>' +
+    locs.map(loc => {
+      const limited = loc.data_quality === 'limited';
+      const color   = CHART_REGION_COLORS[loc.region_code] || '#fff';
+      const tip     = limited ? `${loc.display_name} — limited data` : '';
+      return `<button class="chart-region-pill${limited ? ' limited' : ''}" data-region="${loc.region_code}" style="--c:${color}" title="${tip}">${loc.flag_emoji} ${loc.nav_label}</button>`;
+    }).join('');
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.chart-region-pill[data-region]');
+    if (!btn) return;
+    const code = btn.dataset.region;
+    if (activeChartRegions.has(code)) {
+      if (activeChartRegions.size > 1) activeChartRegions.delete(code);
+    } else {
+      activeChartRegions.add(code);
+    }
+    updateChartRegionToggles();
+    renderTrend(allPolicies);
+  });
+  updateChartRegionToggles();
+}
+
+function updateChartRegionToggles() {
+  document.querySelectorAll('.chart-region-pill[data-region]').forEach(p =>
+    p.classList.toggle('active', activeChartRegions.has(p.dataset.region))
+  );
+}
+
+function initScoring() {
+  if (localStorage.getItem('cg-scoring-open') === '1') {
+    const s = document.getElementById('scoring-section');
+    if (s) s.classList.add('open');
+  }
+}
+
+function toggleScoring() {
+  const s = document.getElementById('scoring-section');
+  if (!s) return;
+  s.classList.toggle('open');
+  localStorage.setItem('cg-scoring-open', s.classList.contains('open') ? '1' : '0');
 }
 
 function initTrend(policies) {
@@ -2068,14 +2343,15 @@ function renderNavButtons() {
 
 // ── Policy Feed ────────────────────────────────────────────────────────────
 
-let allPolicies   = [];
-let activeNav     = 'live';
-let searchQuery   = '';
-let activeTag     = '';
-let activeScore   = '';
-let activeSortDir = null;
-let showProcedural = false;
-let activeSeries  = null;
+let allPolicies      = [];
+let activeNav        = 'live';
+let searchQuery      = '';
+let activeTag        = '';
+let activeScore      = '';
+let activeSortDir    = null;
+let showProcedural   = false;
+let activeSeries     = null;
+let activeChartRegions = new Set();
 
 function timeAgo(isoStr) {
   if (!isoStr) return 'unknown';
@@ -2646,6 +2922,8 @@ function _applyRegionNav(region) {
   activeNav = region;
   document.querySelectorAll('#nav-bar .nav-btn').forEach(b => b.classList.remove('active'));
   updateRegionPills(region);
+  activeChartRegions = new Set([region]);
+  updateChartRegionToggles();
 }
 
 async function init() {
@@ -2655,7 +2933,9 @@ async function init() {
   renderNavButtons();
   renderRegionChip();
   initScoreToggles();
+  initChartRegionToggles();
   renderRegionSelector();
+  initScoring();
 
   await detectRegion();
 
