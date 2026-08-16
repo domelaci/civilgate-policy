@@ -23,7 +23,7 @@ DB_PATH   = Path(__file__).parent / "policies.db"
 COUNTRY   = "DE"
 LEVEL     = "eu"      # Germany is an EU member — shows in EU feed
 SOURCE    = "bundestag"
-STATUS    = "law"
+STATUS    = "enacted"
 HEADERS   = {"User-Agent": "CivilGate-backfill/1.0 (civic research; non-commercial)"}
 
 YEAR_NOW  = datetime.now().year
