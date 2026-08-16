@@ -847,13 +847,6 @@ footer {
 .chart-region-pill.limited { opacity: .55; }
 .chart-region-pill:hover { opacity: .85; border-color: rgba(255,255,255,.3); color: #fff; }
 
-/* Force emoji-capable font for flag sequences — prevents Chrome/Linux from
-   rendering regional indicator letters through the monospace font fallback */
-.flag-emoji {
-  font-family: 'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Emoji',
-               'Segoe UI Symbol', 'EmojiOne Color', 'Twemoji Mozilla', sans-serif;
-  font-style: normal;
-}
 
 /* ── Scoring explainer (Task C) ── */
 .scoring-section { border-bottom: 1px solid var(--border); }
@@ -2246,7 +2239,7 @@ function initChartRegionToggles() {
       const limited = loc.data_quality === 'limited';
       const color   = CHART_REGION_COLORS[loc.region_code] || '#fff';
       const tip     = limited ? `${loc.display_name} — limited data` : loc.display_name;
-      return `<button class="chart-region-pill${limited ? ' limited' : ''}" data-region="${loc.region_code}" style="--c:${color}" title="${tip}"><span class="flag-emoji">${loc.flag_emoji}</span> ${loc.nav_label}</button>`;
+      return `<button class="chart-region-pill${limited ? ' limited' : ''}" data-region="${loc.region_code}" style="--c:${color}" title="${tip}">${loc.nav_label}</button>`;
     }).join('') +
     '<button class="chart-region-pill" data-region="__all__" title="Compare all regions">Show all</button>';
 
@@ -2407,7 +2400,7 @@ function scoreDisplay(score) {
 
 function countryBadge(country) {
   const loc = LOCATIONS.find(l => l.db_country_code === country);
-  return loc ? `<span class="flag-emoji">${loc.flag_emoji}</span> ${loc.nav_label}` : country;
+  return loc ? loc.nav_label : country;
 }
 
 function badgeClass(country, source) {
