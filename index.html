@@ -317,7 +317,10 @@ main {
 
 /* ── Policy Card ── */
 .policy-card {
-  border: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-right: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-left: 4px solid transparent; /* color set inline per dimension */
   border-radius: 12px;
   padding: .75rem .9rem;
   display: flex;
@@ -325,9 +328,9 @@ main {
   gap: .3rem;
   height: 310px;
   overflow: hidden;
-  transition: border-color .15s;
+  transition: border-top-color .15s, border-right-color .15s, border-bottom-color .15s;
 }
-.policy-card:hover { border-color: rgba(255,255,255,.15); }
+.policy-card:hover { border-top-color: rgba(255,255,255,.18); border-right-color: rgba(255,255,255,.18); border-bottom-color: rgba(255,255,255,.18); }
 .policy-card.expanded { height: auto; overflow: visible; }
 
 .card-badges {
@@ -622,14 +625,38 @@ footer {
 .happening-card {
   flex: 0 0 210px;
   background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-right: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-left: 4px solid transparent; /* set inline per dimension */
   border-radius: 10px;
   padding: .7rem .85rem;
   cursor: pointer;
-  transition: border-color .15s;
-  border-left-width: 4px;
+  transition: border-top-color .15s, border-right-color .15s, border-bottom-color .15s;
 }
-.happening-card:hover { border-color: rgba(255,255,255,.2); }
+.happening-card:hover { border-top-color: rgba(255,255,255,.2); border-right-color: rgba(255,255,255,.2); border-bottom-color: rgba(255,255,255,.2); }
+
+.happening-score-row {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  margin: .2rem 0 .15rem;
+  line-height: 1;
+}
+.happening-score-num {
+  font-family: var(--mono);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.happening-score-dim {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
 .happening-badge-row {
   display: flex;
   justify-content: space-between;
@@ -2429,9 +2456,13 @@ function renderHappeningNow(policies) {
     const raw = (p.summary || '').split('. ')[0];
     const excerpt = raw.length > 80 ? raw.slice(0, 77) + '…' : raw;
 
-    const hapHero = SCORES.map(s => ({ color: s.color, key: s.key, val: Math.abs(p[s.key] || 0) }))
-                          .sort((a, b) => b.val - a.val)[0];
-    const hapColor = hapHero?.val > 0 ? hapHero.color : '#1D9E75';
+    const hapScored = SCORES.map(s => ({ ...s, val: p[s.key] ?? null }))
+                            .filter(s => s.val !== null)
+                            .sort((a, b) => Math.abs(b.val) - Math.abs(a.val));
+    const hapHero  = hapScored[0] || null;
+    const hapColor = hapHero ? hapHero.color : '#1D9E75';
+    const hapScoreVal  = hapHero ? `${hapHero.val > 0 ? '+' : ''}${hapHero.val}` : '—';
+    const hapScoreColor = scoreColor(hapHero ? hapHero.val : null);
 
     const card = document.createElement('div');
     card.className = 'happening-card';
@@ -2442,6 +2473,10 @@ function renderHappeningNow(policies) {
       `<div class="happening-badge-row">` +
         `<span class="source-badge ${badgeClass(p.country, p.source)}">${countryBadge(p.country)}</span>` +
         `<span class="happening-live"><span class="happening-live-dot"></span>LIVE</span>` +
+      `</div>` +
+      `<div class="happening-score-row">` +
+        `<span class="happening-score-num" style="color:${hapScoreColor}">${hapScoreVal}</span>` +
+        `<span class="happening-score-dim" style="color:${hapColor}">${hapHero ? hapHero.label : ''}</span>` +
       `</div>` +
       `<div class="happening-title">${p.title || 'Untitled'}</div>` +
       `<div class="happening-excerpt">${excerpt}</div>`;
@@ -2648,7 +2683,7 @@ function renderGrid() {
       country: p.country, level: p.level||'national', url: p.url||''
     }).replace(/'/g,"&#39;");
 
-    return `<div class="policy-card" style="background:linear-gradient(160deg,rgba(255,255,255,.03) 55%,${tint});border-left:4px solid ${dimColor}">
+    return `<div class="policy-card" style="background:linear-gradient(160deg,rgba(255,255,255,.03) 55%,${tint});border-left-color:${dimColor}">
       <div class="card-badges">
         <span class="source-badge ${badgeClass(p.country, p.source)}">${countryBadge(p.country)}</span>
         ${statusBadge(p.status)}${scopeBadge(p.scope)}
