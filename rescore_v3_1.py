@@ -195,9 +195,10 @@ def export_json(conn: sqlite3.Connection) -> None:
         d = dict(zip(cols, row))
         d["tags"] = json.loads(d["tags"] or "[]")
         out.append(d)
-    data = {"last_updated": datetime.utcnow().isoformat() + "Z", "policies": out}
+    total_count = conn.execute("SELECT count(*) FROM policies").fetchone()[0]
+    data = {"last_updated": datetime.utcnow().isoformat() + "Z", "total_count": total_count, "policies": out}
     OUT_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info("Exported %d policies to policies.json", len(out))
+    log.info("Exported %d policies to policies.json (%d total in DB)", len(out), total_count)
 
 
 def push_to_github() -> None:

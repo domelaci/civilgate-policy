@@ -1455,12 +1455,14 @@ def export_json(conn: sqlite3.Connection) -> None:
         d["tags"] = json.loads(d["tags"] or "[]")
         out.append(d)
 
+    total_count = conn.execute("SELECT count(*) FROM policies").fetchone()[0]
     export = {
         "last_updated": datetime.utcnow().isoformat() + "Z",
+        "total_count": total_count,
         "policies": out,
     }
     OUT_FILE.write_text(json.dumps(export, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info("Exported %d policies to policies.json", len(out))
+    log.info("Exported %d policies to policies.json (%d total in DB)", len(out), total_count)
 
     cursor = conn.execute(
         "SELECT region_code,display_name,flag_emoji,nav_label,world_region,"

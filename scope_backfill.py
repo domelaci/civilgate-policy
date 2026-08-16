@@ -159,9 +159,10 @@ def main():
         out.append(d)
 
     import datetime as dt
-    export = {"last_updated": dt.datetime.utcnow().isoformat() + "Z", "policies": out}
+    total_count = conn.execute("SELECT count(*) FROM policies").fetchone()[0]
+    export = {"last_updated": dt.datetime.utcnow().isoformat() + "Z", "total_count": total_count, "policies": out}
     (BASE_DIR / "policies.json").write_text(json.dumps(export, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info("Exported %d policies to policies.json", len(out))
+    log.info("Exported %d policies to policies.json (%d total in DB)", len(out), total_count)
     conn.close()
 
 
