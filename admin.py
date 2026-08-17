@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """CivilGate backfill admin — port 5051."""
-import json, os, secrets, sqlite3, subprocess
+import json, os, secrets, sqlite3, subprocess, time
+from datetime import timedelta
 from pathlib import Path
 from flask import Flask, jsonify, request, session, redirect, url_for
 from werkzeug.security import check_password_hash
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent / ".env")
 
 BASE_DIR = Path(__file__).parent
 DB_FILE  = BASE_DIR / "policies.db"
@@ -12,7 +15,9 @@ USERNAME      = "domelaci"
 PASSWORD_HASH = "scrypt:32768:8:1$n67wx2JX6GeD7mJu$c5065d74a5aba1d39832701702b7576d7fed0406b871fdff96769aec7b3c2a9d8b0c932fed05b59197790d80be0e38fb47ad53d5bf5a634557363cdf6f7cf8a2"
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+app.secret_key = os.environ["ADMIN_SECRET_KEY"]
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
+ADMIN_API_TOKEN = os.environ["ADMIN_API_TOKEN"]
 
 
 def db():
@@ -22,7 +27,10 @@ def db():
 
 
 def logged_in():
-    return session.get("user") == USERNAME
+    if session.get("user") == USERNAME:
+        return True
+    token = request.headers.get("X-Admin-Token") or request.args.get("t")
+    return token == ADMIN_API_TOKEN
 
 
 def get_stats():
@@ -81,11 +89,11 @@ def get_stats():
         ORDER BY bucket
     """).fetchall()
 
-    # Items added per day per source (last 60 days)
+    # Items added per day per source (last 30 days)
     daily_ingest = conn.execute("""
         SELECT fetched_date AS day, source, COUNT(*) AS n
         FROM policies
-        WHERE fetched_date >= date('now', '-60 days')
+        WHERE fetched_date >= date('now', '-30 days')
         GROUP BY fetched_date, source
         ORDER BY fetched_date
     """).fetchall()
@@ -135,7 +143,7 @@ def get_stats():
     except Exception:
         backfill_workers = 0
 
-    return {
+    result = {
         "total": row["total"], "scored": row["scored"],
         "pending": row["pending"], "failed": row["failed"],
         "pct": round(100 * row["scored"] / row["total"], 1) if row["total"] else 0,
@@ -155,6 +163,98 @@ def get_stats():
         "gov_dist": gov_dist,
         "rate_5min": rate,
     }
+    result.update(get_deep_stats())
+    return result
+
+
+_deep_cache: dict = {"data": None, "at": 0.0}
+
+def get_deep_stats() -> dict:
+    global _deep_cache
+    if _deep_cache["data"] is not None and time.time() - _deep_cache["at"] < 600:
+        return _deep_cache["data"]
+    conn = db()
+
+    score_drift = conn.execute("""
+        SELECT strftime('%Y', published_date) AS year,
+               ROUND(AVG(social_score), 2)         AS social,
+               ROUND(AVG(environmental_score), 2)  AS env,
+               ROUND(AVG(economic_score), 2)        AS econ,
+               ROUND(AVG(human_rights_score), 2)   AS hr,
+               ROUND(AVG(governance_score), 2)      AS gov,
+               COUNT(*) AS n
+        FROM policies
+        WHERE published_date IS NOT NULL
+          AND scorer_version IS NOT NULL
+          AND strftime('%Y', published_date) >= '2007'
+        GROUP BY year ORDER BY year
+    """).fetchall()
+
+    country_cmp = conn.execute("""
+        SELECT country, COUNT(*) AS total,
+               ROUND(AVG(social_score), 2)         AS social,
+               ROUND(AVG(environmental_score), 2)  AS env,
+               ROUND(AVG(economic_score), 2)        AS econ,
+               ROUND(AVG(human_rights_score), 2)   AS hr,
+               ROUND(AVG(governance_score), 2)      AS gov
+        FROM policies WHERE scorer_version IS NOT NULL
+        GROUP BY country ORDER BY total DESC
+    """).fetchall()
+
+    status_cmp = conn.execute("""
+        SELECT status, COUNT(*) AS total,
+               ROUND(AVG(social_score), 2)         AS social,
+               ROUND(AVG(environmental_score), 2)  AS env,
+               ROUND(AVG(economic_score), 2)        AS econ,
+               ROUND(AVG(human_rights_score), 2)   AS hr,
+               ROUND(AVG(governance_score), 2)      AS gov
+        FROM policies WHERE scorer_version IS NOT NULL AND status IS NOT NULL
+        GROUP BY status ORDER BY total DESC
+    """).fetchall()
+
+    top_tags = conn.execute("""
+        SELECT je.value AS tag, COUNT(*) AS n,
+               ROUND(AVG(ABS(p.social_score + p.environmental_score + p.economic_score +
+                             p.human_rights_score + p.governance_score) / 5.0), 2) AS avg_abs,
+               ROUND(AVG((p.social_score + p.environmental_score + p.economic_score +
+                          p.human_rights_score + p.governance_score) / 5.0), 2) AS avg_signed
+        FROM policies p, json_each(p.tags) je
+        WHERE p.scorer_version IS NOT NULL AND p.tags IS NOT NULL AND p.tags != '[]'
+        GROUP BY je.value HAVING n >= 10
+        ORDER BY avg_abs DESC LIMIT 20
+    """).fetchall()
+
+    best_month = conn.execute("""
+        SELECT strftime('%Y-%m', published_date) AS month,
+               ROUND(AVG((social_score + environmental_score + economic_score +
+                          human_rights_score + governance_score) / 5.0), 2) AS avg_score,
+               COUNT(*) AS n
+        FROM policies
+        WHERE scorer_version IS NOT NULL AND published_date IS NOT NULL
+        GROUP BY month HAVING n >= 20 ORDER BY avg_score DESC LIMIT 1
+    """).fetchone()
+
+    worst_month = conn.execute("""
+        SELECT strftime('%Y-%m', published_date) AS month,
+               ROUND(AVG((social_score + environmental_score + economic_score +
+                          human_rights_score + governance_score) / 5.0), 2) AS avg_score,
+               COUNT(*) AS n
+        FROM policies
+        WHERE scorer_version IS NOT NULL AND published_date IS NOT NULL
+        GROUP BY month HAVING n >= 20 ORDER BY avg_score ASC LIMIT 1
+    """).fetchone()
+
+    conn.close()
+    result = {
+        "score_drift":  [dict(r) for r in score_drift],
+        "country_cmp":  [dict(r) for r in country_cmp],
+        "status_cmp":   [dict(r) for r in status_cmp],
+        "top_tags":     [dict(r) for r in top_tags],
+        "best_month":   dict(best_month)  if best_month  else None,
+        "worst_month":  dict(worst_month) if worst_month else None,
+    }
+    _deep_cache = {"data": result, "at": time.time()}
+    return result
 
 
 def tail_log(lines: int = 80) -> str:
@@ -260,6 +360,7 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
   <h1>&#9632; CivilGate backfill</h1>
   <a class="logout" href="/logout">sign out</a>
 </header>
+<div style="position:fixed;bottom:8px;right:12px;font-size:10px;color:#4b5563">v20</div>
 
 <div class="grid" id="cards"></div>
 <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
@@ -278,9 +379,51 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
 <h2>Scoring rate — last 48 h (10-min buckets)</h2>
 <div id="rate-chart" style="margin-bottom:24px"></div>
 
-<h2>Items added per day (last 60 days)</h2>
+<h2>Items added per day (last 30 days)
+  <span style="font-size:11px;font-weight:400;margin-left:12px">
+    <button id="ingest-btn-total" onclick="renderIngest('total')" style="background:#1f2937;border:1px solid #374151;color:#e5e7eb;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace">Totals</button>
+    <button id="ingest-btn-sources" onclick="renderIngest('sources')" style="background:#111827;border:1px solid #1f2937;color:#4b5563;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace">By source</button>
+  </span>
+</h2>
 <div id="ingest-chart" style="margin-bottom:24px"></div>
-<div id="ingest-legend" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;font-size:10px;color:#9ca3af"></div>
+<div id="ingest-legend" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;font-size:10px;color:#9ca3af"></div>
+
+<h2>Statistics</h2>
+
+<div style="background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px;margin-bottom:16px">
+  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4b5563;margin-bottom:10px">SCORE DRIFT — GLOBAL AVERAGE BY YEAR</div>
+  <div id="drift-chart"></div>
+  <div id="drift-legend" style="display:flex;flex-wrap:wrap;gap:16px;margin-top:8px;font-size:10px;color:#9ca3af"></div>
+</div>
+
+<div style="background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px;margin-bottom:16px">
+  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4b5563;margin-bottom:10px">COUNTRY COMPARISON — AVERAGE SCORES BY DIMENSION</div>
+  <table id="country-cmp-table">
+    <thead><tr><th>Country</th><th>Count</th><th>Social</th><th>Env</th><th>Econ</th><th>Rights</th><th>Gov</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div style="background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px;margin-bottom:16px">
+  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4b5563;margin-bottom:10px">DO PROPOSED BILLS SCORE HIGHER THAN ENACTED LAWS?</div>
+  <table id="status-cmp-table">
+    <thead><tr><th>Status</th><th>Count</th><th>Social</th><th>Env</th><th>Econ</th><th>Rights</th><th>Gov</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div style="background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px;margin-bottom:16px">
+  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4b5563;margin-bottom:10px">HIGHEST IMPACT POLICY AREAS</div>
+  <table id="tags-table">
+    <thead><tr><th>Tag</th><th>Count</th><th>Avg Impact</th><th>Lean</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div style="background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px;margin-bottom:24px">
+  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#4b5563;margin-bottom:10px">PEAK AND TROUGH MONTHS</div>
+  <div id="months-chips" style="display:flex;gap:20px;flex-wrap:wrap;margin-top:4px"></div>
+</div>
 
 <h2>By source</h2>
 <table id="sources-table">
@@ -331,16 +474,90 @@ td.pos{color:#1D9E75}td.neg{color:#f87171}
 <div class="log" id="log">Loading…</div>
 
 <script>
+const _STATS = "__STATS_JSON__";
+const _LOG   = "__LOG_TEXT__";
+
+var _ingestRaw  = [];
+var _ingestMode = 'total';
+
+function renderIngest(mode) {
+  if (mode !== undefined) _ingestMode = mode;
+  var btnT = document.getElementById('ingest-btn-total');
+  var btnS = document.getElementById('ingest-btn-sources');
+  if (btnT) {
+    var on  = 'background:#1f2937;border:1px solid #374151;color:#e5e7eb';
+    var off = 'background:#111827;border:1px solid #1f2937;color:#4b5563';
+    btnT.style.cssText = ((_ingestMode==='total') ? on : off) + ';padding:2px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace';
+    btnS.style.cssText = ((_ingestMode==='sources') ? on : off) + ';padding:2px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:monospace';
+  }
+  var raw = _ingestRaw;
+  if (!raw.length) { document.getElementById('ingest-chart').textContent = 'No data yet'; return; }
+  var daySet = new Set(), srcSet = new Set();
+  raw.forEach(function(r){ daySet.add(r.day); srcSet.add(r.source); });
+  var days = [...daySet].sort();
+  var sources = [...srcSet].sort();
+  var palette = ['#7F77DD','#1D9E75','#EF9F27','#378ADD','#D85A30','#5DCAA5','#D4537E','#E24B4A','#F59E0B','#EC4899','#8B5CF6','#10B981','#06B6D4','#84CC16','#F97316','#6366F1','#14B8A6'];
+  var srcColor = Object.fromEntries(sources.map(function(s,i){ return [s, palette[i % palette.length]]; }));
+  var lookup = {};
+  raw.forEach(function(r){ (lookup[r.day] = lookup[r.day] || {})[r.source] = r.n; });
+  var totals = days.map(function(d){ return sources.reduce(function(s,src){ return s + (lookup[d] && lookup[d][src] ? lookup[d][src] : 0); }, 0); });
+  var maxVal = _ingestMode === 'total' ? Math.max.apply(null, totals.concat([1])) : Math.max.apply(null, raw.map(function(r){ return r.n; }).concat([1]));
+  var W = document.getElementById('ingest-chart').clientWidth || 900;
+  var H = 160, pad = {t:12, r:8, b:28, l:48};
+  var cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+  var xOf = function(i){ return pad.l + i * (cw / Math.max(days.length - 1, 1)); };
+  var yOf = function(v){ return pad.t + ch - (v / maxVal) * ch; };
+  var grid = [0, 0.25, 0.5, 0.75, 1].map(function(f){
+    var v = Math.round(maxVal * f), y = yOf(v).toFixed(1);
+    return '<line x1="' + pad.l + '" y1="' + y + '" x2="' + (pad.l+cw) + '" y2="' + y + '" stroke="#1f2937" stroke-width="1"/>'
+         + '<text x="' + (pad.l-4) + '" y="' + y + '" fill="#4b5563" font-size="9" text-anchor="end" dominant-baseline="middle">' + v.toLocaleString() + '</text>';
+  }).join('');
+  var areas = '', lines = '';
+  if (_ingestMode === 'total') {
+    var pts = days.map(function(d,i){ return [xOf(i), yOf(totals[i])]; });
+    var poly = pts.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+    var apath = 'M' + xOf(0).toFixed(1) + ',' + (pad.t+ch) + ' ' + pts.map(function(p){ return 'L' + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + ' L' + xOf(days.length-1).toFixed(1) + ',' + (pad.t+ch) + ' Z';
+    areas = '<path d="' + apath + '" fill="#7F77DD" opacity="0.12"/>';
+    lines = '<polyline points="' + poly + '" fill="none" stroke="#7F77DD" stroke-width="2" stroke-linejoin="round"/>';
+  } else {
+    sources.forEach(function(src){
+      var color = srcColor[src];
+      var pts = days.map(function(d,i){ return [xOf(i), yOf(lookup[d] && lookup[d][src] ? lookup[d][src] : 0)]; });
+      var poly = pts.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+      var apath = 'M' + xOf(0).toFixed(1) + ',' + (pad.t+ch) + ' ' + pts.map(function(p){ return 'L' + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + ' L' + xOf(days.length-1).toFixed(1) + ',' + (pad.t+ch) + ' Z';
+      areas += '<path d="' + apath + '" fill="' + color + '" opacity="0.07"/>';
+      lines += '<polyline points="' + poly + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round"/>';
+    });
+  }
+  var slotW = cw / Math.max(days.length, 1);
+  var hovers = days.map(function(day, i){
+    var tip = _ingestMode === 'total'
+      ? day + ': ' + totals[i] + ' items'
+      : day + ' - ' + sources.filter(function(s){ return lookup[day] && lookup[day][s]; }).map(function(s){ return s + ': ' + lookup[day][s]; }).join(', ') + ' (total: ' + totals[i] + ')';
+    return '<rect x="' + (xOf(i) - slotW/2).toFixed(1) + '" y="' + pad.t + '" width="' + slotW.toFixed(1) + '" height="' + ch + '" fill="transparent"><title>' + tip + '</title></rect>';
+  }).join('');
+  var xLabels = days.map(function(day, i){
+    if (i % 7 !== 0 && i !== days.length - 1) return '';
+    return '<text x="' + xOf(i).toFixed(1) + '" y="' + (H-6) + '" fill="#4b5563" font-size="9" text-anchor="middle">' + day.slice(5) + '</text>';
+  }).join('');
+  document.getElementById('ingest-chart').innerHTML =
+    '<svg width="100%" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="display:block">'
+    + grid + areas + lines + xLabels + hovers + '</svg>';
+  if (_ingestMode === 'sources') {
+    document.getElementById('ingest-legend').innerHTML = sources.map(function(s){
+      return '<span style="display:flex;align-items:center;gap:5px"><span style="width:18px;height:2px;background:' + srcColor[s] + ';display:inline-block;border-radius:1px"></span>' + s + '</span>';
+    }).join('');
+  } else {
+    document.getElementById('ingest-legend').innerHTML = '';
+  }
+}
+
 function badge(c){return `<span class="badge badge-${c}">${c}</span>`;}
 function sc(v){if(v===null||v===undefined||v==='')return'<td>—</td>';
   const n=Number(v);return`<td class="${n>0?'pos':n<0?'neg':''}">${v}</td>`;}
-let prevScored = null;
 
-async function refresh(){
-  const [stats, log] = await Promise.all([
-    fetch('/api/stats').then(r=>r.json()),
-    fetch('/api/log').then(r=>r.text()),
-  ]);
+function refresh(stats, log){
+  if (stats === undefined) { stats = _STATS; log = _LOG; }
 
   document.getElementById('cards').innerHTML = `
     <div class="card total"><div class="num">${stats.total.toLocaleString()}</div><div class="label">Total</div></div>
@@ -351,9 +568,6 @@ async function refresh(){
 
   document.getElementById('bar').style.width = stats.pct + '%';
   document.getElementById('pct-text').textContent = stats.pct + '% complete (' + stats.scored.toLocaleString() + ' / ' + stats.total.toLocaleString() + ')';
-
-  const rate = prevScored !== null ? stats.scored - prevScored : null;
-  prevScored = stats.scored;
 
   const active = stats.scoring_active;
   const rateStr = stats.rate_5min > 0 ? ` · ${stats.rate_5min} scored in last 5 min (~${(stats.rate_5min/5).toFixed(1)}/min)` : '';
@@ -470,78 +684,9 @@ async function refresh(){
     </svg>`;
   })();
 
-  // Daily ingestion stacked bar chart
-  (function() {
-    const raw = stats.daily_ingest || [];
-    if (!raw.length) { document.getElementById('ingest-chart').textContent = 'No data yet'; return; }
-
-    // Collect all days and sources
-    const daySet = new Set(), srcSet = new Set();
-    raw.forEach(r => { daySet.add(r.day); srcSet.add(r.source); });
-    const days = [...daySet].sort();
-    const sources = [...srcSet].sort();
-
-    // Colour palette per source
-    const palette = ['#7F77DD','#1D9E75','#EF9F27','#378ADD','#D85A30','#5DCAA5','#D4537E','#E24B4A'];
-    const srcColor = Object.fromEntries(sources.map((s,i) => [s, palette[i % palette.length]]));
-
-    // Build lookup: day -> source -> n
-    const lookup = {};
-    raw.forEach(r => { (lookup[r.day] = lookup[r.day] || {})[r.source] = r.n; });
-
-    // Day totals for Y scale
-    const totals = days.map(d => sources.reduce((s,src) => s + (lookup[d]?.[src] || 0), 0));
-    const maxTotal = Math.max(...totals, 1);
-
-    const W = document.getElementById('ingest-chart').clientWidth || 900;
-    const H = 120, pad = {t:8, r:8, b:28, l:48};
-    const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
-    const barW = Math.max(1, cw / days.length - 1);
-
-    // Build stacked bars
-    let bars = '';
-    days.forEach((day, i) => {
-      const x = pad.l + i * (cw / days.length);
-      let yBase = pad.t + ch;
-      sources.forEach(src => {
-        const n = lookup[day]?.[src] || 0;
-        if (!n) return;
-        const bh = Math.max(1, (n / maxTotal) * ch);
-        yBase -= bh;
-        bars += `<rect x="${x.toFixed(1)}" y="${yBase.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}"
-          fill="${srcColor[src]}" opacity="0.85">
-          <title>${day} · ${src}: ${n.toLocaleString()}</title></rect>`;
-      });
-    });
-
-    // X-axis labels every 7 days
-    let xLabels = '';
-    days.forEach((day, i) => {
-      if (i % 7 === 0 || i === days.length - 1) {
-        const x = pad.l + i * (cw / days.length) + barW / 2;
-        xLabels += `<text x="${x.toFixed(1)}" y="${H - 6}" fill="#4b5563" font-size="9" text-anchor="middle">${day.slice(5)}</text>`;
-      }
-    });
-
-    // Y-axis labels
-    const yLabels = [0, Math.round(maxTotal / 2), maxTotal].map(v => {
-      const y = pad.t + ch - (v / maxTotal) * ch;
-      return `<text x="${pad.l - 4}" y="${y.toFixed(1)}" fill="#4b5563" font-size="9" text-anchor="end" dominant-baseline="middle">${v.toLocaleString()}</text>`;
-    }).join('');
-
-    document.getElementById('ingest-chart').innerHTML =
-      `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="display:block">
-        <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ch}" stroke="#1f2937" stroke-width="1"/>
-        <line x1="${pad.l}" y1="${pad.t+ch}" x2="${pad.l+cw}" y2="${pad.t+ch}" stroke="#1f2937" stroke-width="1"/>
-        ${yLabels}${bars}${xLabels}
-      </svg>`;
-
-    document.getElementById('ingest-legend').innerHTML = sources.map(s =>
-      `<span style="display:flex;align-items:center;gap:4px">
-        <span style="width:10px;height:10px;border-radius:2px;background:${srcColor[s]};display:inline-block"></span>${s}
-      </span>`
-    ).join('');
-  })();
+  // Daily ingestion line chart
+  _ingestRaw = stats.daily_ingest || [];
+  renderIngest();
 
   const providerColors = {gemini:'bar-gemini',groq:'bar-groq',deepseek:'bar-deepseek',mistral:'bar-mistral',unknown:'bar-unknown'};
   const maxProv = Math.max(...stats.by_provider.map(r=>r.n), 1);
@@ -574,14 +719,156 @@ async function refresh(){
      <td>${r.scorer_version||'—'}</td><td>${(r.scored_at||'').slice(0,16)}</td></tr>`
   ).join('');
 
+  // ---- STATISTICS SECTION ----
+
+  // Shared: score cell with green/red tint
+  function scCell(v) {
+    if (v === null || v === undefined) return '<td style="color:#4b5563">—</td>';
+    var n = parseFloat(v);
+    if (isNaN(n)) return '<td style="color:#4b5563">—</td>';
+    var s;
+    if (n >= 1)       s = 'background:rgba(29,158,117,' + Math.min(0.45, n/10*0.4+0.06).toFixed(2) + ');color:#1D9E75';
+    else if (n <= -1) s = 'background:rgba(248,113,113,' + Math.min(0.45, Math.abs(n)/10*0.4+0.06).toFixed(2) + ');color:#f87171';
+    else              s = 'color:#6b7280';
+    return '<td style="' + s + '">' + (n >= 0 ? '+' : '') + n.toFixed(2) + '</td>';
+  }
+
+  // Stat 1: Score drift line chart
+  ;(function() {
+    var raw = stats.score_drift || [];
+    var el = document.getElementById('drift-chart');
+    if (!el) return;
+    if (!raw.length) { el.textContent = 'No data'; return; }
+    var dims = [
+      {key:'social', label:'Social',  color:'#1D9E75'},
+      {key:'env',    label:'Env',     color:'#38bdf8'},
+      {key:'econ',   label:'Econ',    color:'#EF9F27'},
+      {key:'hr',     label:'Rights',  color:'#818cf8'},
+      {key:'gov',    label:'Gov',     color:'#94a3b8'}
+    ];
+    var years = raw.map(function(r){ return r.year; });
+    var allVals = [];
+    dims.forEach(function(d){ raw.forEach(function(r){ if (r[d.key] !== null) allVals.push(parseFloat(r[d.key])); }); });
+    var yMin = allVals.length ? Math.floor(Math.min.apply(null, allVals.concat([-0.5]))) : -2;
+    var yMax = allVals.length ? Math.ceil(Math.max.apply(null,  allVals.concat([0.5])))  : 3;
+    var W = el.clientWidth || 900;
+    var H = 200, pad = {t:16, r:8, b:28, l:42};
+    var cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+    var xOf = function(i){ return pad.l + (years.length > 1 ? i * cw / (years.length - 1) : cw / 2); };
+    var yOf = function(v){ return pad.t + ch - ((v - yMin) / (yMax - yMin)) * ch; };
+    // Grid ticks
+    var range = yMax - yMin;
+    var niceStep = range <= 4 ? 1 : range <= 8 ? 2 : 5;
+    var gridTicks = [];
+    for (var gv = Math.floor(yMin / niceStep) * niceStep; gv <= yMax + niceStep * 0.001; gv = Math.round((gv + niceStep) * 100) / 100) {
+      gridTicks.push(gv);
+    }
+    if (yMin <= 0 && 0 <= yMax && gridTicks.indexOf(0) < 0) { gridTicks.push(0); gridTicks.sort(function(a,b){ return a-b; }); }
+    var grid = gridTicks.map(function(gv){
+      var gy = yOf(gv).toFixed(1);
+      return '<line x1="' + pad.l + '" y1="' + gy + '" x2="' + (pad.l+cw) + '" y2="' + gy
+           + '" stroke="' + (gv === 0 ? '#374151' : '#1f2937') + '" stroke-width="' + (gv === 0 ? 2 : 1) + '"/>'
+           + '<text x="' + (pad.l-4) + '" y="' + gy + '" fill="' + (gv === 0 ? '#9ca3af' : '#4b5563')
+           + '" font-size="9" text-anchor="end" dominant-baseline="middle">' + (gv > 0 ? '+' : '') + gv + '</text>';
+    }).join('');
+    // Lines + dots
+    var linesSvg = dims.map(function(d){
+      var pts = [];
+      raw.forEach(function(r, i){ if (r[d.key] !== null) pts.push([xOf(i), yOf(parseFloat(r[d.key])), r]); });
+      if (!pts.length) return '';
+      var poly = pts.map(function(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+      var dots = pts.map(function(p){
+        var val = parseFloat(p[2][d.key]);
+        return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3" fill="' + d.color + '">'
+          + '<title>' + p[2].year + ' ' + d.label + ': ' + (val >= 0 ? '+' : '') + val.toFixed(2) + ' (n=' + p[2].n.toLocaleString() + ')</title></circle>';
+      }).join('');
+      return '<polyline points="' + poly + '" fill="none" stroke="' + d.color + '" stroke-width="1.5" stroke-linejoin="round"/>' + dots;
+    }).join('');
+    // X labels
+    var xLabels = years.map(function(yr, i){
+      if (years.length > 12 && i % 2 !== 0 && i !== years.length - 1) return '';
+      return '<text x="' + xOf(i).toFixed(1) + '" y="' + (H-6) + '" fill="#4b5563" font-size="9" text-anchor="middle">' + yr + '</text>';
+    }).join('');
+    el.innerHTML = '<svg width="100%" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="display:block">' + grid + linesSvg + xLabels + '</svg>';
+    document.getElementById('drift-legend').innerHTML = dims.map(function(d){
+      return '<span style="display:flex;align-items:center;gap:5px"><span style="width:18px;height:2px;background:' + d.color + ';display:inline-block;border-radius:1px"></span>' + d.label + '</span>';
+    }).join('');
+  })();
+
+  // Stat 2: Country comparison table
+  ;(function() {
+    var tbody = document.querySelector('#country-cmp-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = (stats.country_cmp || []).map(function(r){
+      return '<tr><td class="bright">' + (r.country || '—') + '</td><td>' + r.total.toLocaleString() + '</td>'
+        + scCell(r.social) + scCell(r.env) + scCell(r.econ) + scCell(r.hr) + scCell(r.gov) + '</tr>';
+    }).join('');
+  })();
+
+  // Stat 3: Score by status
+  ;(function() {
+    var tbody = document.querySelector('#status-cmp-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = (stats.status_cmp || []).map(function(r){
+      return '<tr><td class="bright">' + (r.status || '—') + '</td><td>' + r.total.toLocaleString() + '</td>'
+        + scCell(r.social) + scCell(r.env) + scCell(r.econ) + scCell(r.hr) + scCell(r.gov) + '</tr>';
+    }).join('');
+  })();
+
+  // Stat 4: Highest impact tags
+  ;(function() {
+    var tbody = document.querySelector('#tags-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = (stats.top_tags || []).map(function(r){
+      var s = parseFloat(r.avg_signed);
+      var lean = s > 0.2
+        ? '<span style="color:#1D9E75">&#9650; +' + Math.abs(s).toFixed(2) + '</span>'
+        : s < -0.2
+          ? '<span style="color:#f87171">&#9660; ' + s.toFixed(2) + '</span>'
+          : '<span style="color:#4b5563">~ ' + s.toFixed(2) + '</span>';
+      return '<tr><td class="bright">' + r.tag + '</td><td>' + r.n + '</td>'
+        + '<td>' + parseFloat(r.avg_abs).toFixed(2) + '</td><td>' + lean + '</td></tr>';
+    }).join('');
+  })();
+
+  // Stat 5: Best and worst months
+  ;(function() {
+    function chip(label, data, posColor) {
+      var inner = data
+        ? '<div style="font-size:20px;font-weight:500;color:' + posColor + '">' + data.month + '</div>'
+          + '<div style="font-size:11px;color:' + posColor + ';margin-top:4px">avg '
+          + (parseFloat(data.avg_score) >= 0 ? '+' : '') + parseFloat(data.avg_score).toFixed(1) + '</div>'
+          + '<div style="font-size:10px;color:#4b5563;margin-top:2px">' + parseInt(data.n).toLocaleString() + ' items</div>'
+        : '<div style="font-size:20px;font-weight:500;color:#4b5563">—</div>';
+      return '<div style="background:#0a0e18;border:1px solid #1f2937;border-radius:8px;padding:14px 20px;min-width:130px">'
+        + '<div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#4b5563;margin-bottom:8px">' + label + '</div>'
+        + inner + '</div>';
+    }
+    var el = document.getElementById('months-chips');
+    if (el) el.innerHTML = chip('Best Month', stats.best_month, '#1D9E75') + chip('Worst Month', stats.worst_month, '#f87171');
+  })();
+
   const logEl = document.getElementById('log');
   const atBottom = logEl.scrollHeight - logEl.scrollTop <= logEl.clientHeight + 40;
   logEl.textContent = log;
   if(atBottom) logEl.scrollTop = logEl.scrollHeight;
 }
 
-refresh();
-setInterval(refresh, 5000);
+try { refresh(); } catch(e) { document.getElementById('log').textContent = 'JS ERROR: ' + e.message + '\\n' + e.stack; }
+
+async function ajaxRefresh() {
+  try {
+    const [sr, lr] = await Promise.all([
+      fetch('/api/stats', {credentials: 'same-origin'}),
+      fetch('/api/log',   {credentials: 'same-origin'}),
+    ]);
+    if (sr.status === 401) { location.reload(); return; }
+    if (!sr.ok) return;
+    const [stats, log] = await Promise.all([sr.json(), lr.text()]);
+    try { refresh(stats, log); } catch(_) {}
+  } catch(_) {}
+}
+setInterval(ajaxRefresh, 10000);
 </script>
 </body>
 </html>"""
@@ -595,6 +882,7 @@ def login():
         u = request.form.get("username", "")
         p = request.form.get("password", "")
         if u == USERNAME and check_password_hash(PASSWORD_HASH, p):
+            session.permanent = True
             session["user"] = USERNAME
             return redirect(url_for("index"))
         error = "Invalid username or password."
@@ -611,21 +899,29 @@ def logout():
 def index():
     if not logged_in():
         return redirect(url_for("login"))
-    return MAIN_HTML
+    stats     = get_stats()
+    log       = tail_log()
+    stats_js  = json.dumps(stats).replace("</", "<\\/")
+    log_js    = json.dumps(log)          # produces a quoted, escaped JS string literal
+    html      = MAIN_HTML.replace('"__STATS_JSON__"', stats_js)
+    html      = html.replace('"__LOG_TEXT__"',   log_js)
+    return html
 
 
 @app.route("/api/stats")
 def api_stats():
     if not logged_in():
         return jsonify({"error": "unauthorized"}), 401
-    return jsonify(get_stats())
+    resp = jsonify(get_stats())
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 @app.route("/api/log")
 def api_log():
     if not logged_in():
         return "unauthorized", 401
-    return tail_log(), 200, {"Content-Type": "text/plain"}
+    return tail_log(), 200, {"Content-Type": "text/plain", "Cache-Control": "no-store"}
 
 
 if __name__ == "__main__":
